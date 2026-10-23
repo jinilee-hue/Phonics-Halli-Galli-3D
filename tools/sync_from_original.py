@@ -25,9 +25,9 @@ HEAD_ADD = ('<link rel="stylesheet" href="./gl/board3d.css?v=1" />\n'
 INTRO_ADD = '<script src="./gl/intro-mg.js?v=1"></script>\n'
 BODY_ADD = ('<!-- 3D 판 (WebGL): three.js + 판 그림 + 판 그리기. 게임 규칙 · 소리 · 글자는 위 원래 스크립트 그대로 -->\n'
             '<script src="./vendor/three/three.iife.js"></script>\n'
-            '<script src="./src/gl-tex.js"></script>\n'
+            '<script src="./src/gl-tex.js?v=2"></script>\n'
             '<script src="./gl/board3d.js?v=1"></script>\n'
-            '<script src="./gl/bell3d.js?v=1"></script>\n'
+            '<script src="./gl/bell3d.js?v=2"></script>\n'
             '<script src="./gl/coco3d.js?v=1"></script>\n'
             '<script src="./gl/view360.js?v=2"></script>\n')
 TITLE = ('<title>Phonics Halli Galli — Coco</title>', '<title>Phonics Halli Galli 3D — Coco</title>')

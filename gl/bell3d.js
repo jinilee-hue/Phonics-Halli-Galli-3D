@@ -40,11 +40,12 @@ const lathe = (pts, n, seg, a0, len) => new T.LatheGeometry(smoothPts(pts, n), s
 
 /* ── 재질: 원래 그림과 화면 색을 재서 맞춤 (그림 노랑 밝은 곳 #ffeb5a · 중간 #f2cc3b)
    탁자는 원래 CSS 색에 맞춰 빛을 정해서, 종은 밝기 압축(tone mapping)을 빼고 은은한 자체 밝기(emissive)로 그늘을 띄움 ── */
-const yellow = new T.MeshPhysicalMaterial({ color: new T.Color('#ffd84a'), emissive: new T.Color('#6e5800'), roughness: .3,
-  clearcoat: .3, clearcoatRoughness: .22, envMapIntensity: 2.2, toneMapped: false });
-const red = new T.MeshPhysicalMaterial({ color: new T.Color('#de4a42'), emissive: new T.Color('#5a1612'), roughness: .42,
-  clearcoat: .3, clearcoatRoughness: .4, envMapIntensity: 1.6, toneMapped: false });
-const chrome = new T.MeshStandardMaterial({ color: new T.Color('#e2e3e8'), metalness: 1, roughness: .2, envMapIntensity: 1.4 });
+// 광택: Coco(gl/coco3d.js 분홍)처럼 은은하게 — 반짝임은 줄이고 색은 그대로 (사용자 요청: "핑크 종처럼 너무 광택 나지 않게")
+const yellow = new T.MeshPhysicalMaterial({ color: new T.Color('#ffd84a'), emissive: new T.Color('#6e5800'), roughness: .55,
+  clearcoat: .12, clearcoatRoughness: .5, envMapIntensity: 2.2, toneMapped: false });
+const red = new T.MeshPhysicalMaterial({ color: new T.Color('#de4a42'), emissive: new T.Color('#5a1612'), roughness: .6,
+  clearcoat: .1, clearcoatRoughness: .55, envMapIntensity: 1.6, toneMapped: false });
+const chrome = new T.MeshStandardMaterial({ color: new T.Color('#e2e3e8'), metalness: 1, roughness: .32, envMapIntensity: 1.4 });
 
 /* ── 얼굴 그림 (캔버스) ── */
 const fc = document.createElement('canvas');
@@ -108,7 +109,7 @@ function drawFace(eyes, mouth) {
   faceTex.needsUpdate = true;
   return true;
 }
-const faceMat = new T.MeshStandardMaterial({ map: faceTex, transparent: true, depthWrite: false, roughness: .32,
+const faceMat = new T.MeshStandardMaterial({ map: faceTex, transparent: true, depthWrite: false, roughness: .5,   // 몸통처럼 은은하게 (Coco 얼굴과 같은 값)
   emissive: new T.Color('#ffffff'), emissiveMap: faceTex, emissiveIntensity: .32, envMapIntensity: 2.2, toneMapped: false,
   polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -4 });
 const eyeMat = faceMat.clone();
@@ -127,10 +128,24 @@ pivot.add(root); root.add(tumble); tumble.add(tumbleIn); tumbleIn.add(turn);
 const upper = new T.Group();           // 받침 위 (눌리면 납작 · 숨쉬기 · 갸웃)
 upper.position.y = LIP_Y;
 const plunger = new T.Group();         // 목 · 꼭지 (누르면 쑥)
-const mesh = (geo, mat, y0) => { const m = new T.Mesh(geo, mat); m.castShadow = m.receiveShadow = true; if (y0) geo.translate(0, -y0, 0); return m; };
+// 그림자: 탁자에 드리우기만 하고 제 몸엔 받지 않아요 — 판 전체를 덮는 그림자 지도라 작은 종 위에선 칸이 굵어서,
+// 노란 몸통 테가 빨간 받침에 드리운 그림자가 얼룩덜룩 깨져 보였어요 (몸의 입체감은 빛 · 주변 반사로 충분)
+const mesh = (geo, mat, y0) => { const m = new T.Mesh(geo, mat); m.castShadow = true; m.receiveShadow = false; if (y0) geo.translate(0, -y0, 0); return m; };
 // 촘촘함: 태블릿도 가볍게 (종 전체 삼각형 약 3만 개 · 그림자 포함 두 번 그림)
 const SEG = 72;
 const base = mesh(lathe(BASE, 56, SEG), red);
+// 노란 몸통 테 바로 밑 빨간 받침 윗면: 살짝 어둡게 미리 칠한 그늘 (제 몸 그림자를 끈 대신 — 얼룩 없이 맞닿은 깊이만)
+{
+  const g = base.geometry, pos = g.attributes.position, col = new Float32Array(pos.count * 3);
+  const sm = u => { u = Math.max(0, Math.min(1, u)); return u * u * (3 - 2 * u); };
+  for (let i = 0; i < pos.count; i++) {
+    const r = Math.hypot(pos.getX(i), pos.getZ(i)), y = pos.getY(i);
+    const v = 1 - .26 * sm((y - .28) / .08) * (1 - sm((r - .86) / .1));   // 윗면 쪽 · 테(반지름 .86)에 가까울수록
+    col[i * 3] = col[i * 3 + 1] = col[i * 3 + 2] = v;
+  }
+  g.setAttribute('color', new T.BufferAttribute(col, 3));
+  red.vertexColors = true;
+}
 const bodyPts = smoothPts(BODY, 110);
 const body = mesh(new T.LatheGeometry(bodyPts, SEG), yellow, LIP_Y);
 const stem = mesh(lathe(STEM, 26, 32), chrome, LIP_Y);
@@ -140,10 +155,10 @@ const domePts = bodyPts.filter(v => v.y >= BODY[DOME_FROM - 1][1]);
 const faceGeo = new T.LatheGeometry(domePts, SEG / 2, -Math.PI * .5, Math.PI);
 faceGeo.translate(0, -LIP_Y, 0);
 const face = new T.Mesh(faceGeo, faceMat);
-face.receiveShadow = true;
+face.receiveShadow = false;
 face.renderOrder = 2;
 const eyesMesh = new T.Mesh(faceGeo, eyeMat);       // 같은 겉면 · 같은 UV, 그림만 눈
-eyesMesh.receiveShadow = true;
+eyesMesh.receiveShadow = false;
 eyesMesh.renderOrder = 3;
 plunger.add(stem, knob);
 upper.add(body, face, eyesMesh, plunger);
@@ -324,7 +339,8 @@ if (typeof place0 === 'function') {
 
 // 확인용: Bell3D.tune({ FACE_Y, FACE_K, BACK, SIZE })
 window.Bell3D = { root, upper, turn, tumble, face, faceTex, fc, screenRect, look, get spin() { return spin; }, get flip() { return flip; },
-  baseOffset: () => (FOOT + .975) * unit,      // 원래 종 발 자리(받침 앞 모서리) → 받침 가운데까지 (판 좌표 px, 먼 쪽으로) mats: { yellow, red, chrome, faceMat, eyeMat },
+  mats: { yellow, red, chrome, faceMat, eyeMat }, eyesMesh,
+  baseOffset: () => (FOOT + .975) * unit,      // 원래 종 발 자리(받침 앞 모서리) → 받침 가운데까지 (판 좌표 px, 먼 쪽으로)
   tune(o) { if (o.FACE_Y != null) FACE_Y = o.FACE_Y; if (o.FACE_K != null) FACE_K = o.FACE_K; if (o.SIZE != null) SIZE = o.SIZE;
     if (o.VIEW != null) VIEW = o.VIEW; if (o.FOOT != null) FOOT = o.FOOT; uvKey = ''; B.kick(); } };
 })();
