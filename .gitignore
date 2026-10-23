@@ -1,0 +1,6 @@
+.DS_Store
+~$*
+__pycache__/
+.vite/
+node_modules/
+*.log

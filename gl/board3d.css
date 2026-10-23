@@ -1,0 +1,23 @@
+/* 3D 판(gl/board3d.js)이 켜지면 붙는 스타일
+   HTML 판의 탁자 · 나/Coco 칸 · S 칸 · 카드는 자리 계산용으로 그대로 두되 안 보이게 하고, 3D가 같은 자리에 그려요.
+   종 · Coco · 글자 · 버튼 · 말풍선은 HTML 그대로 3D 위에 보여요.
+   (WebGL을 못 쓰는 기기에는 .gl-on이 안 붙어서 원래 HTML 판이 그대로 보여요) */
+.gl-board{ position:absolute; inset:0; width:100%; height:100%; display:block; pointer-events:none; }
+.app.gl-on .table, .app.gl-on .felt{ background:transparent; box-shadow:none; }
+.app.gl-on .tray, .app.gl-on .slot, .app.gl-on .spot{ visibility:hidden; }
+.app.gl-on .tray.turn::after{ visibility:visible; }     /* 내 차례 흰 점선은 HTML 그대로 (숨 쉬듯 밝아졌다 사라짐) */
+body.gl-on .flyer{ opacity:0; }                         /* 칸으로 날아가는 S 대신 3D 카드가 직접 날아가요 */
+/* 3D 종이 준비되면(gl/bell3d.js) HTML 종 그림 · 그림자는 숨기고, 울릴 때 나오는 알록달록 물결만 HTML 그대로 */
+.app.bell3d-on .bell-spot, .app.bell3d-on .bell .bell-art, .app.bell3d-on .bell .bell-img{ visibility:hidden; }   /* .bell.faced .bell-art{visible}을 이김 */
+.app.bell3d-on .bell .bell-rings{ visibility:visible; }
+/* 3D Coco가 준비되면(gl/coco3d.js) HTML Coco는 숨김 — 자리 · 크기 · 몸짓 계산용으로만 남겨 둬요 (말풍선 자리도 여기서) */
+.app.coco3d-on .coco-spot, .app.coco3d-on .coco-spot *{ visibility:hidden !important; }
+/* 손 따라 움직이는 방 배경 (gl/board3d.js): .app 배경을 물려받아 조금 크게 깔고 살짝 옮겨요 */
+.gl-space{ position:absolute; inset:-3%; background:inherit; pointer-events:none; will-change:transform; }
+/* 360° 돌려 보기 (gl/view360.js): 판 위 빈 곳을 끌면 판이 돌아요 — 손가락 끌기 · 두 손가락 벌리기를 브라우저가 가져가지 않게 */
+.app.gl-on{ touch-action:none; cursor:grab; }
+.app.gl-on.dragging{ cursor:grabbing; }
+.app.gl-on .intro, .app.gl-on .verdict{ cursor:auto; }
+#btnView .ic-front{ display:none; }
+#btnView.turned .ic-360{ display:none; }
+#btnView.turned .ic-front{ display:block; }

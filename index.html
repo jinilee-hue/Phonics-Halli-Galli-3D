@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+<title>Phonics Halli Galli 3D — Coco</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Jua&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="./src/style.css?v=2" />
+<link rel="stylesheet" href="./src/upgrade.css?v=4" />
+<link rel="stylesheet" href="./gl/board3d.css?v=1" />
+</head>
+<body>
+<div class="app intro-on" id="app" data-screen="title">
+  <div class="scene">
+    <div class="orbit orbit-back" aria-hidden="true"></div>
+    <div class="table" id="table">
+      <div class="felt">
+        <section class="on tray p1" id="t0">
+          <div class="label">Me</div>
+          <div class="well"><div class="deck"><i><img src="./assets/card/my_card.png" alt="" draggable="false"></i><i><img src="./assets/card/my_card.png" alt="" draggable="false"></i><i><img src="./assets/card/my_card.png" alt="" draggable="false"></i></div></div>
+        </section>
+        <div class="on slots p1" id="s0">
+          <div class="slot"><div class="token"><img src="./assets/card/my_s.png" alt="S" draggable="false"></div></div><div class="slot"><div class="token"><img src="./assets/card/my_s.png" alt="S" draggable="false"></div></div><div class="slot"><div class="token"><img src="./assets/card/my_s.png" alt="S" draggable="false"></div></div>
+          <div class="minus">-S</div>
+        </div>
+
+        <section class="on tray p2" id="t1">
+          <div class="label">Coco</div>
+          <div class="well"><div class="deck"><i><img src="./assets/card/coco_card.png?v=2" alt="" draggable="false"></i><i><img src="./assets/card/coco_card.png?v=2" alt="" draggable="false"></i><i><img src="./assets/card/coco_card.png?v=2" alt="" draggable="false"></i></div></div>
+        </section>
+        <div class="on slots p2" id="s1">
+          <div class="slot"><div class="token"><img src="./assets/card/coco_s.png" alt="S" draggable="false"></div></div><div class="slot"><div class="token"><img src="./assets/card/coco_s.png" alt="S" draggable="false"></div></div><div class="slot"><div class="token"><img src="./assets/card/coco_s.png" alt="S" draggable="false"></div></div>
+          <div class="minus">-S</div>
+        </div>
+
+        <div class="on coco-spot" id="cocoSpot">
+          <div class="c-shadow"></div>
+          <div class="coco" id="coco" data-look="bell" data-mood="idle">
+            <div class="c-body">
+              <span class="ear l"></span><span class="ear r"></span><span class="c-knob"></span>
+              <div class="c-face">
+                <i class="eye l"><b></b></i><i class="eye r"><b></b></i>
+                <u class="mouth"></u><s class="blush l"></s><s class="blush r"></s><em class="sweat"></em>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="on spot game-only" id="spot"><div class="hint"><b>CARD<br>ZONE</b></div></div>
+
+        <div class="on bell-spot">
+          <div class="bell-shadow"></div>
+          <div class="bell" id="bell">
+            <span class="waves"><b></b><b></b></span>
+            <span class="side l"></span><span class="side r"></span>
+            <img class="bell-img" src="./assets/bell.png" alt="" draggable="false" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button class="hit d" id="hit0" aria-label="내 카드 넘기기"><span class="tap-hand" aria-hidden="true"><i class="ripple"></i><img src="./assets/tap_hand.png?v=right" alt="" draggable="false" /></span></button>
+  <button class="hit" id="hitBell" aria-label="종 치기"></button>
+  <div class="title">
+    <div class="orbit orbit-front" aria-hidden="true"></div>
+    <h1 class="logo"><img src="./assets/bi.png" alt="Phonics Halli Galli" draggable="false" /></h1>
+    <button class="start" id="start" aria-label="START"><img src="./assets/start_btn.png" alt="" draggable="false" /></button>
+    <div class="level" role="group" aria-label="단계 선택">
+      <div class="row">
+        <button data-lv="1" aria-pressed="true">1단계<small>5세</small></button>
+        <button data-lv="2" aria-pressed="false">2단계<small>6세</small></button>
+        <button data-lv="3" aria-pressed="false">3단계<small>7세</small></button>
+      </div>
+    </div>
+  </div>
+
+  <button class="hit d replay" id="replay" aria-label="다시 듣기" disabled><img src="./assets/listening_btn.png?v=1" alt="" draggable="false"></button>
+  <div class="callout" id="callout"></div>
+  <div class="bubble" id="bubbleL"><img class="cloud" src="./assets/talk_left.png?v=1" alt="" draggable="false"><span></span></div>
+  <div class="bubble" id="bubbleR"><img class="cloud" src="./assets/talk_right.png?v=1" alt="" draggable="false"><span></span></div>
+  <header class="hud">
+    <div class="hud-l">
+      <img class="hud-logo" src="./assets/bi.png" alt="Phonics Halli Galli" draggable="false" />
+      <div class="level-pill" id="lvPill"></div>
+    </div>
+    <div class="hud-r">
+      <div class="hud-time" id="hudTime" aria-label="진행 시간"><span class="hud-clock" id="hudClock" aria-hidden="true"><img class="ck-still" src="./assets/time_icon.png" alt="" draggable="false"></span><b id="hudTimeNum">0:00</b></div>
+      <div class="vol" id="vol">
+        <button class="hud-btn" id="btnSound" aria-label="소리 크기" aria-expanded="false" aria-controls="volPanel" aria-pressed="false">
+          <svg class="ic-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5v5h3.5L12 19V5L7.5 9.5H4z"/><path d="M15.5 9a4 4 0 0 1 0 6"/><path d="M18.2 6.3a8 8 0 0 1 0 11.4"/></svg>
+          <svg class="ic-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5v5h3.5L12 19V5L7.5 9.5H4z"/><path d="M16 9.5l5 5M21 9.5l-5 5"/></svg>
+        </button>
+        <!-- 스피커를 누르면 아래로 펼쳐지는 세로 소리 크기 막대 (맨 아래 = 소리 끔) -->
+        <div class="vol-panel" id="volPanel" role="slider" tabindex="-1" aria-label="소리 크기" aria-orientation="vertical"
+             aria-valuemin="0" aria-valuemax="100" aria-valuenow="100">
+          <div class="vol-track"><i class="vol-fill"></i><b class="vol-thumb"></b></div>
+        </div>
+      </div>
+      <button class="hud-btn" id="btnExit" aria-label="나가기">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 4H6.5A1.5 1.5 0 0 0 5 5.5v13A1.5 1.5 0 0 0 6.5 20H13"/><path d="M10 12h10"/><path d="M16.5 8.5 20 12l-3.5 3.5"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- 결과: 왼쪽 승패 · 오른쪽 우리 반 순위 -->
+  <div class="verdict" id="verdict">
+    <div class="result">
+      <section class="r-card r-me" aria-labelledby="vTitle">
+        <p class="r-kicker" id="vKicker"></p>
+        <h2 id="vTitle"></h2>
+        <p class="r-sub" id="vSub"></p>
+        <div class="r-vs">
+          <div class="r-side p1" id="vSideMe"><b>나</b><span class="r-tokens" id="vMe"></span></div>
+          <span class="vs">VS</span>
+          <div class="r-side p2" id="vSideCoco"><span class="r-tokens" id="vCoco"></span><b>Coco</b></div>
+        </div>
+        <dl class="r-stats">
+          <div><dt>맞힌 종</dt><dd id="vHits"></dd></div>
+          <div><dt>평균 빠르기</dt><dd id="vRt"></dd></div>
+          <div><dt>실수</dt><dd id="vMiss"></dd></div>
+        </dl>
+        <button class="again" id="again">다시 하기</button>
+      </section>
+      <section class="r-card r-rank" aria-labelledby="rkTitle">
+        <header><h3 id="rkTitle">우리 반 순위</h3><span class="r-demo">예시 · 연동 전</span></header>
+        <div class="r-my"><span class="av">나</span><span class="lbl">나는 우리 반</span><b id="vRank"></b><span class="unit">등</span><small id="vOf"></small></div>
+        <div class="r-cols" aria-hidden="true"><span>순위</span><span></span><span>이름</span><span>모은 S</span><span>빠르기</span></div>
+        <ol class="r-list" id="vList"></ol>
+        <p class="r-rule">모은 S가 많은 순 · 같으면 빠른 순</p>
+      </section>
+    </div>
+  </div>
+
+  <!-- 인트로 영상: 처음 한 번 재생하고 시작 화면으로 -->
+  <div class="intro" id="intro">
+    <video id="introVideo" src="./assets/intro.mp4" playsinline preload="auto"></video>
+    <button class="intro-tap" id="introTap" aria-label="인트로 재생"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.6v12.8c0 .9 1 1.4 1.7.9l9.4-6.4c.6-.4.6-1.4 0-1.8L9.7 4.7C9 4.2 8 4.7 8 5.6z"/></svg></button>
+    <button class="intro-btn intro-skip" id="introSkip">SKIP</button>
+  </div>
+  <div class="rotate-msg">태블릿을 가로로 눕혀<br>두 사람 사이에 놓아주세요</div>
+</div>
+
+<!-- 일반 스크립트(모듈 아님): index.html을 더블클릭해 열어도(file://) 돌아가요 -->
+<script src="./src/words.js"></script>
+<script src="./src/cards.js?v=2"></script>
+<script src="./src/orbit.js"></script>
+<script src="./src/intro.js"></script>
+<script src="./src/result.js"></script>
+<script src="./src/bgm-data.js"></script>
+<script src="./src/bgm.js"></script>
+<script src="./src/bell-parts.js"></script>
+<script src="./src/bell-face.js"></script>
+<script src="./src/coco-parts.js"></script>
+<script src="./src/coco-face.js"></script>
+<script src="./src/voice-data.js?v=2"></script>
+<script src="./src/main.js?v=3"></script>
+<script src="./src/clock-parts.js"></script>
+<script src="./src/clock.js"></script>
+<!-- 3D 판 (WebGL): three.js + 판 그림 + 판 그리기. 게임 규칙 · 소리 · 글자는 위 원래 스크립트 그대로 -->
+<script src="./vendor/three/three.iife.js"></script>
+<script src="./src/gl-tex.js"></script>
+<script src="./gl/board3d.js?v=1"></script>
+<script src="./gl/bell3d.js?v=1"></script>
+<script src="./gl/coco3d.js?v=1"></script>
+<script src="./gl/view360.js?v=1"></script>
+</body>
+</html>
