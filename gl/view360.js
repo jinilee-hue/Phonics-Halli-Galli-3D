@@ -17,7 +17,7 @@ const A = B.api, app = document.getElementById('app');
 const felt = document.querySelector('.felt'), bellSpot = document.querySelector('.bell-spot'), cocoSpot = document.getElementById('cocoSpot');
 if (!felt) return;
 
-const V = { az: 0, el: 0, zoom: 1, vAz: 0, vEl: 0, anim: null };   // az · el: 도(°)
+const V = { az: 0, el: 0, zoom: 1, vAz: 0, vEl: 0, anim: null, origin: '' };   // az · el: 도(°) · origin: 돌리는 가운데를 따로 정할 때
 const TILT = 40;                                                  // 원래 탁자 기울기 (style.css .table rotateX)
 const EL_MIN = -TILT, EL_MAX = 42, Z_MIN = .72, Z_MAX = 1.55;     // 기울기 0°(바로 위에서) ~ 82°(탁자 높이, 옆에서)
 const EL_PX = 100;                                                // 화면 높이만큼 위아래로 끌면 100°
@@ -96,7 +96,7 @@ function apply() {
   const fit = !originTitle && V.el < 0 ? Math.cos(TILT * RAD) / Math.cos((TILT + V.el) * RAD) : 1;
   const css = `rotateX(${V.el.toFixed(3)}deg) rotateZ(${V.az.toFixed(3)}deg) scale(${(V.zoom * fit).toFixed(4)})`;
   if (css !== lastCss) {
-    felt.style.transformOrigin = originKey || origin().css;
+    felt.style.transformOrigin = V.origin || originKey || origin().css;   // V.origin: 인트로(gl/intro-mg.js)가 종 몸통 가운데로
     felt.style.transform = css;
     // 종 · Coco HTML 그림판은 판이 돈 만큼(좌우 · 위아래) 되돌려서 늘 원래 모습으로 (말풍선 · 시작 화면 카드 궤도 · 종 자리)
     // 되돌리는 축 = 3D 캐릭터가 서 있는 곳 (종: 받침 가운데, Coco: 발) → 3D와 같은 자리를 따라가요

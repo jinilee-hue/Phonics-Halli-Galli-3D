@@ -1,0 +1,20 @@
+/* 인트로 모션그래픽 (gl/intro-mg.js) — 영상 대신 시작 화면을 직접 움직여요 */
+.intro.mg{ background:none; }
+.intro.mg .intro-tap{ display:none; }
+.mg{ position:absolute; inset:0; overflow:hidden; pointer-events:none; }
+.mg-poster{ position:absolute; inset:0; background: #c9e4f5 url("../assets/intro_bg.png") center / cover no-repeat; transition: opacity .35s ease; }
+.mg-poster.out{ opacity:0; }
+.mg-cam{ position:absolute; inset:0; will-change:transform; }
+.mg-logo, .mg-start, .mg-hand{ position:absolute; display:block; max-width:none; user-select:none; -webkit-user-drag:none; will-change:transform; }
+.mg-logo{ transform-origin: 50% 80%; object-fit:contain; }
+.mg-start{ transform-origin: 50% 100%; opacity:0; }
+.mg-ring{ position:absolute; box-sizing:border-box; border-radius:999px; border:.8vh solid oklch(1 0 0 / .97); opacity:0;
+  box-shadow: 0 0 2.2vh .5vh oklch(0.84 0.12 355 / .9), inset 0 0 1.6vh oklch(0.92 0.07 355 / .9); will-change: transform, opacity; }
+.mg-arcs{ position:absolute; overflow:visible; }
+.mg-arcs path{ fill:none; stroke-width:4.4; stroke-linecap:round; opacity:0; transform-box: view-box; transform-origin: 50% 50%;
+  filter: drop-shadow(0 0 1.2px oklch(1 0 0 / .8)); }
+.mg-hand{ left:0; top:0; opacity:0; transform-origin: 38% 3%; filter: drop-shadow(0 1.6vh 2vh oklch(0.3 0.05 230 / .35)); }
+.mg-spark{ position:absolute; width:3.4vh; height:3.4vh; margin:-1.7vh 0 0 -1.7vh; fill:#fff; opacity:0;
+  filter: drop-shadow(0 0 .9vh oklch(1 0 0 / .9)); will-change: transform, opacity; }
+/* 모션 인트로에서 로고가 이미 나와 있었으니, 끝난 뒤 원래 로고가 다시 통통 튀어 들어오지 않게 */
+.app.mg-done .logo img{ animation:none !important; }

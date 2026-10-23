@@ -19,14 +19,17 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 ORIG = ROOT.parent / 'Phonics-Halli-Galli'
 
 # 3D 판을 켜는 줄 — 3D 쪽 파일을 더하면 여기만 고치고 이 스크립트를 다시 돌리면 돼요
-HEAD_ADD = '<link rel="stylesheet" href="./gl/board3d.css?v=1" />\n'
+HEAD_ADD = ('<link rel="stylesheet" href="./gl/board3d.css?v=1" />\n'
+            '<link rel="stylesheet" href="./gl/intro-mg.css?v=1" />\n')
+# 인트로 모션그래픽: 원래 intro.js 바로 뒤(main.js보다 앞)에 끼워서 playIntro를 바꿔 둬요
+INTRO_ADD = '<script src="./gl/intro-mg.js?v=1"></script>\n'
 BODY_ADD = ('<!-- 3D 판 (WebGL): three.js + 판 그림 + 판 그리기. 게임 규칙 · 소리 · 글자는 위 원래 스크립트 그대로 -->\n'
             '<script src="./vendor/three/three.iife.js"></script>\n'
             '<script src="./src/gl-tex.js"></script>\n'
             '<script src="./gl/board3d.js?v=1"></script>\n'
             '<script src="./gl/bell3d.js?v=1"></script>\n'
             '<script src="./gl/coco3d.js?v=1"></script>\n'
-            '<script src="./gl/view360.js?v=1"></script>\n')
+            '<script src="./gl/view360.js?v=2"></script>\n')
 TITLE = ('<title>Phonics Halli Galli — Coco</title>', '<title>Phonics Halli Galli 3D — Coco</title>')
 ASSET_DIRS = ['bell_parts', 'coco_parts', 'clock_parts', 'card_web']
 OWN_SRC = {'gl-tex.js'}            # 3D 폴더에만 있는 src 파일
@@ -75,6 +78,10 @@ def main():
     if not m or '</body>' not in html:
         sys.exit('원래 index.html에서 3D 줄을 끼울 자리(upgrade.css 링크 · </body>)를 못 찾았어요. 손으로 확인해 주세요.')
     html = html[:m.end()] + HEAD_ADD + html[m.end():]
+    m = re.search(r'<script[^>]*src/intro\.js[^>]*></script>\n', html)
+    if not m:
+        sys.exit('원래 index.html에서 src/intro.js 줄을 못 찾았어요(인트로 모션그래픽을 끼울 자리). 손으로 확인해 주세요.')
+    html = html[:m.end()] + INTRO_ADD + html[m.end():]
     html = html.replace('</body>', BODY_ADD + '</body>', 1)
     dst = ROOT / 'index.html'
     if not dst.exists() or dst.read_text(encoding='utf-8') != html:
