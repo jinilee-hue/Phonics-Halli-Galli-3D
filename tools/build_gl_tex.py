@@ -7,7 +7,8 @@
 - assets/card_web/*.webp  카드 앞면 그림 (그대로)
 - assets/card/my_card.png · coco_card.png  카드 뒷면 → 폭 512 webp
 - assets/card/my_s.png · coco_s.png  S 토큰 → 256 webp
-- assets/bell_parts 눈 · 입 · 볼  3D 종 얼굴 (눈 · 입은 그림 밖에 남은 원래 그림의 광택 · 그늘 자국을 지움 — clean_part)
+- assets/bell_parts 눈 · 입 · 볼  3D 종 얼굴 (눈 · 입은 그림 밖에 남은 원래 그림의 광택 · 그늘 자국을 지움 — clean_part,
+  색은 캐릭터 시트 JSON 팔레트로: 눈 · 입 #4A2B21 · 볼 #FF9999 — ink / tint)
 
 다시 만들기:  python3 tools/build_gl_tex.py   (카드 그림을 바꾸면 다시 돌리세요)
 """
@@ -43,6 +44,27 @@ def clean_part(path, lum_max=150, grow=5, feather=1.0):
     return im
 
 
+INK = (0x4A, 0x2B, 0x21)      # 캐릭터 시트 JSON: facial_eyes_and_mouth
+CHEEK = (0xFF, 0x99, 0x99)    # 캐릭터 시트 JSON: facial_cheeks
+
+
+def ink(im, lum0=70):
+    """갈색 그림을 INK 색으로 (흰 눈빛 · 가장자리 번짐은 밝기 그대로: 갈색(밝기 lum0) → INK, 흰색 → 흰색)"""
+    a = im.getchannel('A')
+    lum = im.convert('RGB').convert('L')
+    t = lum.point(lambda v: max(0, min(255, round((v - lum0) * 255 / (255 - lum0)))))
+    out = Image.composite(Image.new('RGB', im.size, (255, 255, 255)), Image.new('RGB', im.size, INK), t)
+    out.putalpha(a)
+    return out
+
+
+def tint(path, rgb):
+    im = Image.open(path).convert('RGBA')
+    out = Image.new('RGBA', im.size, rgb + (255,))
+    out.putalpha(im.getchannel('A'))
+    return out
+
+
 def webp(path, width, quality):
     im = path if isinstance(path, Image.Image) else Image.open(path).convert('RGBA')
     if im.width > width:
@@ -62,7 +84,7 @@ for name in ('my_s.png', 'coco_s.png'):
 # 3D 종 얼굴 조각 (gl/bell3d.js가 캔버스에 그려서 종 몸통에 입힘 — 원래 크기 그대로)
 for name in ('eye_l', 'eye_r', 'mouth', 'blush_l', 'blush_r'):
     src = A / 'bell_parts' / f'{name}.png'
-    out[f'bell_parts/{name}.png'] = webp(clean_part(src) if name in ('eye_l', 'eye_r', 'mouth') else src, 4096, 92)
+    out[f'bell_parts/{name}.png'] = webp(ink(clean_part(src)) if name in ('eye_l', 'eye_r', 'mouth') else tint(src, CHEEK), 4096, 92)
 # 3D Coco 얼굴: 얼굴 창(tools/build_coco_face.py) + 눈 · 눈동자 · 입 · 볼 조각
 out['coco_parts/face_base.webp'] = (A / 'coco_parts' / 'face_base.webp').read_bytes()
 for name in ('eye_l', 'eye_r', 'iris_l', 'iris_r', 'mouth', 'blush_l', 'blush_r'):

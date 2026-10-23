@@ -134,7 +134,7 @@ function measure() {
   const bw = (r => (r ? r.x1 - r.x0 : 30 * vh))(Bell3D.screenRect()) * 2.6;
   // 카메라 기준점 = 3D 종 몸통 가운데: 판 좌표(.felt 변형의 기준점, 높이 포함) · 화면 좌표(HTML 층 배율 기준점)
   const B = window.Board3D, T = B.THREE, A = B.api;
-  const p = new T.Vector3(0, .82, 0);
+  const p = new T.Vector3(0, Bell3D.DOME_C || .84, 0);
   Bell3D.root.updateMatrixWorld(true);
   Bell3D.root.localToWorld(p);
   const pb = p.clone().applyMatrix4(new T.Matrix4().copy(B.board.matrixWorld).invert());

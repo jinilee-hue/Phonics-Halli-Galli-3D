@@ -1,6 +1,7 @@
 /* ─────────────────────────────────────────────────────────────────────────────
-   가운데 종 3D (WebGL) — assets/bell.png 그림을 보고 만든 3D 모형
-   · 모양: 빨간 2단 받침 + 노란 몸통(아래 둥근 띠) + 은색 목 + 노란 꼭지 — 돌림판(단면을 한 바퀴 돌린) 모양
+   가운데 종 3D (WebGL) — 캐릭터 시트(GAME BELL) · gemini JSON 사양을 보고 만든 3D 모형
+   · 모양: 둥근 도넛 받침(빨강) + 아랫단이 퍼지는 반구 돔(노랑) + 회색 축 + 버섯 버튼 — 돌림판(단면을 한 바퀴 돌린) 모양
+   · 재질: 완전 무광 클레이 (roughness .85 · metallic 0), 경계는 검은 선 없이 미리 칠한 그늘(AO)로만
    · 얼굴: 원래 그림의 눈 · 입 · 볼 조각(assets/bell_parts)을 캔버스에 그려 몸통에 입힘.
            카메라 쪽에서 비춰 입혀서, 내려다봐도 얼굴은 그림처럼 반듯하게 보여요.
    · 표정 · 몸짓: src/bell-face.js가 정하는 대로 (#bell의 data-eyes · data-mouth, BellFace.press)
@@ -14,22 +15,32 @@ const bellEl = document.getElementById('bell'), spotEl = document.querySelector(
 if (!B || B.off || !P || !bellEl || !spotEl) return;
 const T = B.THREE, A = B.api, app = document.getElementById('app');
 
-/* ── 모양: 받침 반지름 = 1 (원래 그림 748px), 위쪽 = +Y, 앞(카메라 쪽) = +Z ── */
-const BASE = [[0, 0], [.93, 0], [.975, .012], [.997, .04], [1, .09], [.994, .14], [.976, .165], [.963, .18], [.958, .22],
-  [.95, .28], [.932, .33], [.9, .363], [.86, .383], [.81, .395], [.6, .4], [0, .4]];
-const BODY = [[0, .4], [.8, .4], [.836, .405], [.853, .425], [.859, .46], [.856, .51], [.846, .55], [.822, .575], [.79, .588],
-  [.768, .6], [.762, .62], [.757, .68], [.745, .74], [.722, .81], [.686, .88], [.635, .95], [.57, 1.01], [.49, 1.065],
-  [.4, 1.105], [.3, 1.135], [.2, 1.155], [.1, 1.165], [0, 1.168]];
-const DOME_FROM = 9;          // BODY에서 몸통(얼굴 입힐 곳)이 시작하는 점
-const STEM = [[0, 1.15], [.16, 1.15], [.172, 1.16], [.172, 1.185], [.16, 1.196], [.134, 1.2], [.128, 1.25], [.128, 1.29], [0, 1.29]];
-const KNOB = [[0, 1.28], [.12, 1.28], [.165, 1.29], [.188, 1.31], [.194, 1.335], [.186, 1.36], [.16, 1.378], [.1, 1.388], [0, 1.39]];
-const TOP_Y = 1.39, LIP_Y = .4;
-const FACE = { x0: 330, y0: 480, w: 840, h: 330, cx: 750, cy: 645, unit: 748 };   // 얼굴 그림 범위(원래 그림 픽셀)
+/* ── 모양: 캐릭터 시트(CHARACTER SHEET: GAME BELL) 옆모습 · 정면에서 잰 단면 — 받침 반지름 = 1, 바닥 가운데 = 원점, 위 = +Y, 앞(카메라 쪽) = +Z
+   · 받침(빨강): 곧은 옆 + 도넛처럼 둥근 위 테두리 + 넓고 살짝 오목한 윗면, 바닥은 오목한 접시 (높이 .30)
+   · 돔(노랑): 아랫단이 둥글게 퍼지는 반구 (테 바닥 .385 ~ 꼭대기 1.30). 받침에서 살짝 떠 있고 가운데 회색 기둥, 속은 비어 있음
+   · 축(회색): 원기둥 (1.30 ~ 1.42 보임) · 버튼(진한 노랑): 동글납작한 버섯 (1.42 ~ 1.55) — 누르면 같이 쑥
+   (시트의 d1 · d2 표시는 그림마다 달라서 그림 실루엣을 직접 재서 정했어요: /tmp/gl/hg/bell_sheet_profile.py) ── */
+// 받침: 옆은 거의 곧게 · 위 테두리는 둥글게(도넛) · 윗면은 넓고 평평(살짝 오목) — 시트 옆모습의 위쪽이 좁아 보이는 건 위에서 본 윗면이라서
+const BASE = [[0, .035], [.7, .035], [.76, .03], [.8, .014], [.84, 0], [.93, 0], [.972, .018], [.994, .055], [1, .1], [.997, .155],
+  [.986, .2], [.965, .243], [.932, .274], [.89, .292], [.84, .3], [.79, .301], [.74, .297], [.68, .29], [0, .29]];
+const BODY = [[0, .5], [.62, .5], [.74, .482], [.8, .448], [.835, .408], [.86, .389], [.885, .385], [.905, .393], [.918, .413],
+  [.922, .443], [.914, .474], [.893, .5], [.862, .52], [.835, .54], [.82, .565], [.815, .6], [.81, .65], [.8, .72], [.785, .8],
+  [.765, .87], [.74, .93], [.71, .99], [.675, 1.05], [.62, 1.11], [.55, 1.165], [.46, 1.215], [.35, 1.255], [.22, 1.285], [.1, 1.298],
+  [0, 1.3]];
+const FACE_FROM = .56;        // 이 높이부터 위가 몸통(얼굴 입힐 곳) — 아랫단 둥근 띠 위
+const STEM = [[0, 1.27], [.1, 1.27], [.106, 1.28], [.106, 1.405], [.1, 1.425], [0, 1.425]];                   // 금속 연결 축
+const KNOB = [[0, 1.405], [.11, 1.405], [.118, 1.415], [.125, 1.43], [.16, 1.438], [.19, 1.448], [.205, 1.465], [.207, 1.485],
+  [.198, 1.505], [.175, 1.525], [.135, 1.541], [.08, 1.55], [0, 1.553]];                                     // 꼭대기 누름 버튼
+const POST = [[0, .27], [.13, .27], [.136, .28], [.136, .51], [0, .51]];                                         // 돔을 받치는 회색 기둥
+const TOP_Y = 1.553, LIP_Y = .385, DOME_C = .84;   // 꼭대기 · 돔 테 바닥 · 돔 가운데 높이
+const FACE = { x0: 300, y0: 480, w: 900, h: 330, cx: 750, cy: 645, unit: 748 };   // 얼굴 그림 범위(원래 그림 픽셀) — 볼을 바깥으로 옮겨서 넓힘
+// 캐릭터 시트 정면처럼: 입은 눈 아래 끝 높이로(위로 23px) · 볼은 조금 바깥으로(25px) — 원래 그림 픽셀 단위 (시트 실측: 눈→입 .106 · 볼 ±.494)
+const MOUTH_DY = -23, BLUSH_DX = 25;
 // 얼굴 높이 · 크기, 크기, 보이는 각도 (확인하며 맞춘 값)
 // VIEW: 게임 카메라는 종 자리를 약 60° 위에서 내려다봐서, 똑바로 세우면 빨간 받침 뒤쪽이 종 뒤로 크게 보이고 위에서 본 모습이 돼요.
 // 원래 HTML 종(카메라를 향해 세운 그림)처럼, 받침 앞 모서리를 축으로 뒤로 젖혀서 VIEW° 위에서 본 모습(그림 각도)이 되게 해요.
 // 젖힌 만큼 받침 뒤쪽은 탁자 면 아래로 내려가지만, 탁자를 바닥 그림처럼 먼저 깔아서(board3d.js) 잘리지 않아요.
-let FACE_Y = .8, FACE_K = 1.12, SIZE = .96, VIEW = 28, FOOT = 0;
+let FACE_Y = .8, FACE_K = 1.02, SIZE = .96, VIEW = 28, FOOT = 0;
 
 const smoothPts = (pts, n) => {
   const c = new T.SplineCurve(pts.map(([r, y]) => new T.Vector2(r, y)));
@@ -40,12 +51,15 @@ const lathe = (pts, n, seg, a0, len) => new T.LatheGeometry(smoothPts(pts, n), s
 
 /* ── 재질: 원래 그림과 화면 색을 재서 맞춤 (그림 노랑 밝은 곳 #ffeb5a · 중간 #f2cc3b)
    탁자는 원래 CSS 색에 맞춰 빛을 정해서, 종은 밝기 압축(tone mapping)을 빼고 은은한 자체 밝기(emissive)로 그늘을 띄움 ── */
-// 광택: Coco(gl/coco3d.js 분홍)처럼 은은하게 — 반짝임은 줄이고 색은 그대로 (사용자 요청: "핑크 종처럼 너무 광택 나지 않게")
-const yellow = new T.MeshPhysicalMaterial({ color: new T.Color('#ffd84a'), emissive: new T.Color('#6e5800'), roughness: .55,
-  clearcoat: .12, clearcoatRoughness: .5, envMapIntensity: 2.2, toneMapped: false });
-const red = new T.MeshPhysicalMaterial({ color: new T.Color('#de4a42'), emissive: new T.Color('#5a1612'), roughness: .6,
-  clearcoat: .1, clearcoatRoughness: .55, envMapIntensity: 1.6, toneMapped: false });
-const chrome = new T.MeshStandardMaterial({ color: new T.Color('#e2e3e8'), metalness: 1, roughness: .32, envMapIntensity: 1.4 });
+// 재질: 캐릭터 시트 · gemini JSON — "Extreme Matte" 무광 클레이 (roughness .85 · metallic 0 · 반사 · 광택 거의 0)
+// 클레이의 뽀송한 결은 sheen(비스듬히 볼 때 은은히 밝아짐)으로, 색은 JSON 팔레트. 밝기는 게임 화면 빛에서 시트 색이 나오게 맞춤
+const clay = (hex, emi, sheenHex, more) => new T.MeshPhysicalMaterial(Object.assign({ color: new T.Color(hex), emissive: new T.Color(emi),
+  roughness: .85, metalness: 0, specularIntensity: .1, sheen: .3, sheenRoughness: .8, sheenColor: new T.Color(sheenHex),
+  envMapIntensity: 1, toneMapped: false, vertexColors: true }, more));
+const yellow = clay('#FFEB00', '#3c3000', '#fff27a');              // 돔
+const btnYellow = clay('#FFD400', '#3a2a00', '#ffe36a');           // 버튼
+const red = clay('#E02E35', '#2a0406', '#ff7a7e');                 // 받침
+const chrome = clay('#8A8A8A', '#2a2a2a', '#e0e0e0', { sheen: .2 });    // 금속 축 · 기둥 (무광 회색 — 시트처럼 조금 밝게)
 
 /* ── 얼굴 그림 (캔버스) ── */
 const fc = document.createElement('canvas');
@@ -72,19 +86,19 @@ let partsLeft = 0;
   partImg[n] = im;
 });
 // 새로 그리는 선: src/bell-face.js와 같은 모양 · 같은 굵기
-const ink = P.ink, sw = P.stroke * .92;
+const ink = '#4A2B21', sw = P.stroke * .92;                  // JSON 팔레트 (원래 그림 선 #5d4030보다 살짝 진함)
 const closedEye = (g, e) => { const half = (e.core[2] - e.core[0]) * .56, y = e.cy + 8;
   g.beginPath(); g.moveTo(e.cx - half, y); g.quadraticCurveTo(e.cx, y - 52, e.cx + half, y);
   g.lineWidth = sw; g.lineCap = 'round'; g.strokeStyle = ink; g.stroke(); };
 function happyPath(g) {
-  const mx = P.mouth.cx, my = P.mouth.cy;
+  const mx = P.mouth.cx, my = P.mouth.cy + MOUTH_DY;
   g.beginPath(); g.moveTo(mx - 60, my - 24); g.quadraticCurveTo(mx, my - 14, mx + 60, my - 24);
   g.quadraticCurveTo(mx + 54, my + 56, mx, my + 58); g.quadraticCurveTo(mx - 54, my + 56, mx - 60, my - 24); g.closePath();
 }
-function drawPart(g, name, s) {
+function drawPart(g, name, s, dx = 0, dy = 0) {
   const p = P[name], im = partImg[name];
   if (!im || !im.naturalWidth) return;
-  g.save(); g.translate(p.cx, p.cy); g.scale(s, s); g.drawImage(im, p.x - p.cx, p.y - p.cy, p.w, p.h); g.restore();
+  g.save(); g.translate(p.cx + dx, p.cy + dy); g.scale(s, s); g.drawImage(im, p.x - p.cx, p.y - p.cy, p.w, p.h); g.restore();
 }
 let faceKey = '';
 function drawFace(eyes, mouth) {
@@ -94,22 +108,22 @@ function drawFace(eyes, mouth) {
   const g = fg, k = fc.width / FACE.w;
   for (const c of [fg, eg]) { c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, fc.width, fc.height); c.setTransform(k, 0, 0, k, -FACE.x0 * k, -FACE.y0 * k); }   // 원래 그림 픽셀 좌표로
   const bs = mouth === 'happy' ? 1.12 : 1;                      // 활짝 웃으면 볼이 살짝 커짐
-  drawPart(g, 'blush_l', bs); drawPart(g, 'blush_r', bs);
-  g.globalAlpha = .55; drawPart(g, 'blush_l', bs); drawPart(g, 'blush_r', bs); g.globalAlpha = 1;   // 3D 몸통 위에선 볼이 옅어 보여서 한 번 더
+  drawPart(g, 'blush_l', bs, -BLUSH_DX); drawPart(g, 'blush_r', bs, BLUSH_DX);
+  g.globalAlpha = .55; drawPart(g, 'blush_l', bs, -BLUSH_DX); drawPart(g, 'blush_r', bs, BLUSH_DX); g.globalAlpha = 1;   // 3D 몸통 위에선 볼이 옅어 보여서 한 번 더
   const es = mouth === 'o' ? 1.12 : 1;                          // '앗' 하면 눈이 살짝 커짐
   if (eyes === 'closed') { closedEye(eg, P.eye_l); closedEye(eg, P.eye_r); }
   else { drawPart(eg, 'eye_l', es); if (eyes === 'wink') closedEye(eg, P.eye_r); else drawPart(eg, 'eye_r', es); }
   eyeTex.needsUpdate = true;
   if (mouth === 'happy') {
     g.save(); happyPath(g); g.fillStyle = ink; g.fill(); g.lineWidth = 14; g.lineJoin = 'round'; g.strokeStyle = ink; g.stroke();
-    happyPath(g); g.clip(); g.beginPath(); g.ellipse(P.mouth.cx, P.mouth.cy + 47, 36, 22, 0, 0, Math.PI * 2); g.fillStyle = '#EF8E9C'; g.fill(); g.restore();
+    happyPath(g); g.clip(); g.beginPath(); g.ellipse(P.mouth.cx, P.mouth.cy + MOUTH_DY + 47, 36, 22, 0, 0, Math.PI * 2); g.fillStyle = '#EF8E9C'; g.fill(); g.restore();
   } else if (mouth === 'o') {
-    g.beginPath(); g.ellipse(P.mouth.cx, P.mouth.cy + 12, 44, 54, 0, 0, Math.PI * 2); g.fillStyle = ink; g.fill();
-  } else drawPart(g, 'mouth', 1);
+    g.beginPath(); g.ellipse(P.mouth.cx, P.mouth.cy + MOUTH_DY + 12, 44, 54, 0, 0, Math.PI * 2); g.fillStyle = ink; g.fill();
+  } else drawPart(g, 'mouth', 1, 0, MOUTH_DY);
   faceTex.needsUpdate = true;
   return true;
 }
-const faceMat = new T.MeshStandardMaterial({ map: faceTex, transparent: true, depthWrite: false, roughness: .5,   // 몸통처럼 은은하게 (Coco 얼굴과 같은 값)
+const faceMat = new T.MeshStandardMaterial({ map: faceTex, transparent: true, depthWrite: false, roughness: .85,   // 몸통처럼 무광
   emissive: new T.Color('#ffffff'), emissiveMap: faceTex, emissiveIntensity: .32, envMapIntensity: 2.2, toneMapped: false,
   polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -4 });
 const eyeMat = faceMat.clone();
@@ -122,7 +136,7 @@ const root = new T.Group();            // 종 (+Y가 탁자 위쪽이 되게 눕
 root.rotation.x = Math.PI / 2;
 const turn = new T.Group();            // 한 바퀴 돌리기 (받침까지 통째로)
 const tumble = new T.Group(), tumbleIn = new T.Group();   // 위아래로 한 바퀴 (몸 가운데를 축으로 앞뒤 공중돌기)
-const HC = .66;                        // 몸 가운데 높이 (받침 반지름 = 1)
+const HC = .78;                        // 몸 가운데 높이 (받침 반지름 = 1, 종 전체 높이 1.55의 가운데)
 tumble.position.y = HC; tumbleIn.position.y = -HC;
 pivot.add(root); root.add(tumble); tumble.add(tumbleIn); tumbleIn.add(turn);
 const upper = new T.Group();           // 받침 위 (눌리면 납작 · 숨쉬기 · 갸웃)
@@ -133,25 +147,32 @@ const plunger = new T.Group();         // 목 · 꼭지 (누르면 쑥)
 const mesh = (geo, mat, y0) => { const m = new T.Mesh(geo, mat); m.castShadow = true; m.receiveShadow = false; if (y0) geo.translate(0, -y0, 0); return m; };
 // 촘촘함: 태블릿도 가볍게 (종 전체 삼각형 약 3만 개 · 그림자 포함 두 번 그림)
 const SEG = 72;
-const base = mesh(lathe(BASE, 56, SEG), red);
-// 노란 몸통 테 바로 밑 빨간 받침 윗면: 살짝 어둡게 미리 칠한 그늘 (제 몸 그림자를 끈 대신 — 얼룩 없이 맞닿은 깊이만)
-{
-  const g = base.geometry, pos = g.attributes.position, col = new Float32Array(pos.count * 3);
-  const sm = u => { u = Math.max(0, Math.min(1, u)); return u * u * (3 - 2 * u); };
+const base = mesh(lathe(BASE, 72, SEG), red);
+const bodyPts = smoothPts(BODY, 120);
+const body = mesh(new T.LatheGeometry(bodyPts, SEG), yellow, LIP_Y);
+const stem = mesh(lathe(STEM, 14, 32), chrome, LIP_Y);
+const knob = mesh(lathe(KNOB, 26, 48), btnYellow, LIP_Y);
+const post = mesh(lathe(POST, 8, 32), chrome, LIP_Y);
+// 그늘(AO)을 꼭짓점에 미리 칠함: 테두리에 검은 선 없이 맞닿은 곳 · 아랫면만 부드럽게 어둡게 (시트 "부드러운 음영과 AO로만 경계")
+const sm = u => { u = Math.max(0, Math.min(1, u)); return u * u * (3 - 2 * u); };
+function bakeAO(m, fn, y0 = 0) {
+  const g = m.geometry, pos = g.attributes.position, nor = g.attributes.normal, col = new Float32Array(pos.count * 3);
   for (let i = 0; i < pos.count; i++) {
-    const r = Math.hypot(pos.getX(i), pos.getZ(i)), y = pos.getY(i);
-    const v = 1 - .26 * sm((y - .28) / .08) * (1 - sm((r - .86) / .1));   // 윗면 쪽 · 테(반지름 .86)에 가까울수록
+    const v = fn(Math.hypot(pos.getX(i), pos.getZ(i)), pos.getY(i) + y0, nor.getY(i));
     col[i * 3] = col[i * 3 + 1] = col[i * 3 + 2] = v;
   }
   g.setAttribute('color', new T.BufferAttribute(col, 3));
-  red.vertexColors = true;
 }
-const bodyPts = smoothPts(BODY, 110);
-const body = mesh(new T.LatheGeometry(bodyPts, SEG), yellow, LIP_Y);
-const stem = mesh(lathe(STEM, 26, 32), chrome, LIP_Y);
-const knob = mesh(lathe(KNOB, 28, 40), yellow, LIP_Y);
+// 받침: 돔 밑(틈 속) 윗면은 그늘 · 돔 테 바로 바깥은 살짝 · 바닥 접시는 조금
+bakeAO(base, (r, y) => 1 - .42 * sm((y - .24) / .06) * (1 - sm((r - .84) / .09)) - .1 * sm((y - .27) / .05) * (1 - sm((r - .97) / .06))
+  - .14 * (1 - sm(y / .05)));
+// 돔: 속(아래를 보는 안쪽 면)은 어둡게 · 아랫단 밑면은 살짝
+bakeAO(body, (r, y, ny) => 1 - (r < .87 ? .5 : .16) * Math.max(0, -ny) - .1 * (1 - sm((y - .39) / .05)), LIP_Y);
+bakeAO(stem, (r, y) => .78 + .22 * Math.sin(Math.PI * Math.max(0, Math.min(1, (y - 1.29) / .12))), LIP_Y);   // 돔 · 버튼에 들어가는 양 끝은 그늘
+bakeAO(knob, (r, y, ny) => 1 - .3 * Math.max(0, -ny), LIP_Y);                                               // 버섯 갓 아랫면
+bakeAO(post, () => .55, LIP_Y);                                                                              // 돔 밑 그늘 속
 // 얼굴 입힐 겉면 = 몸통과 같은 곡선 · 같은 각도 칸(5°)의 앞쪽 반 → 몸통 겉면에 꼭 붙음
-const domePts = bodyPts.filter(v => v.y >= BODY[DOME_FROM - 1][1]);
+const domePts = bodyPts.filter(v => v.y >= FACE_FROM);
 const faceGeo = new T.LatheGeometry(domePts, SEG / 2, -Math.PI * .5, Math.PI);
 faceGeo.translate(0, -LIP_Y, 0);
 const face = new T.Mesh(faceGeo, faceMat);
@@ -161,7 +182,7 @@ const eyesMesh = new T.Mesh(faceGeo, eyeMat);       // 같은 겉면 · 같은 U
 eyesMesh.receiveShadow = false;
 eyesMesh.renderOrder = 3;
 plunger.add(stem, knob);
-upper.add(body, face, eyesMesh, plunger);
+upper.add(body, face, eyesMesh, plunger, post);
 turn.add(base, upper);
 root.visible = false;
 B.board.add(pivot);
@@ -339,7 +360,7 @@ if (typeof place0 === 'function') {
 
 // 확인용: Bell3D.tune({ FACE_Y, FACE_K, BACK, SIZE })
 window.Bell3D = { root, upper, turn, tumble, face, faceTex, fc, screenRect, look, get spin() { return spin; }, get flip() { return flip; },
-  mats: { yellow, red, chrome, faceMat, eyeMat }, eyesMesh,
+  mats: { yellow, btnYellow, red, chrome, faceMat, eyeMat }, eyesMesh, DOME_C,
   baseOffset: () => (FOOT + .975) * unit,      // 원래 종 발 자리(받침 앞 모서리) → 받침 가운데까지 (판 좌표 px, 먼 쪽으로)
   tune(o) { if (o.FACE_Y != null) FACE_Y = o.FACE_Y; if (o.FACE_K != null) FACE_K = o.FACE_K; if (o.SIZE != null) SIZE = o.SIZE;
     if (o.VIEW != null) VIEW = o.VIEW; if (o.FOOT != null) FOOT = o.FOOT; uvKey = ''; B.kick(); } };
