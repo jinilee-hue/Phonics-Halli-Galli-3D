@@ -2,12 +2,15 @@
 
 원래 게임(`../Phonics-Halli-Galli`)은 그대로 두고, **게임 판 · 종 · Coco를 WebGL(three.js) 3D로** 다시 그린 시제품이에요.
 
-- 저장소: https://github.com/jinilee-hue/Phonics-Halli-Galli-3D (비공개 · 원래 게임 저장소와 따로)
+- 공유 주소: **https://jinilee-hue.github.io/Phonics-Halli-Galli-3D/**
+  - main에 올리면 1~2분 뒤 바뀌어요. 파일을 10분 동안 저장해 두는 브라우저가 있어서, 바로 안 보이면 잠시 뒤 새로고침.
+- 저장소: https://github.com/jinilee-hue/Phonics-Halli-Galli-3D (공개 · 원래 게임 저장소와 따로)
 
 ## 여는 법
 - `실행.command` 더블클릭 → http://localhost:5182 (원래 게임 5181과 같이 켜 둘 수 있어요)
 - 또는 `index.html` 더블클릭 (그림을 코드 안에 넣어 둬서 서버 없이도 돌아가요)
-- 교실 태블릿에서: 맥과 같은 와이파이에 연결하고 `http://(맥 주소):5182/?fps` — 왼쪽 아래에 초당 장면 수 · 화질이 보여요
+- 교실 태블릿에서: https://jinilee-hue.github.io/Phonics-Halli-Galli-3D/?fps — 왼쪽 아래에 초당 장면 수 · 화질이 보여요
+  (맥과 같은 와이파이라면 `http://(맥 주소):5182/?fps`도 돼요)
 
 ## 무엇이 3D이고 무엇이 그대로인가
 | 3D (WebGL) | 원래 HTML 그대로 |
@@ -89,4 +92,3 @@
 ## 아직 안 한 것
 - 교실 태블릿 · 전자칠판 실제 기기에서 속도 확인 (`?fps`)
 - Coco 다리는 넓은 치마 테에 가려 통통 뛸 때만 살짝 보여요
-- 공유 주소(GitHub Pages) 없음 — 비공개 저장소라서. 링크로 보여 주려면 공개로 바꾸고 Pages를 켜야 해요
