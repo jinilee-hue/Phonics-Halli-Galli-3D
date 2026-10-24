@@ -1,0 +1,7 @@
+/* HUD 시계 색 (gl/clock-color.js가 #hudClock에 data-theme을 붙여요) — 그림자도 빨강 · 주황 기운 대신 테마 색으로 */
+.hud-time .hud-clock[data-theme="pink"]{ filter: drop-shadow(.2vh .5vh .55vh rgb(120 40 90 / .22)); }
+.hud-clock[data-theme="pink"] .ck-hands{ filter: drop-shadow(.15vh .3vh .22vh rgb(90 45 120 / .3)); }
+.hud-clock[data-theme="pink"] .ck-cap{ filter: drop-shadow(.08vh .16vh .12vh rgb(110 50 110 / .33)); }
+.hud-time .hud-clock[data-theme="purple"]{ filter: drop-shadow(.2vh .5vh .55vh rgb(70 40 130 / .22)); }
+.hud-clock[data-theme="purple"] .ck-hands{ filter: drop-shadow(.15vh .3vh .22vh rgb(80 40 130 / .3)); }
+.hud-clock[data-theme="purple"] .ck-cap{ filter: drop-shadow(.08vh .16vh .12vh rgb(80 45 130 / .33)); }

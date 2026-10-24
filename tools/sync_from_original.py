@@ -22,11 +22,14 @@ ORIG = ROOT.parent / 'Phonics-Halli-Galli'
 HEAD_ADD = ('<link rel="stylesheet" href="./gl/board3d.css?v=1" />\n'
             '<link rel="stylesheet" href="./gl/intro-mg.css?v=1" />\n'
             '<link rel="stylesheet" href="./gl/result-fx.css?v=12" />\n'
-            '<link rel="stylesheet" href="./gl/tutor.css?v=4" />\n')
+            '<link rel="stylesheet" href="./gl/tutor.css?v=4" />\n'
+            '<link rel="stylesheet" href="./gl/clock-color.css?v=1" />\n')
 # 인트로 모션그래픽: 원래 intro.js 바로 뒤(main.js보다 앞)에 끼워서 playIntro를 바꿔 둬요
 INTRO_ADD = '<script src="./gl/intro-mg.js?v=2"></script>\n'
 # 결과 화면 덧입히기: 원래 result.js 바로 뒤(main.js보다 앞)에 끼워서 renderResult를 바꿔 둬요 (main.js가 읽을 때 가져감)
 RESULT_ADD = '<script src="./gl/result-fx.js?v=7"></script>\n'
+# HUD 시계 색(핑크 · 보라): 원래 clock.js 바로 뒤에 끼워서, 그 스크립트가 만든 시계 그림 주소를 색 바꾼 복사본으로 바꿔요
+CLOCK_ADD = '<script src="./gl/clock-color.js?v=1"></script>\n'
 BODY_ADD = ('<!-- 3D 판 (WebGL): three.js + 판 그림 + 판 그리기. 게임 규칙 · 소리 · 글자는 위 원래 스크립트 그대로 -->\n'
             '<script src="./vendor/three/three.iife.js"></script>\n'
             '<script src="./src/gl-tex.js?v=3"></script>\n'
@@ -94,6 +97,10 @@ def main():
     if not m:
         sys.exit('원래 index.html에서 src/result.js 줄을 못 찾았어요(결과 화면 덧입히기를 끼울 자리). 손으로 확인해 주세요.')
     html = html[:m.end()] + RESULT_ADD + html[m.end():]
+    m = re.search(r'<script[^>]*src/clock\.js[^>]*></script>\n', html)
+    if not m:
+        sys.exit('원래 index.html에서 src/clock.js 줄을 못 찾았어요(시계 색을 끼울 자리). 손으로 확인해 주세요.')
+    html = html[:m.end()] + CLOCK_ADD + html[m.end():]
     html = html.replace('</body>', BODY_ADD + '</body>', 1)
     dst = ROOT / 'index.html'
     if not dst.exists() or dst.read_text(encoding='utf-8') != html:
@@ -104,6 +111,10 @@ def main():
     if any(c.startswith('assets/card') for c in changed) or not (ROOT / 'src' / 'gl-tex.js').exists():
         subprocess.run([sys.executable, str(ROOT / 'tools' / 'build_gl_tex.py')], check=True)
         changed.append('src/gl-tex.js (다시 만듦)')
+    # 5) 시계 그림이 바뀌었으면 시계 색 복사본(gl/media/clock) 다시
+    if any(c.startswith('assets/clock_parts') for c in changed) or not (ROOT / 'gl' / 'media' / 'clock').exists():
+        subprocess.run([sys.executable, str(ROOT / 'tools' / 'build_clock_color.py')], check=True)
+        changed.append('gl/media/clock (다시 만듦)')
 
     print('가져온 것:' if changed else '바뀐 것 없음 — 3D 폴더가 원래 게임과 같아요.')
     for c in changed:
