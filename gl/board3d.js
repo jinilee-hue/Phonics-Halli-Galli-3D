@@ -385,7 +385,7 @@ let sunDist = 4000;
 const V = {};          // 지금 판의 3D 물건들
 let builtKey = '', fontsReady = false;
 let TH = 0, RIM_H = 0, TRAY_H = 0, CT = 0, DECK_CT = 0, SLOT_CT = 0, vh = 8;
-const DECK_N = 7;
+const DECK_N = 7, LABEL_UP = 1.1;
 function dispose(o) {
   if (!o) return;
   o.traverse(n => {
@@ -467,20 +467,28 @@ function build(L) {
       const lb = t.label;
       g.fillStyle = '#fff'; g.textAlign = 'center'; g.textBaseline = 'middle';
       g.font = `600 ${4.2 * vh}px Fredoka, sans-serif`;
-      spacedText(g, PL[i].label.textContent.trim(), lb.cx - R.x, lb.cy - R.y + .2 * vh, .02 * 4.2 * vh);
+      // 원래 자리보다 조금 위로: 더미가 두께가 있어서, 손 따라 시점이 낮아지거나 맨 위 카드가 들리면
+      // 바로 뒤의 이름을 가려 글자 끝만 하얗게 삐죽 보였어요 (판 윗면 여백 2vh 안에서 옮김)
+      spacedText(g, PL[i].label.textContent.trim(), lb.cx - R.x, lb.cy - R.y + .2 * vh - LABEL_UP * vh, .02 * 4.2 * vh);
     }, 1024);
     M.trayTop[i].map = top; M.trayTop[i].needsUpdate = true;
     const slab = new T.Mesh(slabGeo(R.w, R.h, 3 * vh, TRAY_H, .5 * vh), [M.trayTop[i], M.traySide[i]]);
     slab.castShadow = true; slab.receiveShadow = true;
     grp.add(slab);
-    // 카드 더미: 뒷면 그림 카드 7장 (조금씩 삐뚤게)
+    // 카드 더미: 뒷면 그림 카드 7장 — 반듯하게 틈 없이 쌓아 옆면이 고른 종이 결로 보이게
+    // (조금씩 삐뚤게 · 사이를 띄워 쌓았더니 둥근 모서리가 어긋나고 얇은 틈이 계단처럼 깨져 보였어요)
+    // 그림자 지도도 받지 않아요: 판 전체를 덮는 지도라 얇은 카드 옆면 위에선 칸이 굵어 얼룩져요 (종과 같은 이유) — 탁자엔 그대로 드리움
     const deck = new T.Group(), back = imageTex(BACK[i]);
     deck.position.set(t.deck.cx - R.cx, -(t.deck.cy - R.cy), TRAY_H);
-    seed = 11 + i * 7;
     for (let k = 0; k < DECK_N; k++) {
       const c = makeCard(t.deck.w, t.deck.h, t.deck.w * .092, DECK_CT, back, back);
-      c.position.set((rnd() - .5) * .35 * vh, (rnd() - .5) * .35 * vh, DECK_CT / 2 + k * (DECK_CT + .05 * vh));
-      c.rotation.z = (rnd() - .5) * .03;
+      c.position.set(0, 0, DECK_CT / 2 + k * DECK_CT);
+      c.traverse(o => { if (o.isMesh) o.receiveShadow = false; });
+      // 앞 · 뒤 그림판은 카드 크기 그대로라 둥글게 깎인 옆면 밖으로 살짝 나와 이웃 카드에 박혀요 → 옆면에 하얀 점 · 끊긴 줄.
+      // 보이는 건 맨 위 카드의 윗면 하나뿐이라 나머지 그림판은 끔 (그리는 양도 줄어요)
+      const [, front, backFace] = c.children;
+      backFace.visible = false;
+      front.visible = k === DECK_N - 1;
       deck.add(c);
     }
     grp.add(deck);
@@ -862,6 +870,9 @@ function update(L, t, dt) {
       top.position.z = top.userData.z0 + u.hover * 1.6 * vh;
       top.rotation.x = u.hy * .09 * u.hover;
       top.rotation.y = u.hx * .09 * u.hover;
+      // 맨 위 카드가 들리면 그 아래 카드 윗면(뒷면 그림)이 보이게 — 붙어 있을 땐 그림판이 옆으로 삐져나와서 꺼 둠
+      const under = u.deck.children[u.deck.children.length - 2];
+      if (under) under.children[1].visible = u.hover > .02;
     }
     if (u.shakeT0) {
       const k = (t - u.shakeT0) / 350;
@@ -891,7 +902,7 @@ function update(L, t, dt) {
     let x = L.spot.cx, y = -L.spot.cy, z = c.z, rz = c.rz, ry = 0, rx = 0, s = 1;
     if (c.dealT0) {                                     // 카드 더미에서 집어 → 뒤집으며 날아와 → 판에 착
       const k = clamp01((t - c.dealT0) / DEAL_MS), e = easeDeal(k), D = L.trays[c.who].deck;
-      const fromZ = TRAY_H + DECK_N * (DECK_CT + .05 * vh);
+      const fromZ = TRAY_H + DECK_N * DECK_CT;
       x = lerp(D.cx, x, e); y = lerp(-D.cy, y, e);
       z = lerp(fromZ, z, clamp01(e)) + Math.sin(Math.PI * Math.min(1, k * 1.08)) * 12 * vh;
       ry = Math.PI * (1 - smooth(.08, .72, k)) * (c.who ? -1 : 1);
