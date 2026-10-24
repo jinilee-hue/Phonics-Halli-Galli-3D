@@ -76,6 +76,8 @@
 /* '예시 · 연동 전' 꼬리표 · '게임 끝 · 1단계 · 5세' 꼬리표 · '모은 S가 많은 순 · 같으면 빠른 순' 줄은 빼요
    (사용자 요청 — 결과 화면에 메모 · 설명 같은 글은 두지 않음) */
 .r-demo, .r-kicker, .r-rule{ display:none !important; }
+/* 제목(You win! · Good try!)은 한 줄로 — 넘치면 result-fx.js fitTitle이 글자를 줄임 */
+.verdict.fx #vTitle{ white-space: nowrap; }
 /* 영어 글자(Me · Play again)는 Coco 말풍선과 같은 글꼴 Fredoka */
 .verdict .again.en, .verdict .r-side b.en{ font-family: "Fredoka", "Jua", sans-serif; font-weight: 600; }
 .verdict .r-side b.en{ font-size: 3vh; }

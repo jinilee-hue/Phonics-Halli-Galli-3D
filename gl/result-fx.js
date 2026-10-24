@@ -62,8 +62,11 @@
     meLabel();
     v.classList.toggle('fx-win', !!o.win);
     v.classList.toggle('fx-lose', !o.win);
-    const h = $('#vTitle'), txt = h.textContent;
+    // 제목도 영어로 (사용자 요청) — 종이 하는 말과 같게: 이기면 "You win!", 지면 "Good try!"
+    const TITLE_EN = { '이겼다!': 'You win!', '아쉬워요!': 'Good try!' };
+    const h = $('#vTitle'), txt = TITLE_EN[h.textContent.trim()] || h.textContent;
     h.setAttribute('aria-label', txt);
+    h.style.fontSize = '';
     h.classList.remove('wave', 'up');
     h.innerHTML = [...txt].map((c, k) => `<span class="ch" aria-hidden="true" style="--k:${k};--r:${(k % 2 ? 1 : -1) * (6 + (k * 37) % 5)}deg">${c === ' ' ? '&nbsp;' : c}</span>`).join('');
     $$('#vHits b, #vRt b, #vMiss b').forEach(b => {
@@ -95,7 +98,20 @@
     if (on && !run) start(); else if (!on && run) stop();
   }).observe(verdict, { attributes: true, attributeFilter: ['class'] });
 
+  // 제목이 판 폭에 한 줄로 들어가게: 영어는 글자 수가 많아서 좁은 화면(4:3)에선 넘쳐요 → 넘치면 그만큼 글자를 줄임
+  //   (보이는 순간 · 화면 크기가 바뀔 때. 글자마다 움직이는 scale은 자리를 안 바꿔서 재는 데 영향 없음)
+  function fitTitle() {
+    const h = $('#vTitle'), box = h && h.parentElement;
+    if (!box || !verdict.classList.contains('show')) return;
+    h.style.fontSize = '';
+    const cs = getComputedStyle(box), avail = box.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    const need = h.scrollWidth;
+    if (need > avail && need > 0) h.style.fontSize = (parseFloat(getComputedStyle(h).fontSize) * avail / need * .97 / vh()).toFixed(2) + 'vh';
+  }
+  addEventListener('resize', fitTitle);
+
   function start() {
+    fitTitle();
     const win = verdict.classList.contains('fx-win');
     const R = run = { win, timers: [], raf: 0, nodes: [], parts: [], cv: null };
     const at = (ms, fn) => R.timers.push(setTimeout(() => { if (run === R) fn(); }, ms));
