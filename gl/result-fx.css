@@ -3,28 +3,30 @@
    · 이겼을 때 / 졌을 때 연출: 글자 · S 토큰 · 왕관 · 꽃가루 · 하트 · 숫자 · 순위 · 다시 하기
    원래 결과 화면(src/result.js · src/upgrade.css)은 그대로 두고 .verdict.fx 아래에서만 바꿔요. */
 
+/* 색은 연하게: 내용(글자 · 토큰 · 숫자)이 잘 보이도록 바닥은 거의 흰 크림, 따뜻한 색은 테두리에만 살짝
+   (처음엔 바닥까지 진한 버터색이라 빈 토큰 · Coco 글자 · 칸 경계가 묻혔어요) */
 .verdict.fx{
-  --clay: oklch(0.966 0.03 80);            /* 테두리 (크림) */
-  --clay-hi: oklch(0.992 0.014 88);        /* 테두리 위쪽 빛 */
-  --clay-side: oklch(0.865 0.062 72);      /* 도톰한 두께 (아래로 보이는 옆면) */
-  --clay-in: oklch(0.55 0.08 55 / .2);     /* 테두리 아래쪽 그늘 */
-  --clay-cast: oklch(0.3 0.05 45 / .34);   /* 판 그림자 */
-  --clay-felt: oklch(0.928 0.045 78);      /* 쑥 들어간 바닥 (보드판의 천 자리) */
-  --clay-felt-in: oklch(0.42 0.08 55 / .36);/* 테두리가 바닥에 드리운 그늘 */
-  --clay-well: oklch(0.9 0.052 76);        /* 바닥보다 한 번 더 들어간 칸 (보드판의 S 칸처럼) */
-  --clay-well-in: oklch(0.45 0.07 55 / .26);
+  --clay: oklch(0.952 0.03 82);            /* 테두리 (크림) */
+  --clay-hi: oklch(0.99 0.012 88);         /* 테두리 위쪽 빛 */
+  --clay-side: oklch(0.87 0.05 74);        /* 도톰한 두께 (아래로 보이는 옆면) */
+  --clay-in: oklch(0.55 0.08 55 / .18);    /* 테두리 아래쪽 그늘 */
+  --clay-cast: oklch(0.3 0.05 45 / .32);   /* 판 그림자 */
+  --clay-felt: oklch(0.985 0.01 85);       /* 쑥 들어간 바닥 (보드판의 천 자리) — 거의 흰 크림 */
+  --clay-felt-in: oklch(0.45 0.07 55 / .26);/* 테두리가 바닥에 드리운 그늘 */
+  --clay-well: oklch(0.955 0.02 80);       /* 바닥보다 한 번 더 들어간 칸 (보드판의 S 칸처럼) */
+  --clay-well-in: oklch(0.45 0.06 55 / .22);
   --clay-row: oklch(0.982 0.02 84);        /* 볼록 튀어나온 줄 */
   --clay-row-side: oklch(0.885 0.05 74);
   --clay-ink: oklch(0.34 0.045 50);        /* 따뜻한 갈색 글자 */
   --clay-soft: oklch(0.52 0.055 58);
 }
 /* 이기면 버터색 · 지면 살구색 (왼쪽 판만) */
-.verdict.fx-win .r-me{ --clay: oklch(0.955 0.07 94); --clay-hi: oklch(0.99 0.035 98); --clay-side: oklch(0.845 0.105 84);
-  --clay-in: oklch(0.6 0.1 75 / .2); --clay-felt: oklch(0.915 0.085 92); --clay-felt-in: oklch(0.48 0.1 72 / .36);
-  --clay-well: oklch(0.89 0.092 88); --clay-well-in: oklch(0.5 0.1 72 / .26); }
-.verdict.fx-lose .r-me{ --clay: oklch(0.952 0.035 50); --clay-hi: oklch(0.988 0.016 62); --clay-side: oklch(0.845 0.065 40);
-  --clay-in: oklch(0.55 0.08 35 / .2); --clay-felt: oklch(0.912 0.05 48); --clay-felt-in: oklch(0.42 0.08 35 / .36);
-  --clay-well: oklch(0.89 0.058 45); --clay-well-in: oklch(0.45 0.08 35 / .26); }
+.verdict.fx-win .r-me{ --clay: oklch(0.948 0.055 94); --clay-hi: oklch(0.99 0.025 98); --clay-side: oklch(0.86 0.085 86);
+  --clay-in: oklch(0.6 0.1 75 / .18); --clay-felt: oklch(0.987 0.014 95); --clay-felt-in: oklch(0.5 0.09 75 / .26);
+  --clay-well: oklch(0.958 0.03 92); --clay-well-in: oklch(0.5 0.08 75 / .22); }
+.verdict.fx-lose .r-me{ --clay: oklch(0.948 0.03 52); --clay-hi: oklch(0.988 0.012 62); --clay-side: oklch(0.86 0.05 42);
+  --clay-in: oklch(0.55 0.08 35 / .18); --clay-felt: oklch(0.986 0.009 60); --clay-felt-in: oklch(0.45 0.07 35 / .26);
+  --clay-well: oklch(0.956 0.02 55); --clay-well-in: oklch(0.45 0.07 35 / .22); }
 
 /* 판 = 보드판처럼: 둘레는 도톰하게 솟은 테두리, 안쪽 바닥은 쑥 들어감
    (테두리 윗면 빛 · 바깥 두께 + 바닥 위쪽 안벽 그늘 · 아래쪽 안벽 빛 — 3D 판의 테두리 · 천과 같은 짜임) */
@@ -65,6 +67,8 @@
   background: var(--clay-well);
   box-shadow: inset 0 .6vh .9vh var(--clay-well-in), inset 0 .2vh .2vh var(--clay-well-in), inset 0 -.35vh .4vh oklch(1 0 0 / .6);
 }
+/* 빈 토큰 자리: 연한 칸 위에서도 보이게 따뜻한 회색 홈 */
+.verdict.fx .mt:not(.got), .verdict.fx .ms:not(.got){ background: oklch(0.6 0.04 65 / .16); box-shadow: inset 0 .4vh .6vh oklch(0.4 0.05 55 / .24); }
 /* 제목 글자: 클레이 글자처럼 두께 */
 .verdict.fx #vTitle .ch{ display:inline-block; transform-origin: 50% 90%;
   text-shadow: 0 .55vh 0 color-mix(in oklch, currentColor 72%, oklch(0.3 0.05 50)), 0 1.2vh 1.4vh oklch(0.3 0.05 50 / .18); }
