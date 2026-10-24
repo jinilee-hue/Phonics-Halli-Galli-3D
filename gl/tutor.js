@@ -83,7 +83,9 @@
   function pump() {
     clearTimeout(pumpT);
     if (speaking || !queue.length) return;
-    if (anaBusy()) { pumpT = setTimeout(pump, 70); return; }
+    // 낱말을 읽는 동안 기다린 시간은 '너무 늦은 말' 셈에 넣지 않아요 — 느린 기기에서 다시 읽기가 늦게 끝나도
+    // 칭찬 · 안내가 버려지지 않게 (낱말이 끝난 뒤 최소 1.5초는 말할 수 있음)
+    if (anaBusy()) { const t = now(); queue.forEach(it => { it.at = Math.max(it.at, t - Math.max(0, it.maxWait - 1500)); }); pumpT = setTimeout(pump, 70); return; }
     const item = queue.shift();
     if (now() - item.at > item.maxWait || (item.valid && !item.valid()) || !onGame()) {
       note('drop', item.id); item.cancel && item.cancel('stale'); pump(); return;
@@ -129,12 +131,21 @@
     lineEnd = now();
     note(cut ? 'cut' : 'end', sp.id);
     if (cut) sp.item.cancel && sp.item.cancel('cut'); else sp.item.done && sp.item.done();
-    pump();
+    // 끊긴 경우엔 다음 말을 한 박자 뒤에: 끊은 그 순간 게임이 하는 일(Coco 말풍선 · 낱말 읽기 예약)이 먼저 자리 잡게
+    if (cut) { clearTimeout(pumpT); pumpT = setTimeout(pump, 0); } else pump();
   }
   function stopLine(why) {
     if (speaking) { note('stop', why); finish(speaking, true); }
   }
-  function clearQueue() { while (queue.length) { const it = queue.shift(); it.cancel && it.cancel('clear'); } }
+  function clearQueue(pred) {
+    for (let k = queue.length - 1; k >= 0; k--) {
+      const it = queue[k];
+      if (pred && !pred(it)) continue;
+      queue.splice(k, 1);
+      note('drop', it.id);
+      it.cancel && it.cancel('clear');
+    }
+  }
 
   // ── 입 움직이기: 말소리 세기를 미리 재 둔 칸(60ms)대로 벌렸다 다물었다
   let mouthT = 0;
@@ -271,7 +282,7 @@
     if (card.p) { G.guidedP++; prompt(card, valid); }
     else {
       G.guidedS++;
-      sayLine('dontRing', { act: 'shake', gaze: 'pile', valid, maxWait: 5000,
+      sayLine('dontRing', { act: 'shake', gaze: 'pile', valid, maxWait: 5000, kind: 'guide',
         done: () => { if (guiding && guiding.card === card) guiding.timers.push(setTimeout(() => endGuide('single'), 450)); },
         cancel: why => { if (guiding && guiding.card === card) endGuide('single-' + why); } });   // 못 말했으면 바로 끝 (Coco가 멈춘 채로 남지 않게)
     }
@@ -281,7 +292,7 @@
     // 다음 단계: 4초 기다렸다가 한 번 더 알려 주고, 두 번 알려 줘도 안 치면 Coco 차례로 (안내를 끝내고 Coco를 풀어 줌)
     // 말을 못 하고 버려지거나(줄이 밀림) 끊겨도 꼭 다음 단계로 — 안 그러면 Coco가 멈춘 채로 남아요
     const next = ms => { if (valid()) guiding.timers.push(setTimeout(() => { if (valid()) { if (guiding.prompts < 2) prompt(card, valid); else endGuide('timeout'); } }, ms)); };
-    sayLine('ring', { act: 'hop', gaze: 'pile', valid, maxWait: 5000,
+    sayLine('ring', { act: 'hop', gaze: 'pile', valid, maxWait: 5000, kind: 'guide',
       onStart: () => { callOn(true); popS(); },
       done: () => next(4000), cancel: () => next(2500) });
   }
@@ -317,7 +328,7 @@
       return;
     }
     if (i === ME) lastAct = now();
-    stopLine('flip');
+    if (i === turn) { clearQueue(); stopLine('flip'); }       // 새 카드: 줄 서 있던 말은 지난 이야기
     const r = flip0.apply(this, arguments);
     if (cur && cur !== prev) onCard(cur, i);
     return r;
@@ -342,7 +353,7 @@
   window.hitBell = function (who) {
     const card = cur, wasDone = !!(card && card.done), wrongN = card && card.wrong ? card.wrong.size : 0, lk = lockUntil, t = now();
     if (who === ME) lastAct = t;
-    if (onGame() && !over && card) stopLine('hit');
+    if (onGame() && !over && card) { clearQueue(it => it.kind === 'guide'); stopLine('hit'); }   // 종이 울리면 아직 못 한 안내는 버려요
     const r = hit0.apply(this, arguments);
     if (!onGame() || !card) return r;
     if (!wasDone && card.done) onRight(who, card);

@@ -73,6 +73,8 @@
 .verdict.fx #vTitle .ch{ display:inline-block; transform-origin: 50% 90%;
   text-shadow: 0 .55vh 0 color-mix(in oklch, currentColor 72%, oklch(0.3 0.05 50)), 0 1.2vh 1.4vh oklch(0.3 0.05 50 / .18); }
 
+/* '예시 · 연동 전' 꼬리표 · '게임 끝 · 1단계 · 5세' 꼬리표는 빼요 (사용자 요청 — 결과 화면에 메모 같은 글은 두지 않음) */
+.r-demo, .r-kicker{ display:none !important; }
 /* 순위 줄: 볼록한 크림 줄 · 내 줄은 파란 클레이 */
 .verdict.fx .r-list{ gap: 1.25vh; }
 .verdict.fx .rk:not(.gap){ position:relative; height: 6.2vh;

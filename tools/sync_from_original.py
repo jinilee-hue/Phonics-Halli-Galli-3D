@@ -21,8 +21,8 @@ ORIG = ROOT.parent / 'Phonics-Halli-Galli'
 # 3D 판을 켜는 줄 — 3D 쪽 파일을 더하면 여기만 고치고 이 스크립트를 다시 돌리면 돼요
 HEAD_ADD = ('<link rel="stylesheet" href="./gl/board3d.css?v=1" />\n'
             '<link rel="stylesheet" href="./gl/intro-mg.css?v=1" />\n'
-            '<link rel="stylesheet" href="./gl/result-fx.css?v=3" />\n'
-            '<link rel="stylesheet" href="./gl/tutor.css?v=1" />\n')
+            '<link rel="stylesheet" href="./gl/result-fx.css?v=5" />\n'
+            '<link rel="stylesheet" href="./gl/tutor.css?v=3" />\n')
 # 인트로 모션그래픽: 원래 intro.js 바로 뒤(main.js보다 앞)에 끼워서 playIntro를 바꿔 둬요
 INTRO_ADD = '<script src="./gl/intro-mg.js?v=2"></script>\n'
 # 결과 화면 덧입히기: 원래 result.js 바로 뒤(main.js보다 앞)에 끼워서 renderResult를 바꿔 둬요 (main.js가 읽을 때 가져감)
@@ -34,9 +34,10 @@ BODY_ADD = ('<!-- 3D 판 (WebGL): three.js + 판 그림 + 판 그리기. 게임 
             '<script src="./gl/bell3d.js?v=4"></script>\n'
             '<script src="./gl/coco3d.js?v=1"></script>\n'
             '<script src="./gl/view360.js?v=2"></script>\n'
-            '<!-- 노란 종 튜터: 진행자 말소리 + 상황별 안내 (원래 게임 함수를 감싸서 끼어들어요 · ?tutor=off 로 끔) -->\n'
-            '<script src="./gl/tutor-voice.js?v=2"></script>\n'
-            '<script src="./gl/tutor.js?v=1"></script>\n')
+            '<!-- Coco 말풍선 영어 · 노란 종 튜터: 진행자 말소리 + 상황별 안내 (원래 게임 함수를 감싸서 끼어들어요 · ?tutor=off 로 튜터만 끔) -->\n'
+            '<script src="./gl/coco-en.js?v=1"></script>\n'
+            '<script src="./gl/tutor-voice.js?v=3"></script>\n'
+            '<script src="./gl/tutor.js?v=3"></script>\n')
 TITLE = ('<title>Phonics Halli Galli — Coco</title>', '<title>Phonics Halli Galli 3D — Coco</title>')
 ASSET_DIRS = ['bell_parts', 'coco_parts', 'clock_parts', 'card_web']
 OWN_SRC = {'gl-tex.js'}            # 3D 폴더에만 있는 src 파일
