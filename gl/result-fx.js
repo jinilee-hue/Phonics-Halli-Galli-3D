@@ -2,8 +2,8 @@
 //  · 순위: 3등까지만. 내가 3등 밖이면 3등 밑에 내 줄 (사이에 건너뛴 사람이 있으면 '···')
 //  · 이겼을 때: 제목이 통통 · S 토큰이 판의 S 칸에서 날아와 쏙(도-미-솔) · 내 쪽에 왕관 · 꽃가루 · 판을 누르면 꽃가루 톡
 //  · 졌을 때:   제목이 떨어져 시무룩 → 다시 벌떡 · Coco 토큰 먼저 · Coco 쪽에 왕관 · 판을 누르면 하트 · 다시 하기가 콩콩
-//  · 함께: 숫자 올라가기 · 내 프로필 그림이 톡 · 내 줄 반짝(3등 안이면 메달 반짝) · 토큰 · 왕관 · 순위 줄을 누르면 흔들
-//  · '나는 우리 반 N등 / N명' 칸 대신 가운데 동그란 프로필 그림만 (사용자 요청 — 등수는 아래 순위 줄에 있어요)
+//  · 함께: 숫자 올라가기 · 내 줄 반짝(3등 안이면 메달 반짝) · 토큰 · 왕관 · 순위 줄을 누르면 흔들
+//  · '나는 우리 반 N등 / N명' 칸은 빼요 (사용자 요청 — 등수는 아래 순위 줄에 있어요. 프로필 그림도 넣었다가 뺐어요)
 // 원래 결과 화면(src/result.js)은 그대로 두고 그 뒤에 덧입혀요.
 // main.js가 처음 읽힐 때 renderResult를 가져가므로(const { renderResult } = window) result.js 바로 뒤 · main.js 앞에 읽어야 해요
 // (tools/sync_from_original.py 의 RESULT_ADD).
@@ -73,21 +73,11 @@
       b.dataset.to = b.textContent;
       if (b.textContent !== '-') b.textContent = b.closest('#vRt') ? '0.0' : '0';
     });
-    profile();
     $('#again').classList.remove('idle');
     $$('.rfx-crown').forEach(c => c.remove());
-    $$('.r-stats div.done, .rfx-profile.land').forEach(e => e.classList.remove('done', 'land'));
-  }
-
-  // ── 가운데 동그란 프로필 그림 ('나는 우리 반 N등' 칸 자리) — 반 기록이 연동되면 아이 프로필 그림으로 바꿀 자리
-  const PROFILE_SRC = './gl/media/profile_default.svg';
-  function profile() {
-    const my = $('.r-my');
-    if (!my || my.nextElementSibling && my.nextElementSibling.classList.contains('rfx-profile')) return;
-    const el = document.createElement('div');
-    el.className = 'rfx-profile';
-    el.innerHTML = `<img src="${PROFILE_SRC}" alt="Me" draggable="false">`;
-    my.after(el);
+    $$('.r-stats div.done').forEach(e => e.classList.remove('done'));
+    const list = $('#vList');                                        // 줄 수가 바뀌니 줄 높이는 보일 때(fitRank) 다시 정함
+    if (list) { list.classList.remove('fill'); list.style.removeProperty('--rowH'); list.style.removeProperty('--gapX'); }
   }
 
   // ── 보이면 시작 · 사라지면 정리 (다시 하기 · 나가기)
@@ -110,8 +100,29 @@
   }
   addEventListener('resize', fitTitle);
 
+  // 순위 줄이 판 아래까지 차게: 판 높이는 왼쪽 판에 맞춰지는데 순위 줄은 3~5줄이라 아래가 비어요
+  //   → 빈 만큼 줄을 키움(최대 10.5vh, 줄 안 동그라미 · 글자도 같이). 그래도 남으면 줄 사이를 넓힘
+  function fitRank() {
+    const list = $('#vList'), card = $('.r-rank');
+    if (!list || !card || !verdict.classList.contains('show')) return;
+    list.classList.remove('fill');
+    list.style.removeProperty('--rowH'); list.style.removeProperty('--gapX');
+    const rows = $$('li.rk:not(.gap)', list);
+    if (!rows.length) return;
+    const cs = getComputedStyle(card), inner = card.clientHeight - parseFloat(cs.paddingBottom);
+    const free = inner - (list.offsetTop + list.offsetHeight);
+    if (free <= 2) return;
+    const h0 = rows[0].offsetHeight, h = Math.min(10.5 * vh(), h0 + free / rows.length);
+    const left = free - (h - h0) * rows.length, gaps = Math.max(1, list.children.length - 1);
+    list.style.setProperty('--rowH', (h / vh()).toFixed(2) + 'vh');
+    list.style.setProperty('--gapX', left > 2 ? (left / gaps / vh()).toFixed(2) + 'vh' : '0vh');
+    list.classList.add('fill');
+  }
+  addEventListener('resize', fitRank);
+
   function start() {
     fitTitle();
+    fitRank();
     const win = verdict.classList.contains('fx-win');
     const R = run = { win, timers: [], raf: 0, nodes: [], parts: [], cv: null };
     const at = (ms, fn) => R.timers.push(setTimeout(() => { if (run === R) fn(); }, ms));
@@ -337,9 +348,8 @@
     });
   }
 
-  // ── 내 프로필 그림이 톡 → (3등 밖이면) 3등 밑에 내 줄이 쏙 → 내 줄 반짝 · 3등 안이면 메달 반짝
+  // ── (3등 밖이면) 3등 밑에 내 줄이 쏙 → 내 줄 반짝 · 3등 안이면 메달 반짝
   function landMine(R) {
-    again($('.rfx-profile'), 'land');
     snd([880, 1320], .3, 'sine', .1);
     $$('.rk.me.below, .rk.gap').forEach(e => e.classList.add('arrive'));
     const me = $('.rk.me');
@@ -367,8 +377,6 @@
     if (tok) { again(tok, 'jig'); pling($$('.mt.got', tok.parentNode).indexOf(tok), true); return; }
     const cr = t.closest('.rfx-crown');
     if (cr) { again(cr, 'jig'); const r = cr.getBoundingClientRect(); burst(R, r.left + r.width / 2, r.top + r.height / 2, ['#FFD84D', '#FFE98A', '#FFFFFF'], 8, 5); snd([1175, 1568], .25, 'triangle', .08); return; }
-    const pf = t.closest('.rfx-profile');
-    if (pf) { again(pf, 'land'); snd([988, 1319], .2, 'sine', .08); return; }
     const row = t.closest('.rk:not(.gap)');
     if (row) { again(row, 'squish'); snd([740], .12, 'sine', .07); return; }
     if (t.closest('#vTitle')) { title(R.win ? 'wave' : 'up'); snd([R.win ? 1047 : 784], .2, 'sine', .07); return; }
