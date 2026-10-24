@@ -3,11 +3,11 @@
 //    flip을 감싸서, 방금 나온 카드(cur.el)의 '그림 자리'(6세) · 글자만(7세) 앞면을 그림으로 바꿔 끼움 (3D 판은 이 HTML 카드를 읽어 그려요)
 //  · 그림 목록: gl/card-art.js (tools/build_card_art.py가 원래 게임 assets/card에서 만듦)
 //  · 6세 덱: 단수 · 복수 그림이 둘 다 있는 낱말만 골라요 — 그림이 다 생기면 원래대로 62개 전부에서
-//    HOLD: 그림을 고칠 때까지 빼 둔 낱말 (maps 카드에 지도가 하나만 그려져 있어요 — 여럿 카드인데 하나로 보이면 안 돼요)
+//    HOLD: 그림을 고칠 때까지 빼 둘 낱말 (예: 여럿 카드인데 하나만 그려진 그림). 지금은 없음 — maps는 지도 3개로 고쳐졌어요
 //  · ?age=6 · ?age=7 : 그 단계로 시작 (단계 고르기 단추는 원래 게임에서 숨김)
 //  · 파일을 더블클릭해 열면(file://) 3D 판이 그림 파일을 못 읽어요 → 2단계 이상이면 gl/card-tex.js(data URL)를 그때 불러와요
 (() => {
-  const HOLD = new Set(['map']);
+  const HOLD = new Set([]);
   const art = w => window.CARD_ART && window.CARD_ART[w];
 
   // ── 6세 덱: 그림이 있는 낱말만
