@@ -2,7 +2,8 @@
 //  · 순위: 3등까지만. 내가 3등 밖이면 3등 밑에 내 줄 (사이에 건너뛴 사람이 있으면 '···')
 //  · 이겼을 때: 제목이 통통 · S 토큰이 판의 S 칸에서 날아와 쏙(도-미-솔) · 내 쪽에 왕관 · 꽃가루 · 판을 누르면 꽃가루 톡
 //  · 졌을 때:   제목이 떨어져 시무룩 → 다시 벌떡 · Coco 토큰 먼저 · Coco 쪽에 왕관 · 판을 누르면 하트 · 다시 하기가 콩콩
-//  · 함께: 숫자 올라가기 · 내 순위가 전체 수부터 굴러 내려와 멈춤 · 토큰 · 왕관 · 순위 줄을 누르면 흔들
+//  · 함께: 숫자 올라가기 · 내 프로필 그림이 톡 · 내 줄 반짝(3등 안이면 메달 반짝) · 토큰 · 왕관 · 순위 줄을 누르면 흔들
+//  · '나는 우리 반 N등 / N명' 칸 대신 가운데 동그란 프로필 그림만 (사용자 요청 — 등수는 아래 순위 줄에 있어요)
 // 원래 결과 화면(src/result.js)은 그대로 두고 그 뒤에 덧입혀요.
 // main.js가 처음 읽힐 때 renderResult를 가져가므로(const { renderResult } = window) result.js 바로 뒤 · main.js 앞에 읽어야 해요
 // (tools/sync_from_original.py 의 RESULT_ADD).
@@ -56,12 +57,21 @@
       b.dataset.to = b.textContent;
       if (b.textContent !== '-') b.textContent = b.closest('#vRt') ? '0.0' : '0';
     });
-    const r = $('#vRank'), of = ($('#vOf').textContent.match(/\d+/) || [])[0];
-    r.dataset.to = r.textContent;
-    if (of) r.textContent = of;
+    profile();
     $('#again').classList.remove('idle');
     $$('.rfx-crown').forEach(c => c.remove());
-    $$('.r-stats div.done, .r-my.land').forEach(e => e.classList.remove('done', 'land'));
+    $$('.r-stats div.done, .rfx-profile.land').forEach(e => e.classList.remove('done', 'land'));
+  }
+
+  // ── 가운데 동그란 프로필 그림 ('나는 우리 반 N등' 칸 자리) — 반 기록이 연동되면 아이 프로필 그림으로 바꿀 자리
+  const PROFILE_SRC = './gl/media/profile_default.svg';
+  function profile() {
+    const my = $('.r-my');
+    if (!my || my.nextElementSibling && my.nextElementSibling.classList.contains('rfx-profile')) return;
+    const el = document.createElement('div');
+    el.className = 'rfx-profile';
+    el.innerHTML = `<img src="${PROFILE_SRC}" alt="나" draggable="false">`;
+    my.after(el);
   }
 
   // ── 보이면 시작 · 사라지면 정리 (다시 하기 · 나가기)
@@ -79,7 +89,6 @@
     if (reduce()) {
       $$('.mt.got').forEach(t => t.classList.add('in'));
       $$('#vHits b, #vRt b, #vMiss b').forEach(b => { if (b.dataset.to != null) b.textContent = b.dataset.to; });
-      $('#vRank').textContent = $('#vRank').dataset.to;
       $$('.rk.me.below, .rk.gap').forEach(e => e.classList.add('arrive'));
       crown(win, true);
       $('#again').classList.add('idle');
@@ -102,8 +111,8 @@
     });
     // 3) 맞힌 종 · 빠르기 · 실수
     at(Math.max(1000, t - 200), () => countStats(R));
-    // 4) 순위: 전체 수부터 내 순위까지 굴러 내려와요 (판이 다 올라온 뒤 바로)
-    at(700, () => rollRank(R));
+    // 4) 내 프로필 그림이 톡 → 내 줄 반짝 (3등 안이면 메달 반짝)
+    at(760, () => landMine(R));
     // 5) 다시 하기
     at(after + 900, () => $('#again').classList.add('idle'));
   }
@@ -299,40 +308,24 @@
     });
   }
 
-  // ── 내 순위: 전체 수부터 한 칸씩 굴러 내려와 멈춰요 (점점 느리게)
-  function rollRank(R) {
-    const el = $('#vRank'), to = parseInt(el.dataset.to, 10), from = parseInt(el.textContent, 10);
-    const land = () => {
-      el.textContent = el.dataset.to;
-      again($('.r-my'), 'land');
-      snd([880, 1320], .3, 'sine', .1);
-      $$('.rk.me.below, .rk.gap').forEach(e => e.classList.add('arrive'));
-      const me = $('.rk.me');
-      if (!me) return;
-      setTimeout(() => {
-        if (run !== R) return;
-        again(me, 'shine');
-        if (to <= 3) {
-          const no = me.querySelector('.rk-no'), r = no.getBoundingClientRect();
-          again(no, 'glint');
-          burst(R, r.left + r.width / 2, r.top + r.height / 2, ['#FFD84D', '#FFE98A', '#FFFFFF'], 10, 5);
-          snd([1568, 2093], .35, 'sine', .09);
-        }
-      }, 260);
-    };
-    if (!(from > to)) { land(); return; }
-    const steps = from - to;
-    let i = 0;
-    const next = () => {
+  // ── 내 프로필 그림이 톡 → (3등 밖이면) 3등 밑에 내 줄이 쏙 → 내 줄 반짝 · 3등 안이면 메달 반짝
+  function landMine(R) {
+    again($('.rfx-profile'), 'land');
+    snd([880, 1320], .3, 'sine', .1);
+    $$('.rk.me.below, .rk.gap').forEach(e => e.classList.add('arrive'));
+    const me = $('.rk.me');
+    if (!me) return;
+    const rank = parseInt((me.querySelector('.rk-no') || {}).textContent, 10) || 99;
+    setTimeout(() => {
       if (run !== R) return;
-      i++;
-      el.textContent = String(from - i);
-      again(el, 'tick');
-      tick(.035);
-      if (i < steps) R.timers.push(setTimeout(next, 70 + 250 * Math.pow(i / steps, 2.2)));
-      else land();
-    };
-    R.timers.push(setTimeout(next, 60));
+      again(me, 'shine');
+      if (rank <= 3) {
+        const no = me.querySelector('.rk-no'), r = no.getBoundingClientRect();
+        again(no, 'glint');
+        burst(R, r.left + r.width / 2, r.top + r.height / 2, ['#FFD84D', '#FFE98A', '#FFFFFF'], 10, 5);
+        snd([1568, 2093], .35, 'sine', .09);
+      }
+    }, 420);
   }
 
   // ── 누르면: 토큰 흔들 · 왕관 흔들 · 순위 줄 꿀렁 · 제목 다시 · 판(이기면 꽃가루 톡 / 지면 하트)
@@ -345,6 +338,8 @@
     if (tok) { again(tok, 'jig'); pling($$('.mt.got', tok.parentNode).indexOf(tok), true); return; }
     const cr = t.closest('.rfx-crown');
     if (cr) { again(cr, 'jig'); const r = cr.getBoundingClientRect(); burst(R, r.left + r.width / 2, r.top + r.height / 2, ['#FFD84D', '#FFE98A', '#FFFFFF'], 8, 5); snd([1175, 1568], .25, 'triangle', .08); return; }
+    const pf = t.closest('.rfx-profile');
+    if (pf) { again(pf, 'land'); snd([988, 1319], .2, 'sine', .08); return; }
     const row = t.closest('.rk:not(.gap)');
     if (row) { again(row, 'squish'); snd([740], .12, 'sine', .07); return; }
     if (t.closest('#vTitle')) { title(R.win ? 'wave' : 'up'); snd([R.win ? 1047 : 784], .2, 'sine', .07); return; }
