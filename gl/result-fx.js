@@ -15,9 +15,9 @@
   const vh = () => innerHeight / 100;
   let run = null;
 
-  // ── 영어로: '나' → 'Me' (순위의 Me와 같게) · '다시 하기' → 'Play again' (사용자 요청 — 종 · Coco 말과 같은 영어로)
+  // ── 영어로: '나' → 'Me' (순위의 Me와 같게) · '다시 하기' → 'Play Again' (사용자 요청 — 종 · Coco 말과 같은 영어로)
   const again0 = $('#again');
-  if (again0) { again0.textContent = 'Play again'; again0.classList.add('en'); }
+  if (again0) { again0.textContent = 'Play Again'; again0.classList.add('en'); }
   function meLabel() {
     const b = $('#vSideMe b');
     if (!b) return;
@@ -26,6 +26,28 @@
     b.classList.add('en');
   }
   meLabel();
+
+  // ── 결과 화면 글자를 모두 영어로 (사용자 요청 "나도 다 영문으로" · "우리반 순위는 영문으로") — 원래 게임(src)의 한국어는 그대로 두고 보일 때만 바꿔요
+  const EN_DT = { '맞힌 종': 'Rings', '평균 빠르기': 'Speed', '실수': 'Oops' };
+  const EN_COLS = { '순위': 'Rank', '이름': 'Name', '모은 S': 'S', '빠르기': 'Speed' };
+  const swap = (e, map) => { const t = map[e.textContent.trim()]; if (t) { e.textContent = t; e.classList.add('en'); } };
+  const unit = (el, u) => el && [...el.childNodes].forEach(n => { if (n.nodeType === 3 && /[가-힣]/.test(n.nodeValue)) n.nodeValue = u; });   // 번 → 없음 · 초 → s
+  function english(o) {
+    const rk = $('#rkTitle');
+    if (rk) { rk.textContent = 'Class Ranking'; rk.classList.add('en'); }
+    $$('.r-stats dt').forEach(e => swap(e, EN_DT));
+    $$('.r-cols span').forEach(e => swap(e, EN_COLS));
+    unit($('#vHits'), ''); unit($('#vMiss'), ''); unit($('#vRt'), 's');
+    $$('#vList .rk-rt').forEach(e => unit(e, 's'));
+    $$('#vList .rk-s').forEach(e => { const m = /\d+/.exec(e.getAttribute('aria-label') || ''); if (m) e.setAttribute('aria-label', m[0] + ' S'); });
+    const sub = $('#vSub');
+    if (!sub) return;
+    const t = sub.textContent.trim();
+    let m;
+    if ((m = /^Coco보다 먼저 S (\d+)개/.exec(t))) sub.textContent = `You got ${m[1]} S's before Coco!`;
+    else if (/^Coco가 먼저/.test(t)) sub.textContent = `Coco got ${o.coco || 3} S's first. Let's try again!`;
+    if (!/[가-힣]/.test(sub.textContent)) sub.classList.add('en');
+  }
 
   window.renderResult = function () {
     const out = render0.apply(this, arguments);
@@ -60,6 +82,7 @@
     const v = $('#verdict');
     v.classList.add('fx');
     meLabel();
+    english(o);
     v.classList.toggle('fx-win', !!o.win);
     v.classList.toggle('fx-lose', !o.win);
     // 제목도 영어로 (사용자 요청) — 종이 하는 말과 같게: 이기면 "You win!", 지면 "Good try!"
