@@ -32,7 +32,7 @@ BODY_ADD = ('<!-- 3D 판 (WebGL): three.js + 판 그림 + 판 그리기. 게임 
             '<script src="./src/gl-tex.js?v=3"></script>\n'
             '<script src="./gl/board3d.js?v=1"></script>\n'
             '<script src="./gl/bell3d.js?v=4"></script>\n'
-            '<script src="./gl/coco3d.js?v=1"></script>\n'
+            '<script src="./gl/coco3d.js?v=2"></script>\n'
             '<script src="./gl/view360.js?v=3"></script>\n'
             '<!-- Coco 말풍선 영어 · 노란 종 튜터: 진행자 말소리 + 상황별 안내 (원래 게임 함수를 감싸서 끼어들어요 · ?tutor=off 로 튜터만 끔) -->\n'
             '<script src="./gl/coco-en.js?v=1"></script>\n'

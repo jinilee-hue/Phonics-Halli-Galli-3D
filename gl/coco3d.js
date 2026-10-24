@@ -276,6 +276,7 @@ function watch(L, t) {
 /* ── 자리 · 몸짓 ── */
 let unit = 1, ready = false;
 const camB = new T.Vector3(), camR = new T.Vector3(), invB = new T.Matrix4(), hz = new T.Vector3(), axis = new T.Vector3();
+const camC = new T.Vector3(), ctr = new T.Vector3(), feltEl = document.querySelector('.felt');
 function cssMove() {                     // 원래 CSS 몸짓 (.c-body: translate · rotate · scale, 발 기준)
   const cs = getComputedStyle(cBody);
   const tr = (cs.translate && cs.translate !== 'none') ? cs.translate.split(' ').map(A.NUM) : [0, 0];
@@ -299,7 +300,12 @@ function place(L) {
   camR.copy(A.restCam).applyMatrix4(invB.copy(A.azBoard).invert()).sub(pivot.position).normalize();
   const elev = Math.asin(Math.max(-1, Math.min(1, camB.z))) * 180 / Math.PI;
   const elevR = Math.asin(Math.max(-1, Math.min(1, camR.z))) * 180 / Math.PI;
-  hz.set(camR.x, camR.y, 0);
+  // 젖히는 쪽: Coco 자리가 아니라 판 가운데(돌리는 가운데)에서 본 카메라 쪽 — Coco는 판 왼쪽에 있어서 제 자리에서 재면
+  // '카메라 반대쪽'이 옆으로도 기울어, 화면에서 왼쪽으로 20°쯤 기울어 보였어요 (처음 들어올 땐 37°). 판을 돌려도 같이 돌아요
+  const F = (L && L.felt) || A.rectIn(feltEl);
+  ctr.set(F.cx, -F.cy, pivot.position.z);
+  camC.copy(A.restCam).applyMatrix4(invB.copy(A.azBoard).invert()).sub(ctr);
+  hz.set(camC.x, camC.y, 0);
   if (hz.lengthSq() < 1e-8) hz.set(0, -1, 0);
   hz.normalize();
   pivot.quaternion.setFromAxisAngle(axis.set(hz.y, -hz.x, 0).normalize(),
