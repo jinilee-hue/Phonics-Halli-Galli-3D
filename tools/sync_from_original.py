@@ -20,9 +20,12 @@ ORIG = ROOT.parent / 'Phonics-Halli-Galli'
 
 # 3D 판을 켜는 줄 — 3D 쪽 파일을 더하면 여기만 고치고 이 스크립트를 다시 돌리면 돼요
 HEAD_ADD = ('<link rel="stylesheet" href="./gl/board3d.css?v=1" />\n'
-            '<link rel="stylesheet" href="./gl/intro-mg.css?v=1" />\n')
+            '<link rel="stylesheet" href="./gl/intro-mg.css?v=1" />\n'
+            '<link rel="stylesheet" href="./gl/result-fx.css?v=1" />\n')
 # 인트로 모션그래픽: 원래 intro.js 바로 뒤(main.js보다 앞)에 끼워서 playIntro를 바꿔 둬요
 INTRO_ADD = '<script src="./gl/intro-mg.js?v=2"></script>\n'
+# 결과 화면 덧입히기: 원래 result.js 바로 뒤(main.js보다 앞)에 끼워서 renderResult를 바꿔 둬요 (main.js가 읽을 때 가져감)
+RESULT_ADD = '<script src="./gl/result-fx.js?v=1"></script>\n'
 BODY_ADD = ('<!-- 3D 판 (WebGL): three.js + 판 그림 + 판 그리기. 게임 규칙 · 소리 · 글자는 위 원래 스크립트 그대로 -->\n'
             '<script src="./vendor/three/three.iife.js"></script>\n'
             '<script src="./src/gl-tex.js?v=3"></script>\n'
@@ -82,6 +85,10 @@ def main():
     if not m:
         sys.exit('원래 index.html에서 src/intro.js 줄을 못 찾았어요(인트로 모션그래픽을 끼울 자리). 손으로 확인해 주세요.')
     html = html[:m.end()] + INTRO_ADD + html[m.end():]
+    m = re.search(r'<script[^>]*src/result\.js[^>]*></script>\n', html)
+    if not m:
+        sys.exit('원래 index.html에서 src/result.js 줄을 못 찾았어요(결과 화면 덧입히기를 끼울 자리). 손으로 확인해 주세요.')
+    html = html[:m.end()] + RESULT_ADD + html[m.end():]
     html = html.replace('</body>', BODY_ADD + '</body>', 1)
     dst = ROOT / 'index.html'
     if not dst.exists() or dst.read_text(encoding='utf-8') != html:

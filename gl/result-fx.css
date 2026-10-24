@@ -1,0 +1,178 @@
+/* 결과 화면 덧입히기 (3D 폴더에만) — gl/result-fx.js 와 짝
+   · 하얀 판 → 3D 보드판처럼 말랑하고 도톰한 클레이 · 따뜻한 크림색 (이기면 버터색 · 지면 살구색)
+   · 이겼을 때 / 졌을 때 연출: 글자 · S 토큰 · 왕관 · 꽃가루 · 하트 · 숫자 · 순위 · 다시 하기
+   원래 결과 화면(src/result.js · src/upgrade.css)은 그대로 두고 .verdict.fx 아래에서만 바꿔요. */
+
+.verdict.fx{
+  --clay: oklch(0.966 0.03 80);            /* 판 몸 (크림) */
+  --clay-hi: oklch(0.992 0.014 88);        /* 위쪽 빛 */
+  --clay-side: oklch(0.865 0.062 72);      /* 도톰한 두께 (아래로 보이는 옆면) */
+  --clay-in: oklch(0.55 0.08 55 / .2);     /* 볼록한 판 안쪽 그늘 */
+  --clay-cast: oklch(0.3 0.05 45 / .34);   /* 판 그림자 */
+  --clay-well: oklch(0.928 0.042 78);      /* 눌러 들어간 칸 */
+  --clay-well-in: oklch(0.5 0.07 55 / .22);
+  --clay-row: oklch(0.982 0.02 84);        /* 볼록 튀어나온 줄 */
+  --clay-row-side: oklch(0.885 0.05 74);
+  --clay-ink: oklch(0.34 0.045 50);        /* 따뜻한 갈색 글자 */
+  --clay-soft: oklch(0.52 0.055 58);
+}
+/* 이기면 버터색 · 지면 살구색 (왼쪽 판만) */
+.verdict.fx-win .r-me{ --clay: oklch(0.955 0.07 94); --clay-hi: oklch(0.99 0.035 98); --clay-side: oklch(0.845 0.105 84);
+  --clay-well: oklch(0.917 0.072 90); --clay-in: oklch(0.6 0.1 75 / .2); }
+.verdict.fx-lose .r-me{ --clay: oklch(0.952 0.035 50); --clay-hi: oklch(0.988 0.016 62); --clay-side: oklch(0.845 0.065 40);
+  --clay-well: oklch(0.917 0.045 46); --clay-in: oklch(0.55 0.08 35 / .2); }
+
+.verdict.fx .r-card{
+  --soft: var(--clay-soft); --well: var(--clay-well); --row: var(--clay-row); --ink: var(--clay-ink);
+  color: var(--clay-ink);
+  background: radial-gradient(130% 100% at 28% 0%, var(--clay-hi) 0%, var(--clay) 55%);
+  box-shadow:
+    inset 0 1vh 1.6vh oklch(1 0 0 / .75),      /* 윗면 빛 */
+    inset 0 -1.8vh 2.6vh var(--clay-in),       /* 아래쪽 안 그늘 → 말랑하게 볼록 */
+    0 1.4vh 0 var(--clay-side),                /* 두께 */
+    0 3.6vh 5.2vh var(--clay-cast);
+  animation: rfx-card .72s cubic-bezier(.3,1.4,.45,1) both;
+}
+.verdict.fx .r-rank{ animation-delay: .12s; }
+@keyframes rfx-card{
+  0%{ opacity:0; translate:0 10vh; scale:.74 .62; }
+  55%{ opacity:1; translate:0 -1vh; scale:1.04 .96; }
+  78%{ translate:0 0; scale:.985 1.02; }
+  100%{ translate:0 0; scale:1; }
+}
+
+/* 눌러 들어간 칸: 맨 위 꼬리표 · 나 VS Coco · 맞힌 종 / 빠르기 / 실수 */
+.verdict.fx .r-kicker, .verdict.fx .r-vs, .verdict.fx .r-stats div{
+  background: var(--clay-well);
+  box-shadow: inset 0 .55vh 1vh var(--clay-well-in), inset 0 -.4vh .6vh oklch(1 0 0 / .65);
+}
+/* 제목 글자: 클레이 글자처럼 두께 */
+.verdict.fx #vTitle .ch{ display:inline-block; transform-origin: 50% 90%;
+  text-shadow: 0 .55vh 0 color-mix(in oklch, currentColor 72%, oklch(0.3 0.05 50)), 0 1.2vh 1.4vh oklch(0.3 0.05 50 / .18); }
+
+/* 순위 줄: 볼록한 크림 줄 · 내 줄은 파란 클레이 */
+.verdict.fx .r-list{ gap: 1.25vh; }
+.verdict.fx .rk:not(.gap){ position:relative; height: 6.2vh;
+  background: linear-gradient(to bottom, var(--clay-hi), var(--clay-row));
+  box-shadow: 0 .6vh 0 var(--clay-row-side), 0 1.1vh 1.4vh oklch(0.35 0.05 50 / .14), inset 0 .35vh .5vh oklch(1 0 0 / .9); }
+.verdict.fx .rk.me{
+  background: linear-gradient(to bottom, oklch(0.945 0.033 262), oklch(0.885 0.062 266));
+  box-shadow: 0 .6vh 0 oklch(0.68 0.085 268), 0 1.1vh 1.4vh oklch(0.35 0.07 268 / .2), inset 0 .35vh .5vh oklch(1 0 0 / .7); }
+.verdict.fx .rk-name{ font-size: 2.9vh; }
+/* 내가 3등 안이면 줄이 3개뿐이라 빈 곳이 한 줄만큼 남아요 → 세 줄을 크게 (시상대처럼) */
+.verdict.fx .r-list[data-n="3"] .rk{ height: 8.2vh; }
+.verdict.fx .r-list[data-n="3"] .rk-name{ font-size: 3.3vh; }
+.verdict.fx .r-list[data-n="3"] .rk-no{ width: 5.2vh; height: 5.2vh; font-size: 2.8vh; }
+.verdict.fx .r-list[data-n="3"] .rk .av{ width: 5.4vh; height: 5.4vh; font-size: 2.8vh; }
+.verdict.fx .r-list[data-n="3"] .rk{ grid-template-columns: 5.4vh 5.4vh 1fr 13vh 9vh; }
+.verdict.fx .r-list[data-n="3"] .ms{ width: 3.5vh; height: 3.5vh; }
+.verdict.fx .r-my{
+  background: linear-gradient(to bottom, oklch(0.952 0.03 262), oklch(0.9 0.055 265));
+  box-shadow: 0 .7vh 0 oklch(0.7 0.08 268), 0 1.2vh 1.6vh oklch(0.35 0.07 268 / .18), inset 0 .4vh .6vh oklch(1 0 0 / .75); }
+/* 동그라미 얼굴: 클레이 공 */
+.verdict.fx .av{
+  background: radial-gradient(circle at 34% 28%, color-mix(in oklch, var(--av, var(--c-blue)) 42%, white), var(--av, var(--c-blue)) 72%);
+  box-shadow: inset 0 -.45vh .6vh oklch(0.3 0.05 50 / .16), 0 .35vh .6vh oklch(0.35 0.05 50 / .18); }
+.verdict.fx .r-my .av, .verdict.fx .rk.me .av{ --av: var(--p1); }
+/* 3등 밑의 내 줄 (3등 안에 못 들었을 때): 순위 숫자가 굴러 내려와 멈추면 쏙 */
+.verdict.fx .rk.me.below, .verdict.fx .rk.gap{ opacity:0; animation:none; }
+.verdict.fx .rk.me.below.arrive{ opacity:1; animation: rfx-arrive .6s cubic-bezier(.3,1.5,.45,1) both; }
+.verdict.fx .rk.gap.arrive{ opacity:1; animation: rk-in .4s ease both; }
+@keyframes rfx-arrive{ 0%{ opacity:0; translate:0 3vh; scale:.9 .7; } 60%{ opacity:1; translate:0 -.6vh; scale:1.03 .97; } 100%{ translate:0 0; scale:1; } }
+
+/* 다시 하기: 클레이 버튼 (누르면 쏙 들어감) */
+.verdict.fx .again{ position:relative; overflow:hidden;
+  background: radial-gradient(120% 140% at 30% 10%, oklch(0.84 0.11 14), var(--p2) 62%);
+  box-shadow: inset 0 .6vh .9vh oklch(1 0 0 / .45), inset 0 -.9vh 1.3vh oklch(0.45 0.14 14 / .32),
+              0 1vh 0 var(--p2-deep), 0 1.8vh 2.4vh oklch(0.42 0.12 14 / .3);
+  transition: translate .12s, box-shadow .12s; }
+.verdict.fx .again:active{ translate: 0 .7vh;
+  box-shadow: inset 0 .6vh .9vh oklch(1 0 0 / .45), inset 0 -.9vh 1.3vh oklch(0.45 0.14 14 / .32),
+              0 .3vh 0 var(--p2-deep), 0 .8vh 1.2vh oklch(0.42 0.12 14 / .3); }
+
+/* ── 연출 ── */
+/* 제목: 이기면 통통 튀어 올라오고 출렁 · 지면 떨어져서 시무룩 기울었다가 다시 힘내서 벌떡 */
+.verdict.fx-win #vTitle .ch{ animation: rfx-ch-in .62s cubic-bezier(.3,1.75,.5,1) both; animation-delay: calc(.28s + var(--k) * 75ms); }
+@keyframes rfx-ch-in{ from{ opacity:0; translate:0 5vh; scale:.2 .5; } }
+.verdict.fx-win #vTitle.wave .ch{ animation: rfx-wave .75s ease-in-out both; animation-delay: calc(var(--k) * 65ms); }
+@keyframes rfx-wave{ 0%,100%{ translate:0 0; scale:1; } 35%{ translate:0 -2.4vh; scale:1.1 .92; } 62%{ translate:0 .3vh; scale:.96 1.05; } }
+.verdict.fx-lose #vTitle .ch{ animation: rfx-ch-drop 1.2s cubic-bezier(.3,1.2,.5,1) both; animation-delay: calc(.28s + var(--k) * 95ms); }
+@keyframes rfx-ch-drop{
+  0%{ opacity:0; translate:0 -6vh; rotate:0deg; }
+  35%{ opacity:1; translate:0 1.1vh; rotate: var(--r); scale:1.05 .9; }
+  65%{ translate:0 .5vh; rotate: calc(var(--r) * .8); scale:1; }
+  100%{ translate:0 .6vh; rotate: var(--r); scale:1; }
+}
+.verdict.fx-lose #vTitle.up .ch{ animation: rfx-up .9s cubic-bezier(.3,1.5,.5,1) both; animation-delay: calc(var(--k) * 70ms); }
+@keyframes rfx-up{
+  0%{ translate:0 .6vh; rotate: var(--r); scale:1; }
+  30%{ translate:0 1vh; rotate: var(--r); scale:1.08 .9; }
+  62%{ translate:0 -1.8vh; rotate: calc(var(--r) * -.35); scale:.95 1.08; }
+  100%{ translate:0 0; rotate:0deg; scale:1; }
+}
+
+/* S 토큰: 판의 S 칸에서 날아와 쏙 · 누르면 흔들 */
+.verdict.fx .mt.got{ animation:none; opacity:0; }
+.verdict.fx .mt.got.in{ opacity:1; animation: rfx-tok .5s cubic-bezier(.3,1.8,.5,1) both; }
+@keyframes rfx-tok{ 0%{ scale:.2; } 55%{ scale:1.3; } 100%{ scale:1; } }
+.verdict.fx .mt.got.in.jig{ animation: rfx-jig .55s ease both; }
+@keyframes rfx-jig{ 20%{ rotate:-16deg; scale:1.18; } 50%{ rotate:12deg; scale:1.1; } 75%{ rotate:-5deg; scale:1; } }
+.rfx-fly{ position:fixed; left:0; top:0; z-index:40; pointer-events:none; will-change:transform; }
+.rfx-fly img{ width:100%; height:100%; display:block; filter: drop-shadow(0 .6vh .5vh oklch(0.3 0.05 50 / .3)); }
+
+/* 톡 터지는 작은 점들 */
+.rfx-burst{ position:fixed; z-index:41; width:0; height:0; pointer-events:none; }
+.rfx-burst i{ position:absolute; left:calc(var(--s) / -2); top:calc(var(--s) / -2); width:var(--s); height:var(--s); border-radius:50%;
+  background: radial-gradient(circle at 35% 30%, oklch(1 0 0 / .8), var(--c) 60%);
+  animation: rfx-dot .62s cubic-bezier(.2,.8,.3,1) forwards; }
+@keyframes rfx-dot{ from{ translate:0 0; scale:1; opacity:1; } to{ translate: var(--x) var(--y); scale:.2; opacity:0; } }
+
+/* 이긴 쪽 왕관 (나 · Coco): 이름 왼쪽 위에 비스듬히 — 이름 글자를 가리지 않게 */
+.verdict.fx .r-side b{ position:relative; }
+.rfx-crown{ position:absolute; right:100%; top:-.7vh; margin-right:.35vh; width:4.4vh; rotate:-16deg; transform-origin:70% 90%; cursor:pointer;
+  filter: drop-shadow(0 .4vh .25vh oklch(0.45 0.09 70 / .4)); animation: rfx-crown .8s cubic-bezier(.3,1.6,.5,1) both; }
+.rfx-crown svg{ display:block; width:100%; height:auto; }
+@keyframes rfx-crown{ 0%{ opacity:0; translate:0 -7vh; rotate:-50deg; scale:.6; } 55%{ opacity:1; translate:0 .5vh; rotate:2deg; scale:1.06 .9; }
+  100%{ translate:0 0; rotate:-16deg; scale:1; } }
+.rfx-crown.jig{ animation: rfx-crown-jig .6s ease both; }
+@keyframes rfx-crown-jig{ 0%,100%{ translate:0 0; rotate:-16deg; } 25%{ translate:0 -1.2vh; rotate:-34deg; } 60%{ translate:0 0; rotate:2deg; } }
+
+/* 꽃가루 (이겼을 때) */
+.rfx-confetti{ position:fixed; inset:0; width:100%; height:100%; z-index:39; pointer-events:none; }
+
+/* 하트 (졌을 때 판을 누르면 — 괜찮아, 다시 해 보자) */
+.rfx-heart{ position:fixed; z-index:41; width:5.4vh; height:5.4vh; margin:-2.7vh 0 0 -2.7vh; pointer-events:none;
+  animation: rfx-heart 1.5s cubic-bezier(.2,.7,.3,1) forwards; }
+.rfx-heart svg{ display:block; width:100%; height:100%; filter: drop-shadow(0 .4vh .35vh oklch(0.4 0.08 30 / .35)); }
+@keyframes rfx-heart{ 0%{ opacity:0; scale:.3; } 14%{ opacity:1; scale:1.15; } 100%{ opacity:0; translate: var(--hx) -18vh; rotate: var(--hr); scale:.85; } }
+
+/* 숫자 · 순위 */
+.verdict.fx .r-stats div.done{ animation: rfx-land .45s cubic-bezier(.3,1.7,.5,1) both; }
+.verdict.fx .r-my.land{ animation: rfx-land .5s cubic-bezier(.3,1.7,.5,1) both; }
+@keyframes rfx-land{ 0%{ scale:1; } 35%{ scale:1.07 .93; } 65%{ scale:.98 1.03; } 100%{ scale:1; } }
+.verdict.fx #vRank{ display:inline-block; min-width:1.2ch; text-align:center; }
+.verdict.fx #vRank.tick{ animation: rfx-tick .16s ease-out; }
+@keyframes rfx-tick{ from{ translate:0 -1vh; opacity:.35; } }
+.verdict.fx .rk.me.shine::after{ content:''; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
+  background: linear-gradient(100deg, transparent 30%, oklch(1 0 0 / .75) 50%, transparent 70%) no-repeat; background-size: 250% 100%;
+  animation: rfx-sweep 1s ease-out both; }
+@keyframes rfx-sweep{ from{ background-position: 140% 0; } to{ background-position: -40% 0; } }
+.verdict.fx .rk-no.glint{ animation: rfx-glint .9s ease both; }
+@keyframes rfx-glint{ 30%{ scale:1.35; rotate:-12deg; } 60%{ scale:.95; rotate:6deg; } }
+.verdict.fx .rk.squish{ animation: rfx-squish .45s ease both; }
+@keyframes rfx-squish{ 30%{ scale:1.03 .88; } 62%{ scale:.99 1.05; } 100%{ scale:1; } }
+
+/* 다시 하기: 다 나오면 숨쉬듯 (지면 콩콩 뛰며 다시 하자고) + 반짝 지나가는 빛 */
+.verdict.fx .again.idle{ animation: rfx-breathe 2.4s ease-in-out infinite; }
+@keyframes rfx-breathe{ 0%,100%{ scale:1; } 50%{ scale:1.06; } }
+.verdict.fx-lose .again.idle{ animation: rfx-hop 2.2s ease-in-out infinite; }
+@keyframes rfx-hop{ 0%,55%,100%{ translate:0 0; scale:1; } 65%{ translate:0 -1.4vh; scale:.96 1.05; } 76%{ translate:0 0; scale:1.05 .95; } 86%{ scale:1; } }
+.verdict.fx .again.idle::after{ content:''; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
+  background: linear-gradient(105deg, transparent 35%, oklch(1 0 0 / .55) 50%, transparent 65%) no-repeat; background-size: 300% 100%;
+  animation: rfx-sheen 2.4s ease-in-out infinite; }
+@keyframes rfx-sheen{ 0%{ background-position: 120% 0; } 45%,100%{ background-position: -60% 0; } }
+
+/* 동작 줄이기: 움직임 없이 바로 */
+@media (prefers-reduced-motion: reduce){
+  .verdict.fx *, .verdict.fx *::after, .rfx-crown{ animation-duration:.01ms !important; animation-delay:0s !important; animation-iteration-count:1 !important; }
+}
