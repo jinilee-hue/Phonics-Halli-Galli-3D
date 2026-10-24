@@ -222,6 +222,29 @@ faceTex.wrapS = faceTex.wrapT = eyeTex.wrapS = eyeTex.wrapT = T.ClampToEdgeWrapp
 
 /* ── 움직임 ── */
 let pressT0 = -1e9, tilt = 0, ready = false;
+/* 튜터 몸짓 (gl/tutor.js가 부름): 끄덕 · 도리도리 · 콩콩 · 갸웃 + 반짝(부르기) + 바라보기 */
+const GEST = { nod: 720, shake: 820, hop: 780, wiggle: 700 };
+let gKind = '', gT0 = -1e9, glow = 0, glowTo = 0;
+const gaze = { x: 0, y: 0, until: -1e9 };
+const emiY = yellow.emissive.clone(), emiB = btnYellow.emissive.clone(), emiGlow = new T.Color('#8a6c00');
+function act(kind) { if (!GEST[kind]) return; gKind = kind; gT0 = A.now(); B.kick(); }
+function gestureAt(t) {
+  const out = { pitch: 0, yaw: 0, roll: 0, lift: 0, sx: 1, sy: 1, on: false };
+  const k = (t - gT0) / (GEST[gKind] || 1);
+  if (!gKind || k < 0 || k >= 1 || A.reducedMotion()) return out;
+  out.on = true;
+  const fade = 1 - k;
+  if (gKind === 'nod') out.pitch = Math.sin(k * Math.PI * 4) * .2 * fade;            // 끄덕끄덕 (두 번)
+  else if (gKind === 'shake') out.yaw = Math.sin(k * Math.PI * 6) * .3 * fade;       // 도리도리 (세 번)
+  else if (gKind === 'wiggle') out.roll = Math.sin(k * Math.PI * 4) * .14 * fade;    // 갸웃갸웃
+  else if (gKind === 'hop') {                                                          // 콩콩 (두 번) — 닿을 때 납작
+    const h = Math.abs(Math.sin(k * Math.PI * 2));
+    out.lift = h * .26 * (1 - k * .35);
+    const land = Math.max(0, 1 - h * 4) * fade;
+    out.sx = 1 + .07 * land; out.sy = 1 - .1 * land;
+  }
+  return out;
+}
 const easePress = A.bezier(.25, .8, .35, 1);
 const PRESS = [[0, 1, 1], [.16, 1.07, .86], [.42, .97, 1.05], [.68, 1.01, .99], [1, 1, 1]];   // bell-face.js의 bf-press와 같은 박자
 function pressScale(k) {
@@ -242,21 +265,23 @@ const look = { ex: 0, ey: 0, yaw: 0, pitch: 0 }, faceW = new T.Vector3();
 const EYE_X = 16, EYE_Y = 12, YAW = 13 * Math.PI / 180, PITCH = 6 * Math.PI / 180;   // 눈(그림 픽셀) · 몸 돌기 최대
 const tgt = new T.Vector3();
 function watch(L, t) {
-  const p = A.pointer, on = A.engaged();
+  const looking = A.now() < gaze.until;                     // 튜터가 바라볼 자리를 정해 두면 (내 카드 더미 · 카드 · Coco)
+  const p = looking ? gaze : A.pointer, on = looking || A.engaged();
   let nx = 0, ny = 0;
   if (on) {
     faceW.set(0, FACE_Y - LIP_Y, .6).applyMatrix4(upper.matrixWorld).project(B.camera);   // 얼굴 가운데의 화면 자리
     const fx = (faceW.x + 1) / 2 * L.W, fy = (1 - faceW.y) / 2 * L.H;
     nx = Math.max(-1, Math.min(1, (p.x - fx) / (L.W * .45)));
     ny = Math.max(-1, Math.min(1, (p.y - fy) / (L.H * .5)));
-    if (A.pointerOnPlane(0, tgt)) {                         // 손가락이 가리키는 판 위 자리 → 종 몸 기준 방향
+    if (!looking && A.pointerOnPlane(0, tgt)) {             // 손가락이 가리키는 판 위 자리 → 종 몸 기준 방향
       B.board.localToWorld(tgt); root.worldToLocal(tgt);
       const a = Math.atan2(tgt.x, Math.max(.05, tgt.z));
       nx = Math.max(-1, Math.min(1, a / .9));
     }
   }
+  if (looking) { nx = Math.max(-1, Math.min(1, nx * 1.7)); ny = Math.max(-1, Math.min(1, ny * 1.4)); }   // 튜터가 보는 곳은 또렷하게
   const body = A.reducedMotion() ? 0 : 1;
-  const to = { ex: nx * EYE_X, ey: ny * EYE_Y, yaw: nx * YAW * body, pitch: ny * PITCH * body };
+  const to = { ex: nx * EYE_X, ey: ny * EYE_Y, yaw: nx * YAW * body * (looking ? 1.5 : 1), pitch: ny * PITCH * body };
   const k = 1 - Math.exp(-dtLook(t) / (on ? 110 : 420));
   let moving = false;
   for (const key in to) { const d = to[key] - look[key]; if (Math.abs(d) > 1e-4) { look[key] += d * k; moving = true; } else look[key] = to[key]; }
@@ -313,14 +338,24 @@ B.addPart({
       const [px, py] = pressScale(k);
       sx *= px; sy *= py; push = Math.max(0, 1 - py) * .55; busy = true;
     }
+    const g = gestureAt(t);
+    if (g.on) busy = true;
+    sx *= g.sx; sy *= g.sy;
     upper.scale.set(sx, sy, sx);
     plunger.position.y = -push;
+    turn.position.y = g.lift;
+    glow += (glowTo - glow) * .18;
+    if (Math.abs(glowTo - glow) > .002) busy = true; else glow = glowTo;
+    const pulse = glowTo > 0 ? .75 + .25 * Math.sin(t / 160) : 1;   // 부를 땐 반짝반짝
+    if (glowTo > 0) busy = true;
+    yellow.emissive.copy(emiY).lerp(emiGlow, glow * pulse);
+    btnYellow.emissive.copy(emiB).lerp(emiGlow, glow * pulse);
     const tiltTo = bellEl.dataset.eyes === 'wink' ? -3 * Math.PI / 180 : 0;
     tilt += (tiltTo - tilt) * .25;
     if (Math.abs(tiltTo - tilt) > .0005) busy = true;
     // 손 바라보기: 눈이 손 쪽으로 · 몸도 손 쪽으로 살짝 돌고 끄덕 (손이 멈추면 천천히 제자리)
     if (watch(L, t)) busy = true;
-    upper.rotation.set(look.pitch, look.yaw, tilt);
+    upper.rotation.set(look.pitch + g.pitch, look.yaw + g.yaw, tilt + g.roll);
     eyeTex.offset.set(-look.ex / FACE.w, look.ey / FACE.h);
     const ds = dtSpin(t);
     if (spin.step(ds)) busy = true;                           // 끌어서 한 바퀴 (시작 화면): 좌우
@@ -360,6 +395,8 @@ if (typeof place0 === 'function') {
 
 // 확인용: Bell3D.tune({ FACE_Y, FACE_K, BACK, SIZE })
 window.Bell3D = { root, upper, turn, tumble, face, faceTex, fc, screenRect, look, get spin() { return spin; }, get flip() { return flip; },
+  act, glow(on) { glowTo = on ? 1 : 0; B.kick(); }, gaze(x, y, ms) { gaze.x = x; gaze.y = y; gaze.until = A.now() + (ms || 1500); B.kick(); },
+  get ready() { return ready; },
   mats: { yellow, btnYellow, red, chrome, faceMat, eyeMat }, eyesMesh, DOME_C,
   baseOffset: () => (FOOT + .975) * unit,      // 원래 종 발 자리(받침 앞 모서리) → 받침 가운데까지 (판 좌표 px, 먼 쪽으로)
   tune(o) { if (o.FACE_Y != null) FACE_Y = o.FACE_Y; if (o.FACE_K != null) FACE_K = o.FACE_K; if (o.SIZE != null) SIZE = o.SIZE;
