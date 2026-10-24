@@ -1,7 +1,10 @@
 """노란 종 튜터(진행자)의 말소리를 미리 만듭니다 — 기기마다 목소리가 달라지지 않게.
 
-목소리: Microsoft 신경망 음성 'Ava' (en-US-AvaNeural · 밝고 표현이 풍부한 어른 여자 목소리), 조금 천천히(-5%)
-  카드 낱말을 읽는 목소리(Ana · 여자아이)와 일부러 다르게 — 아이가 '문제 낱말'과 '안내 말'을 헷갈리지 않게.
+목소리: 어린 종 캐릭터 목소리 — Microsoft 신경망 음성 'Ana' (en-US-AnaNeural · 미국 여자아이)를 높게(+55Hz), 조금 천천히(-5%)
+  사용자 요청으로 어른 목소리(Ava)에서 아이 목소리로 바꿈. 아이 목소리 후보를 받아쓰기(whisper)로 비교해서 골랐어요:
+    Ana +55Hz 18/18 · Ana +30Hz 17/18 · Maisie(영국 여자아이) 13~14/18 ('ring'을 'win' · 'wing'으로, 'first'를 'fast'로 들음)
+  카드 낱말을 읽는 목소리(같은 Ana, 높이 그대로 약 310Hz)보다 30% 높아서(약 405Hz) 더 어린 아이 목소리로 들리고,
+  아이가 '문제 낱말'과 '종의 말'을 높이로 구별할 수 있어요.
 도구: edge-tts (무료 · 시제품용). 정식 출시 때는 Azure Speech(유료 정식 서비스)나 성우 녹음으로 바꿀 것.
 
 결과
@@ -21,7 +24,7 @@ import subprocess
 
 import numpy as np
 
-VOICE, RATE, PITCH = 'en-US-AvaNeural', '-5%', '+0Hz'
+VOICE, RATE, PITCH = 'en-US-AnaNeural', '-5%', '+55Hz'
 SR = 24000
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 OUT = ROOT / 'gl' / 'media' / 'tutor'
@@ -125,7 +128,7 @@ for i, t in LINES.items():
 
 JS.write_text(
     '// tools/build_tutor_voice.py 가 만든 파일입니다 — 노란 종 튜터(진행자) 말소리 (직접 고치지 마세요).\n'
-    f'// 목소리: {VOICE} (Microsoft 신경망 음성 · 밝은 어른 여자 목소리 · 낱말 목소리 Ana와 다르게) · 빠르기 {RATE} · edge-tts (시제품용)\n'
+    f'// 목소리: 어린 종 = {VOICE} 높이 {PITCH} (낱말 목소리보다 30% 높게) · 빠르기 {RATE} · edge-tts (시제품용)\n'
     '// 파일을 더블클릭해 열어도(file://) 소리가 나도록 mp3를 글자(base64)로 넣어 두었어요. 원본: gl/media/tutor/*.mp3\n'
     f'window.TUTOR_VOICE = {{ info: {json.dumps({"voice": VOICE, "rate": RATE, "mouthMs": MOUTH_MS})},\n'
     '  lines: {\n' + ',\n'.join(f'    {json.dumps(k)}: {json.dumps(v, ensure_ascii=False)}' for k, v in lines.items()) + '\n  } };\n',

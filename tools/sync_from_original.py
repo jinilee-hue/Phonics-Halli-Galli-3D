@@ -35,7 +35,7 @@ BODY_ADD = ('<!-- 3D 판 (WebGL): three.js + 판 그림 + 판 그리기. 게임 
             '<script src="./gl/coco3d.js?v=1"></script>\n'
             '<script src="./gl/view360.js?v=2"></script>\n'
             '<!-- 노란 종 튜터: 진행자 말소리 + 상황별 안내 (원래 게임 함수를 감싸서 끼어들어요 · ?tutor=off 로 끔) -->\n'
-            '<script src="./gl/tutor-voice.js?v=1"></script>\n'
+            '<script src="./gl/tutor-voice.js?v=2"></script>\n'
             '<script src="./gl/tutor.js?v=1"></script>\n')
 TITLE = ('<title>Phonics Halli Galli — Coco</title>', '<title>Phonics Halli Galli 3D — Coco</title>')
 ASSET_DIRS = ['bell_parts', 'coco_parts', 'clock_parts', 'card_web']
