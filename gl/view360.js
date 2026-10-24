@@ -31,9 +31,10 @@ btn.className = 'hud-btn';
 btn.id = 'btnView';
 btn.setAttribute('aria-label', '360° 돌려 보기');
 btn.innerHTML =
-  '<svg class="ic-360" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.6c-2.3 0-4.2 3.8-4.2 8.4s1.9 8.4 4.2 8.4"/>' +
-  '<path d="M12 3.6c2.3 0 4.2 3.8 4.2 8.4"/><path d="M20.4 10.6c.4.5.6.9.6 1.4 0 2.3-4 4.2-9 4.2S3 14.3 3 12c0-1.5 1.7-2.8 4.3-3.6"/>' +
-  '<path d="M9.6 13.8 12 16.2 9.6 18.6"/></svg>' +
+  // 360° 아이콘: 정육면체 + 아래를 도는 고리 화살표 (전 아이콘은 선이 서로 엇갈려 작은 크기에서 낙서처럼 깨져 보였어요)
+  '<svg class="ic-360" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.2 16.2 6.4 12 8.6 7.8 6.4Z"/>' +
+  '<path d="M7.8 6.4v4.4L12 13l4.2-2.2V6.4"/><path d="M12 8.6V13"/>' +
+  '<path d="M4.77 13A9.2 4.2 0 1 0 19.23 13"/><path d="M20.32 15.36 19.23 13l2.59-.22"/></svg>' +
   '<svg class="ic-front" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.6 9.2A8 8 0 1 1 4 12"/><path d="M4.2 4.6v4.8H9"/>' +
   '<circle cx="12" cy="12" r="2.2"/></svg>';
 const hudR = document.querySelector('.hud-r');
