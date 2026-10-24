@@ -29,7 +29,7 @@ INTRO_ADD = '<script src="./gl/intro-mg.js?v=2"></script>\n'
 # 결과 화면 덧입히기: 원래 result.js 바로 뒤(main.js보다 앞)에 끼워서 renderResult를 바꿔 둬요 (main.js가 읽을 때 가져감)
 RESULT_ADD = '<script src="./gl/result-fx.js?v=7"></script>\n'
 # HUD 시계 색(핑크 · 보라): 원래 clock.js 바로 뒤에 끼워서, 그 스크립트가 만든 시계 그림 주소를 색 바꾼 복사본으로 바꿔요
-CLOCK_ADD = '<script src="./gl/clock-color.js?v=1"></script>\n'
+CLOCK_ADD = '<script src="./gl/clock-color.js?v=2"></script>\n'
 BODY_ADD = ('<!-- 3D 판 (WebGL): three.js + 판 그림 + 판 그리기. 게임 규칙 · 소리 · 글자는 위 원래 스크립트 그대로 -->\n'
             '<script src="./vendor/three/three.iife.js"></script>\n'
             '<script src="./src/gl-tex.js?v=3"></script>\n'

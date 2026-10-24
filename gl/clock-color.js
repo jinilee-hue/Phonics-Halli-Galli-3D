@@ -1,10 +1,10 @@
 // HUD 시계 색 (3D 폴더 전용 · 사용자 요청 "시계 보라색이나 핑크 계열로"): 빨강 · 노랑 · 주황 · 파랑 → 핑크 · 보라 계열
 //  · 원래 게임의 src/clock.js · assets/clock_parts는 그대로 — 그 스크립트가 만든 그림의 주소만 색 바꾼 복사본으로 바꿔 끼워요
 //  · 복사본: tools/build_clock_color.py → gl/media/clock/<테마>/{body,hand_orange,hand_blue,still}.png (가운데 꼭지 cap은 원래 그대로)
-//  · ?clock=purple(기본 — 파란 판 · 분홍 Coco 사이에서 가장 또렷해요) · ?clock=pink · ?clock=off(원래 색)
+//  · ?clock=pink(기본 — 사용자가 고름: 핑크 테두리) · ?clock=purple · ?clock=off(원래 색)
 //  · src/clock.js 바로 뒤에 넣어요(동기화: tools/sync_from_original.py CLOCK_ADD). 복사본이 안 불러와지면 원래 그림으로 되돌려요
 (() => {
-  const THEMES = ['pink', 'purple'], DEF = 'purple', V = 1;
+  const THEMES = ['pink', 'purple'], DEF = 'pink', V = 1;
   const q = new URLSearchParams(location.search).get('clock');
   const theme = q === 'off' ? null : THEMES.includes(q) ? q : DEF;
   const host = document.getElementById('hudClock');
