@@ -9,6 +9,7 @@
 3D 판 파일(gl/ · vendor/ · src/gl-tex.js · tools/)은 건드리지 않아요.
 """
 import filecmp
+import hashlib
 import pathlib
 import re
 import shutil
@@ -28,6 +29,8 @@ HEAD_ADD = ('<link rel="stylesheet" href="./gl/board3d.css?v=1" />\n'
 INTRO_ADD = '<script src="./gl/intro-mg.js?v=2"></script>\n'
 # 결과 화면 덧입히기: 원래 result.js 바로 뒤(main.js보다 앞)에 끼워서 renderResult를 바꿔 둬요 (main.js가 읽을 때 가져감)
 RESULT_ADD = '<script src="./gl/result-fx.js?v=7"></script>\n'
+# 6세 · 7세 카드 그림 목록: 원래 cards.js 바로 뒤에 (CARD_ART에 더함). ?v= 는 파일 내용 해시 — 그림이 바뀌면 자동으로 새로 받아요
+CARDS_ADD = '<script src="./gl/card-art.js?v={v}"></script>\n'
 # HUD 시계 색(핑크 · 보라): 원래 clock.js 바로 뒤에 끼워서, 그 스크립트가 만든 시계 그림 주소를 색 바꾼 복사본으로 바꿔요
 CLOCK_ADD = '<script src="./gl/clock-color.js?v=2"></script>\n'
 BODY_ADD = ('<!-- 3D 판 (WebGL): three.js + 판 그림 + 판 그리기. 게임 규칙 · 소리 · 글자는 위 원래 스크립트 그대로 -->\n'
@@ -37,6 +40,8 @@ BODY_ADD = ('<!-- 3D 판 (WebGL): three.js + 판 그림 + 판 그리기. 게임 
             '<script src="./gl/bell3d.js?v=4"></script>\n'
             '<script src="./gl/coco3d.js?v=2"></script>\n'
             '<script src="./gl/view360.js?v=3"></script>\n'
+            '<!-- 6세 · 7세 그림 카드 (2 · 3단계도 그림이 있으면 그림 카드로 · ?age=6 · ?age=7) -->\n'
+            '<script src="./gl/lv-cards.js?v=1"></script>\n'
             '<!-- Coco 말풍선 영어 · 노란 종 튜터: 진행자 말소리 + 상황별 안내 (원래 게임 함수를 감싸서 끼어들어요 · ?tutor=off 로 튜터만 끔) -->\n'
             '<script src="./gl/coco-en.js?v=1"></script>\n'
             '<script src="./gl/tutor-voice.js?v=3"></script>\n'
@@ -97,6 +102,16 @@ def main():
     if not m:
         sys.exit('원래 index.html에서 src/result.js 줄을 못 찾았어요(결과 화면 덧입히기를 끼울 자리). 손으로 확인해 주세요.')
     html = html[:m.end()] + RESULT_ADD + html[m.end():]
+    # 6세 · 7세 카드 그림: 원래 게임 assets/card → gl/media/cards (바뀐 그림만 다시) — index.html에 넣을 해시가 필요해서 먼저 돌려요
+    before = (ROOT / 'gl' / 'card-art.js').read_bytes() if (ROOT / 'gl' / 'card-art.js').exists() else b''
+    subprocess.run([sys.executable, str(ROOT / 'tools' / 'build_card_art.py')], check=True)
+    art_js = (ROOT / 'gl' / 'card-art.js').read_bytes()
+    if art_js != before:
+        changed.append('gl/card-art.js · gl/media/cards (카드 그림)')
+    m = re.search(r'<script[^>]*src/cards\.js[^>]*></script>\n', html)
+    if not m:
+        sys.exit('원래 index.html에서 src/cards.js 줄을 못 찾았어요(카드 그림 목록을 끼울 자리). 손으로 확인해 주세요.')
+    html = html[:m.end()] + CARDS_ADD.format(v=hashlib.md5(art_js).hexdigest()[:8]) + html[m.end():]
     m = re.search(r'<script[^>]*src/clock\.js[^>]*></script>\n', html)
     if not m:
         sys.exit('원래 index.html에서 src/clock.js 줄을 못 찾았어요(시계 색을 끼울 자리). 손으로 확인해 주세요.')
