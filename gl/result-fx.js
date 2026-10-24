@@ -15,6 +15,18 @@
   const vh = () => innerHeight / 100;
   let run = null;
 
+  // ── 영어로: '나' → 'Me' (순위의 Me와 같게) · '다시 하기' → 'Play again' (사용자 요청 — 종 · Coco 말과 같은 영어로)
+  const again0 = $('#again');
+  if (again0) { again0.textContent = 'Play again'; again0.classList.add('en'); }
+  function meLabel() {
+    const b = $('#vSideMe b');
+    if (!b) return;
+    const tn = [...b.childNodes].find(n => n.nodeType === 3);       // 왕관(span)은 그대로 두고 글자만
+    if (tn) tn.nodeValue = 'Me'; else b.insertBefore(document.createTextNode('Me'), b.firstChild);
+    b.classList.add('en');
+  }
+  meLabel();
+
   window.renderResult = function () {
     const out = render0.apply(this, arguments);
     try { trimRank(); prep(arguments[0] || {}); } catch (e) { console.warn('[result-fx]', e); }
@@ -47,6 +59,7 @@
   function prep(o) {
     const v = $('#verdict');
     v.classList.add('fx');
+    meLabel();
     v.classList.toggle('fx-win', !!o.win);
     v.classList.toggle('fx-lose', !o.win);
     const h = $('#vTitle'), txt = h.textContent;
@@ -70,7 +83,7 @@
     if (!my || my.nextElementSibling && my.nextElementSibling.classList.contains('rfx-profile')) return;
     const el = document.createElement('div');
     el.className = 'rfx-profile';
-    el.innerHTML = `<img src="${PROFILE_SRC}" alt="나" draggable="false">`;
+    el.innerHTML = `<img src="${PROFILE_SRC}" alt="Me" draggable="false">`;
     my.after(el);
   }
 
