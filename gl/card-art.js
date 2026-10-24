@@ -1,5 +1,6 @@
 // tools/build_card_art.py 가 만든 파일입니다 (3D 폴더 전용) — 원래 게임 assets/card의 6세 · 7세 카드 그림 → gl/media/cards
 // 5세 카드(원래 src/cards.js)는 그대로 두고, 그림이 생긴 2 · 3단계 낱말만 window.CARD_ART에 더해요
+// OVER: 5세 카드인데 그림을 다시 만든 낱말 — 원래 사본 대신 새 사본으로 바꿔 씀
 (() => {
   const A = window.CARD_ART = window.CARD_ART || {};
   const ADD = {
@@ -82,15 +83,17 @@
   "sock": "./gl/media/cards/card_sock.webp?v=832aac18",
   "socks": "./gl/media/cards/card_socks.webp?v=a118b19e",
   "squirrel": "./gl/media/cards/card_squirrel.webp?v=d883b0b4",
-  "squirrels": "./gl/media/cards/card_squirrels.webp?v=5b378cc5",
+  "squirrels": "./gl/media/cards/card_squirrels.webp?v=ba60fb0c",
   "swing": "./gl/media/cards/card_swing.webp?v=ac863e95",
   "swings": "./gl/media/cards/card_swings.webp?v=bc1972b6",
   "toad": "./gl/media/cards/card_toad.webp?v=c1f0bfe6",
   "toads": "./gl/media/cards/card_toads.webp?v=6ad3a75e",
   "tree": "./gl/media/cards/card_tree.webp?v=23113dc7",
-  "trees": "./gl/media/cards/card_trees.webp?v=c306717d",
+  "trees": "./gl/media/cards/card_trees.webp?v=c19e8768",
   "turtle": "./gl/media/cards/card_turtle.webp?v=66816d95",
   "turtles": "./gl/media/cards/card_turtles.webp?v=a906cdc1"
 };
-  for (const k in ADD) if (!A[k]) A[k] = ADD[k];
+  const OVER = [];
+  for (const k in ADD) if (!A[k] || OVER.includes(k)) A[k] = ADD[k];
+  window.CARD_ART_3D = { over: OVER };
 })();

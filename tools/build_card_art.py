@@ -4,6 +4,7 @@
   python3 tools/build_card_art.py          (동기화.command가 돌 때마다 같이 돌아요 — 바뀐 그림만 다시 만듦)
 
 - 원래 게임 assets/card/card_<낱말>.png 중 5세 목록(원래 src/cards.js의 CARD_ART)에 없는 2 · 3단계 낱말 그림
+  + 5세 카드라도 원래 사본(assets/card_web)보다 그림이 새로 바뀐 것(다시 만든 그림 — 원래 게임은 안 건드리고 3D에서만 새 그림으로)
   → gl/media/cards/card_<낱말>.webp (600×800, 모서리 7.5% 둥글게 · 바깥 검은 바탕은 투명 — 원래 tools/build_cards.py와 같은 모양)
 - gl/card-art.js : window.CARD_ART에 더할 목록 (주소 끝 ?v= 는 그림 내용의 해시 → 그림을 바꾸면 새로 받아요)
 - gl/card-tex.js : 파일을 더블클릭해 열었을 때(file://) 3D 판이 그림을 읽도록 data URL로 — 2단계 이상을 고를 때만 불러와요 (gl/lv-cards.js)
@@ -13,14 +14,15 @@
 import base64
 import hashlib
 import json
+import os
 import pathlib
 import re
 import sys
 
 from PIL import Image, ImageChops, ImageDraw
 
-ROOT = pathlib.Path(__file__).resolve().parent.parent
-ORIG = ROOT.parent / 'Phonics-Halli-Galli'
+ROOT = pathlib.Path(os.environ.get('HG_OUT_ROOT') or pathlib.Path(__file__).resolve().parent.parent)     # 시험할 때만 바꿈
+ORIG = pathlib.Path(os.environ.get('HG_ORIG') or pathlib.Path(__file__).resolve().parent.parent.parent / 'Phonics-Halli-Galli')
 SRC = ORIG / 'assets' / 'card'
 OUT = ROOT / 'gl' / 'media' / 'cards'
 ART_JS = ROOT / 'gl' / 'card-art.js'
@@ -69,12 +71,15 @@ def main():
     have5 = set(re.findall(r'"([^"]+)":\s*"\./assets/', (ORIG / 'src' / 'cards.js').read_text(encoding='utf-8')))
     lv = words_of((ORIG / 'src' / 'words.js').read_text(encoding='utf-8'))
     OUT.mkdir(parents=True, exist_ok=True)
-    art, tex, made, skipped, radii = {}, {}, [], [], []
+    art, tex, made, skipped, radii, over = {}, {}, [], [], [], []
     for p in sorted(SRC.glob('card_*.png')):
         w = p.stem[len('card_'):]
         if w in have5:
-            continue                                    # 5세 카드: 원래 게임 사본(assets/card_web)을 그대로 씀
-        if w not in lv:
+            web5 = ORIG / 'assets' / 'card_web' / f'card_{w}.webp'
+            if web5.exists() and web5.stat().st_mtime >= p.stat().st_mtime:
+                continue                                # 5세 카드: 원래 게임 사본(assets/card_web)이 최신 → 그대로 씀
+            over.append(w)                              # 5세 카드인데 그림을 다시 만듦 → 3D에서만 새 사본으로 바꿔 씀
+        elif w not in lv:
             skipped.append(w)
             continue
         dst = OUT / f'card_{w}.webp'
@@ -96,23 +101,28 @@ def main():
         print(f'원래 모서리 둥글기 {min(radii)[0] * 100:.1f}% ~ {worst[0] * 100:.1f}% ({worst[1]}) → 모두 {R * 100:.1f}%')
         if worst[0] > R + .002:
             print(f'  ※ {worst[1]}: 원래 모서리가 {R * 100:.1f}%보다 둥글어서 모서리에 검은 테가 남을 수 있어요 — 그림을 확인해 주세요')
-    by = {2: sorted(w for w in art if lv[w] == 2), 3: sorted(w for w in art if lv[w] == 3)}
+    by = {2: sorted(w for w in art if lv.get(w) == 2 and w not in over), 3: sorted(w for w in art if lv.get(w) == 3 and w not in over)}
     ART_JS.write_text(
         '// tools/build_card_art.py 가 만든 파일입니다 (3D 폴더 전용) — 원래 게임 assets/card의 6세 · 7세 카드 그림 → gl/media/cards\n'
         '// 5세 카드(원래 src/cards.js)는 그대로 두고, 그림이 생긴 2 · 3단계 낱말만 window.CARD_ART에 더해요\n'
+        '// OVER: 5세 카드인데 그림을 다시 만든 낱말 — 원래 사본 대신 새 사본으로 바꿔 씀\n'
         '(() => {\n'
         '  const A = window.CARD_ART = window.CARD_ART || {};\n'
         f'  const ADD = {json.dumps(art, ensure_ascii=False, indent=2)};\n'
-        '  for (const k in ADD) if (!A[k]) A[k] = ADD[k];\n'
+        f'  const OVER = {json.dumps(sorted(over))};\n'
+        '  for (const k in ADD) if (!A[k] || OVER.includes(k)) A[k] = ADD[k];\n'
+        '  window.CARD_ART_3D = { over: OVER };\n'
         '})();\n', encoding='utf-8')
     TEX_JS.write_text(
         '// tools/build_card_art.py 가 만든 파일입니다 — 파일을 더블클릭해 열었을 때(file://) 3D 판이 6세 · 7세 카드 그림을 읽도록 data URL로\n'
-        '// (http로 열면 안 써요. gl/lv-cards.js가 2단계 이상을 고를 때만 불러와요)\n'
+        '// (http로 열면 안 써요. gl/lv-cards.js가 2단계 이상을 고를 때 · 다시 만든 5세 카드가 있으면 처음부터 불러와요)\n'
         f'window.GL_TEX = Object.assign(window.GL_TEX || {{}}, {json.dumps(tex)});\n', encoding='utf-8')
     for f in OUT.glob('card_*.webp'):                     # 원본이 없어진 사본은 지움
         if f.stem[len('card_'):] not in art:
             f.unlink()
             print('  지움(원본 없음):', f.name)
+    if over:
+        print('  5세 카드 다시 만든 그림 → 3D에서만 새 사본:', ', '.join(sorted(over)))
     print(f'카드 그림: 6세 {len(by[2])}장 · 7세 {len(by[3])}장 (새로 만듦 {len(made)}장)'
           f'  · gl/card-tex.js {TEX_JS.stat().st_size / 1e6:.1f} MB')
     if made:

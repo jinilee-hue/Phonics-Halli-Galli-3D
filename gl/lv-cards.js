@@ -5,7 +5,7 @@
 //  · 6세 덱: 단수 · 복수 그림이 둘 다 있는 낱말만 골라요 — 그림이 다 생기면 원래대로 62개 전부에서
 //    HOLD: 그림을 고칠 때까지 빼 둘 낱말 (예: 여럿 카드인데 하나만 그려진 그림). 지금은 없음 — maps는 지도 3개로 고쳐졌어요
 //  · ?age=6 · ?age=7 : 그 단계로 시작 (단계 고르기 단추는 원래 게임에서 숨김)
-//  · 파일을 더블클릭해 열면(file://) 3D 판이 그림 파일을 못 읽어요 → 2단계 이상이면 gl/card-tex.js(data URL)를 그때 불러와요
+//  · 파일을 더블클릭해 열면(file://) 3D 판이 그림 파일을 못 읽어요 → 2단계 이상이면(다시 만든 5세 카드가 있으면 처음부터) gl/card-tex.js(data URL)를 불러와요
 (() => {
   const HOLD = new Set([]);
   const art = w => window.CARD_ART && window.CARD_ART[w];
@@ -59,8 +59,9 @@
 
   // ── file://: 3D 판용 그림(data URL)을 2단계 이상일 때만
   let texAsked = false;
+  const over5 = ((window.CARD_ART_3D || {}).over || []).length > 0;     // 다시 만든 5세 카드가 있으면 5세에서도 필요
   function needTex() {
-    if (texAsked || location.protocol !== 'file:' || level === 1) return;
+    if (texAsked || location.protocol !== 'file:' || (level === 1 && !over5)) return;
     texAsked = true;
     const s = document.createElement('script');
     s.src = './gl/card-tex.js';
@@ -76,4 +77,5 @@
   // ── ?age=6 · ?age=7
   const lv = { 5: 1, 6: 2, 7: 3 }[new URLSearchParams(location.search).get('age')];
   if (lv && lv !== level) { window.pickLevel(lv); reset(); }
+  needTex();
 })();
