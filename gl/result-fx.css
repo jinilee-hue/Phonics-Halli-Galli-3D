@@ -85,6 +85,8 @@
 /* 'Class Ranking' 제목은 판 가운데로 (사용자 요청 — 왼쪽 판 제목 You win! · Good try!처럼) */
 .verdict.fx .r-rank header{ justify-content:center; }
 .verdict.fx .r-rank h3{ text-align:center; }
+/* 칸 이름 줄(Rank · Name · S · Speed)은 빼요 (사용자 요청 — 메달 · 이름 · S 토큰 · 초만으로도 알 수 있음). 빈 자리는 fitRank가 줄을 키워 채움 */
+.verdict.fx .r-cols{ display:none; }
 /* 순위 줄: 볼록한 크림 줄 · 내 줄은 파란 클레이 */
 .verdict.fx .r-list{ gap: 1.25vh; }
 .verdict.fx .rk:not(.gap){ position:relative; height: 6.2vh;
