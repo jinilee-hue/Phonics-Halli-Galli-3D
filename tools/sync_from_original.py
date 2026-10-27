@@ -22,7 +22,7 @@ ORIG = ROOT.parent / 'Phonics-Halli-Galli'
 # 3D 판을 켜는 줄 — 3D 쪽 파일을 더하면 여기만 고치고 이 스크립트를 다시 돌리면 돼요
 HEAD_ADD = ('<link rel="stylesheet" href="./gl/board3d.css?v=1" />\n'
             '<link rel="stylesheet" href="./gl/intro-mg.css?v=1" />\n'
-            '<link rel="stylesheet" href="./gl/result-fx.css?v=14" />\n'
+            '<link rel="stylesheet" href="./gl/result-fx.css?v=15" />\n'
             '<link rel="stylesheet" href="./gl/tutor.css?v=4" />\n'
             '<link rel="stylesheet" href="./gl/clock-color.css?v=1" />\n'
             '<link rel="stylesheet" href="./gl/levels.css?v=1" />\n')

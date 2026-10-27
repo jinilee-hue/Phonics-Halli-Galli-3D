@@ -69,9 +69,20 @@
 }
 /* 빈 토큰 자리: 연한 칸 위에서도 보이게 따뜻한 회색 홈 */
 .verdict.fx .mt:not(.got), .verdict.fx .ms:not(.got){ background: oklch(0.6 0.04 65 / .16); box-shadow: inset 0 .4vh .6vh oklch(0.4 0.05 55 / .24); }
-/* 제목 글자: 클레이 글자처럼 두께 */
+/* 선수 색 글자는 S 토큰처럼 쨍하게 (사용자 요청 "채도 높게 s마크처럼 컬러 쨍하게") — 색은 S 토큰 그림(my_s · coco_s)에서 잰 값
+   나: 토큰 몸통 oklch(.672 .170 277) · Coco: oklch(.736 .155 21). 작은 글자(Me · Coco 이름표 · 순위의 Me)는 같은 색을 조금 진하게(읽기 쉽게) */
+.verdict.fx{ --vivid-me: oklch(0.672 0.17 277); --vivid-me-ink: oklch(0.58 0.19 277); --vivid-me-side: oklch(0.52 0.165 277);
+             --vivid-coco: oklch(0.736 0.155 21); --vivid-coco-ink: oklch(0.64 0.17 21); --vivid-coco-side: oklch(0.58 0.15 22); }
+/* 제목 글자(You win! · Good try!): main.js가 글자에 바로 넣는 색(var(--p1) · var(--p2))을 덮어써요 */
+.verdict.fx.fx-win #vTitle{ color: var(--vivid-me) !important; --t-side: var(--vivid-me-side); }
+.verdict.fx.fx-lose #vTitle{ color: var(--vivid-coco) !important; --t-side: var(--vivid-coco-side); }
+/* 제목 글자: 클레이 글자처럼 두께 — 두께도 같은 색의 진한 쪽(검정을 섞으면 탁해져요) · 그림자도 같은 색 기운 */
 .verdict.fx #vTitle .ch{ display:inline-block; transform-origin: 50% 90%;
-  text-shadow: 0 .048em 0 color-mix(in oklch, currentColor 72%, #111), 0 .1em .12em rgb(17 17 17 / .16); }   /* 두께 그늘도 갈색 없이 · 글자 크기에 맞춰(em) */
+  text-shadow: 0 .048em 0 var(--t-side, color-mix(in oklch, currentColor 72%, #111)),
+               0 .1em .14em color-mix(in oklch, var(--t-side, #111) 30%, transparent); }   /* 글자 크기에 맞춰(em) */
+.verdict.fx .r-side.p1 b{ color: var(--vivid-me-ink); }
+.verdict.fx .r-side.p2 b{ color: var(--vivid-coco-ink); }
+.verdict.fx .rk.me .rk-name{ color: var(--vivid-me-ink); }
 
 /* '예시 · 연동 전' 꼬리표 · '게임 끝 · 1단계 · 5세' 꼬리표 · '모은 S가 많은 순 · 같으면 빠른 순' 줄은 빼요
    (사용자 요청 — 결과 화면에 메모 · 설명 같은 글은 두지 않음) */
