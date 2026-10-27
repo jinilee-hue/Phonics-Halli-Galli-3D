@@ -82,6 +82,9 @@
 /* 영어 글자(Me · Play Again · Class Ranking · Rings/Speed/Oops · Rank/Name/S/Speed · 아래 문장)는 Coco 말풍선과 같은 글꼴 Fredoka */
 .verdict .again.en, .verdict .r-side b.en, .verdict.fx .en{ font-family: "Fredoka", "Jua", sans-serif; font-weight: 600; }
 .verdict .r-side b.en{ font-size: 3vh; }
+/* 'Class Ranking' 제목은 판 가운데로 (사용자 요청 — 왼쪽 판 제목 You win! · Good try!처럼) */
+.verdict.fx .r-rank header{ justify-content:center; }
+.verdict.fx .r-rank h3{ text-align:center; }
 /* 순위 줄: 볼록한 크림 줄 · 내 줄은 파란 클레이 */
 .verdict.fx .r-list{ gap: 1.25vh; }
 .verdict.fx .rk:not(.gap){ position:relative; height: 6.2vh;
