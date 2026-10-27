@@ -75,6 +75,8 @@
     }
     $$('li', list).forEach((li, i) => li.style.setProperty('--i', i));
     list.dataset.n = $$('li.rk:not(.gap)', list).length;                 // 줄 수 → 3줄뿐이면 크게 (gl/result-fx.css)
+    // 친구들 줄의 S: 분홍 글자 동그라미 대신 Coco의 S 마크 그림과 똑같이 (사용자 요청) — 내 줄은 원래대로 내 S 마크
+    $$('li.rk:not(.me) .ms.got', list).forEach(t => { if (!t.querySelector('img')) t.innerHTML = '<img src="./assets/card/coco_s.png" alt="S" draggable="false">'; });
   }
 
   // ── 연출 준비 (보이기 직전)

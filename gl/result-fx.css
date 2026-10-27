@@ -74,12 +74,25 @@
 .verdict.fx{ --vivid-me: oklch(0.672 0.17 277); --vivid-me-ink: oklch(0.58 0.19 277); --vivid-me-side: oklch(0.52 0.165 277);
              --vivid-coco: oklch(0.736 0.155 21); --vivid-coco-ink: oklch(0.64 0.17 21); --vivid-coco-side: oklch(0.58 0.15 22); }
 /* 제목 글자(You win! · Good try!): main.js가 글자에 바로 넣는 색(var(--p1) · var(--p2))을 덮어써요 */
-.verdict.fx.fx-win #vTitle{ color: var(--vivid-me) !important; --t-side: var(--vivid-me-side); }
-.verdict.fx.fx-lose #vTitle{ color: var(--vivid-coco) !important; --t-side: var(--vivid-coco-side); }
+.verdict.fx.fx-win #vTitle{ color: var(--vivid-me) !important; --t-side: var(--vivid-me-side);
+  --t-grad: linear-gradient(to bottom, oklch(0.84 0.105 277) 0%, oklch(0.8 0.125 277) 33%, var(--vivid-me) 52%, oklch(0.6 0.185 277) 70%, oklch(0.55 0.18 277) 88%); }
+.verdict.fx.fx-lose #vTitle{ color: var(--vivid-coco) !important; --t-side: var(--vivid-coco-side);
+  --t-grad: linear-gradient(to bottom, oklch(0.88 0.08 21) 0%, oklch(0.84 0.1 21) 33%, var(--vivid-coco) 52%, oklch(0.67 0.165 21) 70%, oklch(0.62 0.165 21) 88%); }
 /* 제목 글자: 클레이 글자처럼 두께 — 두께도 같은 색의 진한 쪽(검정을 섞으면 탁해져요) · 그림자도 같은 색 기운 */
 .verdict.fx #vTitle .ch{ display:inline-block; transform-origin: 50% 90%;
   text-shadow: 0 .048em 0 var(--t-side, color-mix(in oklch, currentColor 72%, #111)),
                0 .1em .14em color-mix(in oklch, var(--t-side, #111) 30%, transparent); }   /* 글자 크기에 맞춰(em) */
+/* 볼륨감 (사용자 요청 "S 마크처럼 볼륨감 있게 그라데이션"): 글자마다 위는 밝고 아래로 진해지는 색 — 위에서 빛이 비친 클레이처럼
+   background-clip:text면 text-shadow가 그라데이션을 덮어서, 두께 · 그림자는 filter: drop-shadow로 옮겨요
+   글자 상자 위아래를 넓혀(padding + 같은 만큼 음수 margin → 자리는 그대로) 'y' 꼬리 같은 삐져나온 부분도 색이 칠해지게.
+   받침(transform-origin)은 넓힌 만큼 옮겨서 원래 자리(글자 상자 90%)와 같게. 이걸 못 하는 브라우저는 위의 단색 + 두께 그대로 */
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .verdict.fx.fx-win #vTitle .ch, .verdict.fx.fx-lose #vTitle .ch{
+    padding: .1em .08em .2em; margin: -.1em -.08em -.2em; transform-origin: 50% 77%;
+    background-image: var(--t-grad); -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent; text-shadow: none;
+    filter: drop-shadow(0 .048em 0 var(--t-side)) drop-shadow(0 .06em .1em color-mix(in oklch, var(--t-side) 35%, transparent)); }
+}
 .verdict.fx .r-side.p1 b{ color: var(--vivid-me-ink); }
 .verdict.fx .r-side.p2 b{ color: var(--vivid-coco-ink); }
 .verdict.fx .rk.me .rk-name{ color: var(--vivid-me-ink); }
@@ -95,7 +108,7 @@
 .verdict .r-side b.en{ font-size: 3vh; }
 /* 'Class Ranking' 제목은 판 가운데로 (사용자 요청 — 왼쪽 판 제목 You win! · Good try!처럼) */
 .verdict.fx .r-rank header{ justify-content:center; }
-.verdict.fx .r-rank h3{ text-align:center; }
+.verdict.fx .r-rank h3{ text-align:center; font-size: 4.8vh; }   /* 조금 크게 (원래 3.6vh · 사용자 요청) */
 /* 칸 이름 줄(Rank · Name · S · Speed)은 빼요 (사용자 요청 — 메달 · 이름 · S 토큰 · 초만으로도 알 수 있음). 빈 자리는 fitRank가 줄을 키워 채움 */
 .verdict.fx .r-cols{ display:none; }
 /* 순위 줄: 볼록한 크림 줄 · 내 줄은 파란 클레이 */

@@ -22,14 +22,14 @@ ORIG = ROOT.parent / 'Phonics-Halli-Galli'
 # 3D 판을 켜는 줄 — 3D 쪽 파일을 더하면 여기만 고치고 이 스크립트를 다시 돌리면 돼요
 HEAD_ADD = ('<link rel="stylesheet" href="./gl/board3d.css?v=1" />\n'
             '<link rel="stylesheet" href="./gl/intro-mg.css?v=1" />\n'
-            '<link rel="stylesheet" href="./gl/result-fx.css?v=15" />\n'
+            '<link rel="stylesheet" href="./gl/result-fx.css?v=17" />\n'
             '<link rel="stylesheet" href="./gl/tutor.css?v=4" />\n'
             '<link rel="stylesheet" href="./gl/clock-color.css?v=1" />\n'
             '<link rel="stylesheet" href="./gl/levels.css?v=1" />\n')
 # 인트로 모션그래픽: 원래 intro.js 바로 뒤(main.js보다 앞)에 끼워서 playIntro를 바꿔 둬요
 INTRO_ADD = '<script src="./gl/intro-mg.js?v=2"></script>\n'
 # 결과 화면 덧입히기: 원래 result.js 바로 뒤(main.js보다 앞)에 끼워서 renderResult를 바꿔 둬요 (main.js가 읽을 때 가져감)
-RESULT_ADD = '<script src="./gl/result-fx.js?v=7"></script>\n'
+RESULT_ADD = '<script src="./gl/result-fx.js?v=8"></script>\n'
 # 6세 · 7세 카드 그림 목록: 원래 cards.js 바로 뒤에 (CARD_ART에 더함). ?v= 는 파일 내용 해시 — 그림이 바뀌면 자동으로 새로 받아요
 CARDS_ADD = '<script src="./gl/card-art.js?v={v}"></script>\n'
 # HUD 시계 색(핑크 · 보라): 원래 clock.js 바로 뒤에 끼워서, 그 스크립트가 만든 시계 그림 주소를 색 바꾼 복사본으로 바꿔요
