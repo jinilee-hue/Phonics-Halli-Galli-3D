@@ -249,7 +249,7 @@ button:focus-visible{ outline:4px solid oklch(0.95 0.13 95); outline-offset:4px;
 
 /* ── 타이틀 오버레이 ── */
 .title{ position:absolute; inset:0; pointer-events:none; }
-.logo{ position:absolute; left:50%; top:4vh; translate:-50% 0; text-align:center; transition: translate .8s cubic-bezier(.5,0,.7,.4), opacity .6s; }
+.logo{ position:absolute; left:50%; top:1.6vh; translate:-50% 0; text-align:center; transition: translate .8s cubic-bezier(.5,0,.7,.4), opacity .6s; }
 .logo span{ display:block; font: 700 12vh/.95 "Fredoka",sans-serif; letter-spacing:.01em;
   paint-order: stroke fill; -webkit-text-stroke: 2.4vh oklch(0.98 0.01 90);
   filter: drop-shadow(0 1vh 0 oklch(0.85 0.02 230)) drop-shadow(0 2.4vh 2vh oklch(0.4 0.06 215 / .35)); }

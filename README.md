@@ -1,4 +1,4 @@
-# Phonics Halli Galli 3D (WebGL 시제품)
+# Phonics Ring Ding Dong 3D (WebGL 시제품)
 
 원래 게임(`../Phonics-Halli-Galli`)은 그대로 두고, **게임 판 · 종 · Coco를 WebGL(three.js) 3D로** 다시 그린 시제품이에요.
 
@@ -41,7 +41,7 @@
 | 시각(초) | 소리 | 화면 |
 |---|---|---|
 | 0 – 1.1 | 음악 시작 | 카메라가 가까이 · 낮게에서 뒤로 빠지며 시작 화면이 펼쳐짐 (카드는 종 둘레를 빠르게) |
-| 1.68 · 2.22 · 2.64 | "Phonics · Halli · Galli" | 로고가 낱말마다 통통 · 갸웃 |
+| 1.68 · 2.22 · 2.64 | "Phonics · Ring · Ding Dong" | 로고가 낱말마다 통통 · 갸웃 |
 | 4.37 → 4.64 | 휙 · 착 | START가 로고 위에서 떨어져 종 아래에 착 (납작 → 통) |
 | 4.95 | "…ready to play?" | 종이 윙크 |
 | 5.84 · 6.31 | "start · begin" | START가 반짝 (빛 테두리) |

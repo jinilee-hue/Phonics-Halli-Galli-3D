@@ -385,7 +385,7 @@
 
 /* ── BI 로고 (assets/bi.png) ── */
 .logo{ font-size:0; line-height:0; }
-.logo img{ display:block; height:25vh; width:auto; max-width:64vw; object-fit:contain;
+.logo img{ display:block; height:42vh; width:auto; max-width:calc(100vw - 28vh); object-fit:contain;
   filter: drop-shadow(0 2vh 1.8vh oklch(0.4 0.06 215 / .32)); }
 /* 단계 고르기는 오른쪽 아래로: 위쪽은 BI가 넓게 쓰고, START와는 겹치지 않게 폭을 제한 */
 .level{ top:auto; bottom:4.5vh; max-width: min(36vw, calc(50vw - 22vh)); }
