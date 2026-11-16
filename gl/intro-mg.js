@@ -1,10 +1,11 @@
 /* ─────────────────────────────────────────────────────────────────────────────
    인트로 모션그래픽 — 영상(assets/intro.mp4)을 트는 대신, 시작 화면의 3D 종 · 카드 · 로고 · START를
-   원래 영상과 같은 흐름으로 직접 움직여요. 소리는 영상의 소리만 뽑은 것(gl/media/intro.m4a)이라
-   내레이션 · 음악 · 효과음 시각에 맞춰 움직여요 (아래 시각은 소리를 재서 얻은 값, 박 = 0.4737초).
+   원래 영상과 같은 흐름으로 직접 움직여요. 소리(gl/media/intro.m4a) = 영상의 음악 · 효과음(목소리만 뺀 것)
+   + 한 목소리로 새로 만든 나레이션(tools/intro_voice/) — 내레이션 · 음악 · 효과음 시각에 맞춰 움직여요
+   (아래 시각은 소리를 재서 얻은 값, 박 = 0.4737초).
 
      0.00 – 1.10   카메라가 가까이 · 낮게에서 뒤로 빠지며 시작 화면이 펼쳐짐 (카드는 종 둘레를 빠르게 돎)
-     1.68·2.22·2.64  "Phonics · Ring · Ding Dong" 낱말마다 로고가 통통 · 갸웃
+     1.56·2.02·2.24  "Phonics · Ring · Ding Dong" 낱말마다 로고가 통통 · 갸웃 (Phonics · Ring은 음악 박에)
      4.37 → 4.64   START가 로고 위에서 떨어져 종 아래에 착 (납작 → 통)
      4.95          "Are you ready to play?" 끝에 종이 윙크
      5.84 · 6.31   "start · begin"에 맞춰 START가 반짝 (빛 테두리)
@@ -26,7 +27,7 @@ const RM = matchMedia('(prefers-reduced-motion: reduce)');
 
 const BEAT = .4737, B0 = .14;                         // 음악 126.66 BPM, 첫 박 0.14초
 const END = 10.0, BACK = .85, ZMAX = 3.1;             // 영상 길이 · 시작 화면으로 돌아오는 시간 · 가장 가까이
-const EV = { phonics: 1.68, ring: 2.22, dingdong: 2.64, drop: 4.37, land: 4.64, wink: 4.95, pulse: [5.84, 6.31],
+const EV = { phonics: 1.561, ring: 2.023, dingdong: 2.236, drop: 4.37, land: 4.64, wink: 4.95, pulse: [5.84, 6.31],
              handIn: 7.24, hover: 8.2, down: 8.45, press: 8.61, ding: 8.86, happy: 9.15, ding2: 9.33, zoom: 8.95 };
 const SPARK_AT = [[.84, .80], [.11, .60], [.90, .30], [.22, .88]];   // 탁자 위 반짝이 (화면 비율)
 
@@ -336,7 +337,7 @@ function run(done) {
   const video = document.getElementById('introVideo');
   if (video) { video.pause(); video.removeAttribute('src'); video.load(); video.style.display = 'none'; }   // 영상은 안 받아요
   build();
-  audio = new Audio('./gl/media/intro.m4a?v=3');
+  audio = new Audio('./gl/media/intro.m4a?v=4');
   audio.preload = 'auto';
   Board3D.api.pointer.hold = true;                          // 인트로 동안 손 따라 시점은 쉬기
   skipBtn.addEventListener('click', e => { e.stopPropagation(); skip(); });

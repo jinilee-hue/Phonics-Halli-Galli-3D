@@ -36,12 +36,13 @@
 
 ## 인트로 (모션그래픽, `gl/intro-mg.js`)
 영상(`assets/intro.mp4`)을 트는 대신, 시작 화면의 3D 종 · 카드 · 로고 · START를 원래 영상과 같은 흐름으로 직접 움직여요.
-소리는 영상의 소리만 뽑은 것(`gl/media/intro.m4a`)이라 내레이션 · 음악 · 효과음 시각에 맞춰 움직여요.
+소리(`gl/media/intro.m4a`)는 영상의 음악 · 효과음(목소리만 뺀 것)에 나레이션을 한 목소리로 새로 녹음해 얹은 것이고, 내레이션 · 음악 · 효과음 시각에 맞춰 움직여요.
+- 나레이션: "Welcome to Phonics Ring Ding Dong! Are you ready to play? Press start to begin!" — 밝은 어른 진행자 목소리(en-US-AvaNeural, edge-tts · 시제품용). 예전엔 'Ring Ding Dong'만 다른(아기) 목소리로 이어 붙여서 어색했어요. 만드는 법은 `tools/intro_voice/`.
 
 | 시각(초) | 소리 | 화면 |
 |---|---|---|
 | 0 – 1.1 | 음악 시작 | 카메라가 가까이 · 낮게에서 뒤로 빠지며 시작 화면이 펼쳐짐 (카드는 종 둘레를 빠르게) |
-| 1.68 · 2.22 · 2.64 | "Phonics · Ring · Ding Dong" | 로고가 낱말마다 통통 · 갸웃 |
+| 1.56 · 2.02 · 2.24 | "Phonics · Ring · Ding Dong" | 로고가 낱말마다 통통 · 갸웃 |
 | 4.37 → 4.64 | 휙 · 착 | START가 로고 위에서 떨어져 종 아래에 착 (납작 → 통) |
 | 4.95 | "…ready to play?" | 종이 윙크 |
 | 5.84 · 6.31 | "start · begin" | START가 반짝 (빛 테두리) |
@@ -178,7 +179,7 @@
 | `gl/coco3d.js` | 3D Coco |
 | `gl/view360.js` | 360° 돌려 보기 (끌기 · 두 손가락 · 휠 · 360° 버튼) |
 | `gl/intro-mg.js` · `gl/intro-mg.css` | 인트로 모션그래픽 (원래 `src/intro.js` 바로 뒤에 읽혀서 영상 대신 돌아가요) |
-| `gl/media/intro.m4a` | 인트로 소리 (원래 영상의 소리만 뽑은 것: `ffmpeg -i assets/intro.mp4 -vn -c:a copy`) |
+| `gl/media/intro.m4a` | 인트로 소리 (원래 영상의 음악 · 효과음 + 새 나레이션, `tools/intro_voice/`) |
 | `gl/board3d.css` | 3D가 켜지면 HTML 판 · 종 · Coco를 안 보이게(자리 계산용으로만 둠) |
 | `vendor/three/three.iife.js` | three.js r186 (MIT) — 더블클릭으로도 열리게 일반 스크립트로 묶은 것 |
 | `src/gl-tex.js` | 3D 그림(카드 앞 · 뒷면, S 동전, 종 · Coco 얼굴 조각) — `tools/build_gl_tex.py`가 만듦 |
