@@ -6,7 +6,7 @@
 - assets: 원래 게임이 쓰는 그림 · 영상만 (index.html · src 안에 적힌 assets/... + 조각 폴더들)
 - index.html: 원래 index.html에 3D 판 줄(아래 HEAD_ADD · BODY_ADD)만 끼워서 다시 만듦
 - 카드 그림이 바뀌었으면 src/gl-tex.js(3D 판 그림)도 다시 만듦
-3D 판 파일(gl/ · vendor/ · src/gl-tex.js · tools/)은 건드리지 않아요.
+3D 판 파일(gl/ · vendor/ · src/gl-tex.js · src/voice-data.js · tools/)은 건드리지 않아요.
 """
 import filecmp
 import hashlib
@@ -27,7 +27,7 @@ HEAD_ADD = ('<link rel="stylesheet" href="./gl/board3d.css?v=1" />\n'
             '<link rel="stylesheet" href="./gl/clock-color.css?v=1" />\n'
             '<link rel="stylesheet" href="./gl/levels.css?v=1" />\n')
 # 인트로 모션그래픽: 원래 intro.js 바로 뒤(main.js보다 앞)에 끼워서 playIntro를 바꿔 둬요
-INTRO_ADD = '<script src="./gl/intro-mg.js?v=5"></script>\n'
+INTRO_ADD = '<script src="./gl/intro-mg.js?v=6"></script>\n'
 # 결과 화면 덧입히기: 원래 result.js 바로 뒤(main.js보다 앞)에 끼워서 renderResult를 바꿔 둬요 (main.js가 읽을 때 가져감)
 RESULT_ADD = '<script src="./gl/result-fx.js?v=8"></script>\n'
 # 6세 · 7세 카드 그림 목록: 원래 cards.js 바로 뒤에 (CARD_ART에 더함). ?v= 는 파일 내용 해시 — 그림이 바뀌면 자동으로 새로 받아요
@@ -45,12 +45,13 @@ BODY_ADD = ('<!-- 3D 판 (WebGL): three.js + 판 그림 + 판 그리기. 게임 
             '<script src="./gl/lv-cards.js?v=3"></script>\n'
             '<!-- Coco 말풍선 영어 · 노란 종 튜터: 진행자 말소리 + 상황별 안내 (원래 게임 함수를 감싸서 끼어들어요 · ?tutor=off 로 튜터만 끔) -->\n'
             '<script src="./gl/coco-en.js?v=1"></script>\n'
-            '<script src="./gl/tutor-voice.js?v=3"></script>\n'
+            '<script src="./gl/tutor-voice.js?v=4"></script>\n'
             '<script src="./gl/tutor.js?v=3"></script>\n')
 TITLE = ('<title>Phonics Ring Ding Dong — Coco</title>', '<title>Phonics Ring Ding Dong 3D — Coco</title>')
 TITLE_OLD = ('<title>Phonics Halli Galli — Coco</title>', '<title>Phonics Ring Ding Dong 3D — Coco</title>')
 ASSET_DIRS = ['bell_parts', 'coco_parts', 'clock_parts', 'card_web']
-OWN_SRC = {'gl-tex.js'}            # 3D 폴더에만 있는 src 파일
+OWN_SRC = {'gl-tex.js', 'voice-data.js'}   # 3D 폴더에만 있는 src 파일 — voice-data.js: 낱말 소리를 phonics-api로 (tools/build_word_voice.py)
+VOICE_DATA = 'src/voice-data.js?v=3'
 
 
 def copy_if_changed(a, b, changed):
@@ -95,6 +96,7 @@ def main():
     html = html.replace(*TITLE_OLD)
     html = html.replace(*TITLE)
     html = html.replace('src="./assets/bi.png"', 'src="./assets/bi.png?v=3"')
+    html = re.sub(r'src/voice-data\.js(\?v=\d+)?', VOICE_DATA, html)
     m = re.search(r'<link[^>]*src/upgrade\.css[^>]*>\n', html)
     if not m or '</body>' not in html:
         sys.exit('원래 index.html에서 3D 줄을 끼울 자리(upgrade.css 링크 · </body>)를 못 찾았어요. 손으로 확인해 주세요.')

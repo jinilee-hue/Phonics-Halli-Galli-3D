@@ -5,7 +5,8 @@
   지금 약 330Hz — 카드 낱말을 읽는 목소리(같은 Ana, 약 310Hz)보다 살짝 높아요.
   받아쓰기(whisper) 비교: Ana +0Hz 16/18 · +10Hz 17/18 · +18Hz 17/18 · +55Hz 18/18 · Maisie(영국 여자아이) 13~14/18
   (+10Hz에서 못 맞힌 1줄은 'Oops'를 'Boops'로 받아쓴 것)
-도구: edge-tts (무료 · 시제품용). 정식 출시 때는 Azure Speech(유료 정식 서비스)나 성우 녹음으로 바꿀 것.
+도구(2026-11-19, 사용자 선택 C): 회사 phonics-api TTS(Azure 신경망 음성) — 같은 Ana에 높이·빠르기를 ffmpeg로 맞춤
+  (phonics-kit/tools/tts_voice.py: 높이 ×1.035 ≈ +10Hz, 빠르기 0.95 = -5%). `--engine edge` = 예전 edge-tts(시제품).
 
 결과
   gl/media/tutor/<id>.mp3   말마다 한 파일 — 받은 원본 그대로(다시 압축 안 함), 끝 빈소리만 잘라 냄
@@ -13,14 +14,16 @@
                             mouth: 60ms마다 입을 벌릴지(1) 닫을지(0) — 말소리 세기로 정함 (종 입 움직이기)
 말을 고치거나 더하려면 아래 LINES만 고치고 다시 돌리세요. 받은 원본은 ~/.cache/phonics-halli-galli/tutor/ 에 남겨 둡니다.
 
-실행: /Users/jini/.hermes/bin/uv run --quiet --with edge-tts --with numpy python tools/build_tutor_voice.py
+실행: /Users/jini/.local/bin/uv run --quiet --with numpy python tools/build_tutor_voice.py   (키: ~/.config/phonics-api/key)
 """
 import asyncio
 import base64
 import hashlib
 import json
 import pathlib
+import shutil
 import subprocess
+import sys
 
 import numpy as np
 
@@ -29,7 +32,10 @@ SR = 24000
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 OUT = ROOT / 'gl' / 'media' / 'tutor'
 JS = ROOT / 'gl' / 'tutor-voice.js'
-CACHE = pathlib.Path.home() / '.cache' / 'phonics-halli-galli' / 'tutor' / f'{VOICE}_{RATE.replace("%", "pct")}_{PITCH}'
+ENGINE = sys.argv[sys.argv.index('--engine') + 1] if '--engine' in sys.argv else 'phonics-api'
+PITCH_K = 1.035                       # phonics-api: '+10Hz' on Ana as a pitch factor
+CACHE = pathlib.Path.home() / '.cache' / 'phonics-halli-galli' / 'tutor' / (
+    f'{VOICE}_{RATE.replace("%", "pct")}_{PITCH}' if ENGINE == 'edge' else f'phonics-api_{VOICE}_p{PITCH_K}')
 
 # 상황별 말 (짧은 영어) — gl/tutor.js가 id로 불러요
 LINES = {
@@ -97,7 +103,17 @@ def speech(x):
     return rms, np.nonzero(rms > rms.max() * 10 ** (-50 / 20))[0]
 
 
-got = asyncio.run(fetch_all())
+def fetch_api():
+    sys.path.insert(0, str(pathlib.Path.home() / 'Documents/Jini/2026/Phonics/phonics-kit/tools'))
+    import tts_voice  # noqa: E402
+    CACHE.mkdir(parents=True, exist_ok=True)
+    todo = [(i, t) for i, t in LINES.items() if not (CACHE / f'{key(i, t)}.mp3').exists()]
+    for i, t in todo:
+        shutil.copy2(tts_voice.clip(t, VOICE, pitch=PITCH_K, tempo=tts_voice.rate(RATE)), CACHE / f'{key(i, t)}.mp3')
+    return len(todo)
+
+
+got = asyncio.run(fetch_all()) if ENGINE == 'edge' else fetch_api()
 print(f'새로 받음 {got}개 · 캐시 {CACHE}')
 OUT.mkdir(parents=True, exist_ok=True)
 for f in OUT.glob('*.mp3'):
@@ -128,9 +144,9 @@ for i, t in LINES.items():
 
 JS.write_text(
     '// tools/build_tutor_voice.py 가 만든 파일입니다 — 노란 종 튜터(진행자) 말소리 (직접 고치지 마세요).\n'
-    f'// 목소리: 5살쯤 아이 = {VOICE} 높이 {PITCH} (낱말 목소리보다 살짝 높게) · 빠르기 {RATE} · edge-tts (시제품용)\n'
+    f'// 목소리: 5살쯤 아이 = {VOICE} 높이 {PITCH} (낱말 목소리보다 살짝 높게) · 빠르기 {RATE} · ' + ('edge-tts (시제품용)' if ENGINE == 'edge' else '회사 phonics-api TTS(Azure) + 높이·빠르기는 ffmpeg (2026-11-19 사용자 선택 C)') + '\n'
     '// 파일을 더블클릭해 열어도(file://) 소리가 나도록 mp3를 글자(base64)로 넣어 두었어요. 원본: gl/media/tutor/*.mp3\n'
-    f'window.TUTOR_VOICE = {{ info: {json.dumps({"voice": VOICE, "rate": RATE, "mouthMs": MOUTH_MS})},\n'
+    f'window.TUTOR_VOICE = {{ info: {json.dumps({"voice": VOICE, "rate": RATE, "mouthMs": MOUTH_MS, "engine": ENGINE})},\n'
     '  lines: {\n' + ',\n'.join(f'    {json.dumps(k)}: {json.dumps(v, ensure_ascii=False)}' for k, v in lines.items()) + '\n  } };\n',
     encoding='utf-8')
 print(f'말 {len(lines)}개 · 길이:', ', '.join(f'{i} {d}s' for i, d, _ in report))

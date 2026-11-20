@@ -1,0 +1,170 @@
+{
+ "ant": {
+  "card": "d239b66e",
+  "pic": "e3d95b44"
+ },
+ "apple": {
+  "card": "c830951c",
+  "pic": "21b45a4f"
+ },
+ "bag": {
+  "card": "b440d512",
+  "pic": "f790ec65"
+ },
+ "bat": {
+  "card": "ba02c5f6",
+  "pic": "24796449"
+ },
+ "bear": {
+  "card": "cc48cea8",
+  "pic": "b511950c"
+ },
+ "bone": {
+  "card": "86287ae8",
+  "pic": "6342791e"
+ },
+ "box": {
+  "card": "a3c0e19c",
+  "pic": "76a03d98"
+ },
+ "bus": {
+  "card": "18a11a3f",
+  "pic": "af708128"
+ },
+ "can": {
+  "card": "c8cf5373",
+  "pic": "15e38d41"
+ },
+ "car": {
+  "card": "896ee23e",
+  "pic": "cde85459"
+ },
+ "cat": {
+  "card": "f992c5bf",
+  "pic": "bbe1ebaf"
+ },
+ "coat": {
+  "card": "b2697bb4",
+  "pic": "e665b3fc"
+ },
+ "cow": {
+  "card": "1fe23b3e",
+  "pic": "201c6d75"
+ },
+ "cup": {
+  "card": "bf216838",
+  "pic": "0f50067f"
+ },
+ "desk": {
+  "card": "749b5d02",
+  "pic": "f0080bac"
+ },
+ "dog": {
+  "card": "d8b4618f",
+  "pic": "fea42504"
+ },
+ "duck": {
+  "card": "de14ed9c",
+  "pic": "585416bd"
+ },
+ "egg": {
+  "card": "c0f79f23",
+  "pic": "e3866679"
+ },
+ "fan": {
+  "card": "a8e72183",
+  "pic": "838d81b2"
+ },
+ "fans": {
+  "card": "ab9d539a",
+  "pic": "0f17f20c"
+ },
+ "flower": {
+  "card": "3512c10c",
+  "pic": "92beeac7"
+ },
+ "fox": {
+  "card": "1788bdc7",
+  "pic": "1dc8f3fc"
+ },
+ "girl": {
+  "card": "ab593dab",
+  "pic": "94ef7cc3"
+ },
+ "goat": {
+  "card": "6b6ec9d7",
+  "pic": "b5c8f950"
+ },
+ "hat": {
+  "card": "76d4b1a4",
+  "pic": "4465b728"
+ },
+ "key": {
+  "card": "0b317a4b",
+  "pic": "10259a5c"
+ },
+ "lip": {
+  "card": "1a46998a",
+  "pic": "74568947"
+ },
+ "log": {
+  "card": "077da56e",
+  "pic": "d96aa017"
+ },
+ "map": {
+  "card": "c77adca1",
+  "pic": "fca43054"
+ },
+ "monkey": {
+  "card": "f1657c46",
+  "pic": "e6d46792"
+ },
+ "nut": {
+  "card": "3c24f139",
+  "pic": "b7d4ead3"
+ },
+ "pan": {
+  "card": "5b81a922",
+  "pic": "3b9ef00d"
+ },
+ "peach": {
+  "card": "2636a202",
+  "pic": "33e88783"
+ },
+ "pot": {
+  "card": "2f4005a4",
+  "pic": "32f45e95"
+ },
+ "puzzle": {
+  "card": "5f01988e",
+  "pic": "290a8cf6"
+ },
+ "sandwich": {
+  "card": "d1c234a3",
+  "pic": "012e9e4b"
+ },
+ "seeds": {
+  "card": "8548e3fe",
+  "pic": "31b9e3e2"
+ },
+ "sock": {
+  "card": "71f611b7",
+  "pic": "3e887938"
+ },
+ "swing": {
+  "card": "68c55cf4",
+  "pic": "d12b84c9"
+ },
+ "toe": {
+  "card": "145e7d9b",
+  "pic": "1237c713"
+ },
+ "tree": {
+  "card": "22ab9695",
+  "pic": "05460d49"
+ },
+ "turtle": {
+  "card": "2f750f87",
+  "pic": "e3dcbefd"
+ }
+}

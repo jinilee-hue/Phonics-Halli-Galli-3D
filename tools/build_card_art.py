@@ -9,6 +9,8 @@
 - gl/card-art.js : window.CARD_ART에 더할 목록 (주소 끝 ?v= 는 그림 내용의 해시 → 그림을 바꾸면 새로 받아요)
 - gl/card-tex.js : 파일을 더블클릭해 열었을 때(file://) 3D 판이 그림을 읽도록 data URL로 — 2단계 이상을 고를 때만 불러와요 (gl/lv-cards.js)
 - 2 · 3단계 낱말이 아닌 파일 이름(오타 등)은 건너뛰고 알려 줘요
+- tools/rep_cards.json 에 있는 낱말(가운데 그림을 파닉스 공통 대표이미지로 바꾼 카드 — tools/rep_cards.py)은 원래 그림으로 다시
+  만들지 않고 그 사본을 씀 · 5세 카드면 OVER (원래 카드 그림이 바뀌면 rep_cards.py 를 다시 돌리라고 알려 줘요)
 - PIL만 써요 (동기화.command가 쓰는 시스템 python3에서도 돌게)
 """
 import base64
@@ -27,6 +29,7 @@ SRC = ORIG / 'assets' / 'card'
 OUT = ROOT / 'gl' / 'media' / 'cards'
 ART_JS = ROOT / 'gl' / 'card-art.js'
 TEX_JS = ROOT / 'gl' / 'card-tex.js'
+REP = ROOT / 'tools' / 'rep_cards.json'       # tools/rep_cards.py 가 대표이미지로 바꾼 카드 목록
 OW, OH = 600, 800
 R = 0.075          # 모서리 둥글기 = 카드 폭의 7.5% (원래 build_cards.py · CSS .card.has-art .front 와 같은 값)
 SS = 4
@@ -72,9 +75,20 @@ def main():
     lv = words_of((ORIG / 'src' / 'words.js').read_text(encoding='utf-8'))
     OUT.mkdir(parents=True, exist_ok=True)
     art, tex, made, skipped, radii, over = {}, {}, [], [], [], []
+    rep = json.loads(REP.read_text()) if REP.exists() else {}
+    stale = []
     for p in sorted(SRC.glob('card_*.png')):
         w = p.stem[len('card_'):]
-        if w in have5:
+        dst = OUT / f'card_{w}.webp'
+        if w in rep and dst.exists():                   # 대표이미지로 바꾼 카드(tools/rep_cards.py) → 원래 그림으로 다시 만들지 않음
+            if w in have5:
+                over.append(w)
+            elif w not in lv:
+                skipped.append(w)
+                continue
+            if rep[w]['card'] != hashlib.md5(p.read_bytes()).hexdigest()[:8]:
+                stale.append(w)
+        elif w in have5:
             web5 = ORIG / 'assets' / 'card_web' / f'card_{w}.webp'
             if web5.exists() and web5.stat().st_mtime >= p.stat().st_mtime:
                 continue                                # 5세 카드: 원래 게임 사본(assets/card_web)이 최신 → 그대로 씀
@@ -82,8 +96,7 @@ def main():
         elif w not in lv:
             skipped.append(w)
             continue
-        dst = OUT / f'card_{w}.webp'
-        if not dst.exists() or dst.stat().st_mtime < p.stat().st_mtime:
+        if w not in rep and (not dst.exists() or dst.stat().st_mtime < p.stat().st_mtime):
             im = Image.open(p).convert('RGBA')
             (x0, y0, x1, y1), r0 = card_box(im)
             radii.append((r0, w))
@@ -122,7 +135,11 @@ def main():
             f.unlink()
             print('  지움(원본 없음):', f.name)
     if over:
-        print('  5세 카드 다시 만든 그림 → 3D에서만 새 사본:', ', '.join(sorted(over)))
+        print(f'  5세 카드 → 3D에서만 새 사본 {len(over)}장:', ', '.join(sorted(over)))
+    if rep:
+        print(f'  대표이미지 카드 {len([w for w in art if w in rep])}장 (tools/rep_cards.py)')
+    if stale:
+        print('  ※ 원래 카드 그림이 바뀜 → tools/rep_cards.py 를 다시 돌려 주세요:', ', '.join(stale))
     print(f'카드 그림: 6세 {len(by[2])}장 · 7세 {len(by[3])}장 (새로 만듦 {len(made)}장)'
           f'  · gl/card-tex.js {TEX_JS.stat().st_size / 1e6:.1f} MB')
     if made:
