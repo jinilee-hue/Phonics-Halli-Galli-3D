@@ -5,6 +5,7 @@
       2) 'play' 끝이 5.00s (종 윙크 4.95와 같이)
       3) 'start' 시작이 5.84s (START 반짝 첫 번째와 같이)
   - 목소리 크기는 원래 나레이션(Vocals) 크기에 맞추고, 목소리 아래 음악을 살짝(-2dB) 내림
+  - 울림 없이 (2026-11-20 사용자 "울림 빼줘"); 예전처럼 방 울림을 넣으려면 --reverb
   - 전체 크기는 지금 인트로와 같게(-12.6 LUFS), 최고점 -1 dBTP
 결과: out/intro_<목소리>.wav · .m4a · ev_<목소리>.json (로고 통통 시각)
 쓰는 법: uv run --with numpy --with scipy --with soundfile --with pyloudnorm python mix_voice.py ava ana
@@ -24,6 +25,7 @@ OUT = D / 'out'
 OUT.mkdir(exist_ok=True)
 SR = 44100
 TARGET_LUFS = -12.6
+REVERB = '--reverb' in sys.argv          # 목소리에 방 울림을 섞을지 (기본: 안 섞음)
 BEAT, B0 = .4737, .14
 words = json.loads((D / 'voice' / 'words.json').read_text())
 
@@ -99,8 +101,9 @@ def build(key):
     # 목소리 크기 = 원래 나레이션 크기
     gain_db = meter.integrated_loudness(np.stack([voc_old[:, 0], voc_old[:, 1]], 1)) - meter.integrated_loudness(np.stack([v, v], 1))
     v *= 10 ** (gain_db / 20)
-    wet = signal.fftconvolve(v[:, None] * np.ones((1, 2)), reverb_ir(), axes=0)[:N] * 10 ** (-17 / 20)
-    voice = np.stack([v, v], 1) + wet
+    voice = np.stack([v, v], 1)
+    if REVERB:   # 방 울림 (예전 기본값) — 2026-11-20 사용자 "울림 빼줘": 이제 기본은 울림 없이, 다른 게임 튜터 목소리처럼
+        voice = voice + signal.fftconvolve(v[:, None] * np.ones((1, 2)), reverb_ir(), axes=0)[:N] * 10 ** (-17 / 20)
     # 목소리 아래 음악 살짝 내림 (최대 -2dB)
     e = envelope(v)
     duck = 1 - (1 - 10 ** (-2 / 20)) * np.clip(e / (np.percentile(e[e > 1e-4], 90) + 1e-9), 0, 1)
@@ -127,5 +130,5 @@ def build(key):
     print(key, ev)
 
 
-for k in sys.argv[1:]:
+for k in [a for a in sys.argv[1:] if not a.startswith('--')]:
     build(k)

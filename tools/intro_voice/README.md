@@ -10,7 +10,7 @@
      --model_filename model_bs_roformer_ep_317_sdr_12.9755.ckpt --output_dir sep --output_format WAV
    ```
 2. 목소리 만들기: `python3 voice_api.py [tutor|api20]` (phonics-api, 키 ~/.config/phonics-api/key) — 예전 edge-tts는 `uv run --with edge-tts python voice_gen.py ava20` (목소리 이름을 주면 그것만, 문장마다 mp3 + 낱말 시각)
-3. 섞기: `uv run --with numpy --with scipy --with soundfile --with pyloudnorm python mix_voice.py ava20`
+3. 섞기: `uv run --with numpy --with scipy --with soundfile --with pyloudnorm python mix_voice.py tutor` (울림 없이 — 2026-11-20 사용자 "울림 빼줘"; 예전 방 울림은 `--reverb`)
    - 'Phonics'를 음악 박(1.561초)에, 'play' 끝을 5.00초(종 윙크), 'start'를 5.84초(START 반짝)에 맞춰 놓아요.
    - 목소리 크기는 원래 나레이션에 맞추고, 전체는 -12.6 LUFS · 최고점 -1 dBTP.
    - `out/ev_<목소리>.json`의 phonics · ring · ding 값을 `gl/intro-mg.js`의 EV(phonics · ring · dingdong)에 넣어요.

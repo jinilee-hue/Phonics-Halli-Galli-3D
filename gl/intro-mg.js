@@ -338,7 +338,7 @@ function run(done) {
   const video = document.getElementById('introVideo');
   if (video) { video.pause(); video.removeAttribute('src'); video.load(); video.style.display = 'none'; }   // 영상은 안 받아요
   build();
-  audio = new Audio('./gl/media/intro.m4a?v=7');
+  audio = new Audio('./gl/media/intro.m4a?v=8');
   audio.preload = 'auto';
   Board3D.api.pointer.hold = true;                          // 인트로 동안 손 따라 시점은 쉬기
   skipBtn.addEventListener('click', e => { e.stopPropagation(); skip(); });
