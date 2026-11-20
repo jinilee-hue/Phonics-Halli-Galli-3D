@@ -25,7 +25,7 @@ HEAD_ADD = ('<link rel="stylesheet" href="./gl/board3d.css?v=1" />\n'
             '<link rel="stylesheet" href="./gl/result-fx.css?v=17" />\n'
             '<link rel="stylesheet" href="./gl/tutor.css?v=4" />\n'
             '<link rel="stylesheet" href="./gl/clock-color.css?v=1" />\n'
-            '<link rel="stylesheet" href="./gl/levels.css?v=1" />\n'
+            '<link rel="stylesheet" href="./gl/levels.css?v=2" />\n'
             '<link rel="stylesheet" href="./gl/hud-size.css?v=1" />\n'
             '<link rel="stylesheet" href="./gl/lang.css?v=2" />\n')
 # 인트로 모션그래픽: 원래 intro.js 바로 뒤(main.js보다 앞)에 끼워서 playIntro를 바꿔 둬요
