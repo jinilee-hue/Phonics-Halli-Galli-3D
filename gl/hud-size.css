@@ -1,0 +1,14 @@
+/* 위 오른쪽 버튼(360° 보기 · 시간 알약 · 소리 · 나가기)을 Toy Catch 기준 크기로 (3D 폴더 전용)
+   사용자 2026-11-20: "상단 버튼들 크기도 제각각 같은데 Toy-Catch 기준으로 다 바꿔볼까?" → "파닉스 링딩동은 안맞춰?"
+   Toy Catch: 버튼 7.6 tu · 화면 위 · 옆에서 3 tu · 버튼 사이 버튼의 0.17, tu = min(1vh, 100vw / 177.78).
+   upgrade.css의 vh 값은 그대로 두고, 같은 비율로 --hk(= 7.6 tu ÷ 7.4)를 곱해 다시 잡아요 — 모양은 그대로, 크기만 맞춤.
+   (16:9 화면에선 거의 그대로, 16:10처럼 덜 넓은 화면에서 조금 작아져요 — Toy Catch와 같이) */
+.hud { --tu: min(1vh, calc(100vw / 177.78)); --hk: calc(var(--tu) * 7.6 / 7.4);
+  top: calc(3 * var(--tu)); right: calc(var(--stage-side, 0px) + 3 * var(--tu)); }
+.hud-r { gap: calc(.17 * 7.6 * var(--tu)); align-self: flex-start; }   /* buttons from the top (3 tu), not centred on the tall logo */
+.hud-btn { width: calc(7.4 * var(--hk)); height: calc(7.4 * var(--hk)); }
+.hud-btn svg { width: calc(3.8 * var(--hk)); height: calc(3.8 * var(--hk)); }
+.hud-time { gap: calc(.7 * var(--hk)); min-width: calc(14 * var(--hk)); height: calc(7.4 * var(--hk));
+  padding: 0 calc(1.8 * var(--hk)) 0 calc(1.4 * var(--hk)); font-size: calc(3.4 * var(--hk)); }
+.hud-time img { width: calc(5 * var(--hk)); height: calc(5 * var(--hk)); }
+.hud-time .hud-clock { width: calc(10 * var(--hk)); margin: calc(-1.8 * var(--hk)) calc(.3 * var(--hk)) calc(-1.8 * var(--hk)) calc(-2.6 * var(--hk)); }

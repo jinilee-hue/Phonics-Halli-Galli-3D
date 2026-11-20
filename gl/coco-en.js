@@ -15,7 +15,7 @@
   const say0 = window.cocoSay;
   if (typeof say0 !== 'function') return;
   window.cocoSay = function (text, side) {
-    const en = EN[text];
+    const en = (!window.HGLang || HGLang.get() === 'en') && EN[text];   // 한국어를 고르면 원래 한국어 말 그대로 (gl/lang.js)
     document.querySelectorAll('#bubbleL, #bubbleR').forEach(b => b.classList.toggle('en', !!en));
     return say0.call(this, en || text, side);
   };

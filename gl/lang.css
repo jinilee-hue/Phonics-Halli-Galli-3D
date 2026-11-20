@@ -1,0 +1,24 @@
+/* 언어 토글 — Toy Catch와 같은 모양(옆면 두께 · 눌린 홈의 안쪽 그림자 · 흰 손잡이 · 쓰지 않는 국기는 작고 흐리게), 색은 이 게임의
+   유리 버튼(반투명 흰색)과 분홍 그늘. 크기는 위 버튼과 같은 7.6 tu (gl/hud-size.css). 시작 화면에만 (Toy Catch처럼). */
+.lang-tog { --hb: calc(7.6 * var(--tu, 1vh)); --e: calc(.09 * var(--hb));
+  position: relative; flex: none; display: flex; align-items: center; gap: calc(.03 * var(--hb)); height: var(--hb);
+  padding: 0 calc(.08 * var(--hb)); border: 0; border-radius: 999px; translate: 0 calc(-.5 * var(--e)); pointer-events: auto; cursor: pointer;
+  background: radial-gradient(130% 80% at 50% -6%, rgb(255 255 255 / .92) 0 40%, rgb(255 255 255 / 0) 52%), linear-gradient(#ffffff, #f6e9ec);
+  box-shadow: inset 0 0 calc(.05 * var(--hb)) #ecd3da, 0 var(--e) 0 0 #e3c5cd, 0 calc(var(--e) + .06 * var(--hb)) calc(.15 * var(--hb)) rgb(110 40 60 / .22);
+  -webkit-tap-highlight-color: transparent; }
+.lang-tog::before { content: ''; position: absolute; inset: calc(.07 * var(--hb)); border-radius: 999px; pointer-events: none;
+  background: linear-gradient(#efd9df, #f8ecef); box-shadow: inset 0 calc(.05 * var(--hb)) calc(.08 * var(--hb)) rgb(120 50 70 / .26); }
+.lang-tog .knob { position: absolute; top: calc(.1 * var(--hb)); left: calc(.1 * var(--hb)); width: calc(.8 * var(--hb)); height: calc(.8 * var(--hb));
+  border-radius: 50%; background: #fff; box-shadow: 0 calc(.03 * var(--hb)) calc(.07 * var(--hb)) rgb(110 40 60 / .3);
+  transition: transform .25s cubic-bezier(.3, 1.4, .5, 1); }
+.lang-tog[data-l="ko"] .knob { transform: translateX(calc(.87 * var(--hb))); }
+.lang-tog .flag { position: relative; z-index: 1; display: grid; place-items: center; width: calc(.84 * var(--hb)); height: calc(.84 * var(--hb)); }
+.lang-tog .flag svg { width: 86%; height: 86%; border-radius: 50%; transition: transform .25s ease, opacity .25s ease, filter .25s ease; }
+.lang-tog .flag:not(.on) svg { transform: scale(.68); opacity: .6; filter: grayscale(.3); }
+.lang-tog:active { transform: scale(.96); }
+.lang-tog:focus-visible { outline: calc(.06 * var(--hb)) solid oklch(0.75 0.12 10 / .85); outline-offset: calc(.05 * var(--hb)); }
+#app:not([data-screen="title"]) .lang-tog { display: none; }
+/* 토글은 소리 버튼 바로 왼쪽(Toy Catch 토글과 같은 자리)에 떠 있게 — 360° 버튼은 원래 자리 그대로, 조금 떨어져 있어도 돼요
+   (사용자: "각도 하는건 기존 위치에 떨어져 있어도 되는데"). 시작 화면에선 보이지 않는 시간 알약 자리 위에 놓여요. */
+.hud-r { position: relative; }
+.hud-r > .lang-tog { position: absolute; top: 0; right: calc((2 + 2 * .17) * 7.6 * var(--tu)); }

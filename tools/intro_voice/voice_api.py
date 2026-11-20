@@ -2,7 +2,7 @@
 voice_gen.py의 ava20(Ava 20% 빠르게 · +8Hz)과 같은 설정을 phonics-kit/tools/tts_voice.py로: 높이 ×1.036, 빠르기 1.2.
 낱말 시각은 whisper로(phonics-kit/tools/word_marks.py) — mix_voice.py가 'Phonics' · 'play' · 'start' 시각을 써요.
 결과: /tmp/gl/hg/rdd/voice/api20_<n>.mp3 + words.json의 api20_<n>
-실행: python3 voice_api.py  →  uv run --with numpy --with scipy --with soundfile --with pyloudnorm python mix_voice.py api20
+실행: python3 voice_api.py [tutor|api20]  →  uv run --with numpy --with scipy --with soundfile --with pyloudnorm python mix_voice.py api20
 """
 import json
 import pathlib
@@ -18,11 +18,13 @@ import tts_voice  # noqa: E402
 D = pathlib.Path('/tmp/gl/hg/rdd/voice')
 D.mkdir(parents=True, exist_ok=True)
 LINES = ['Welcome to Phonics Ring Ding Dong!', 'Are you ready to play?', 'Press start to begin!']
-KEY = 'api20'
+# tutor (default, 2026-11-20 user: "할리갈리로 통일해서 새 목소리로 바꿔") = the one tutor voice of the phonics games
+# (Ava Multilingual shaped to the old 'aiden'); api20 = the previous Ava 20 % faster
+KEY = sys.argv[1] if len(sys.argv) > 1 else 'tutor'
 items = []
 for i, text in enumerate(LINES):
     dst = D / f'{KEY}_{i}.mp3'
-    shutil.copy2(tts_voice.clip(text, 'en-US-AvaNeural', pitch=1.036, tempo=1.2), dst)
+    shutil.copy2(tts_voice.tutor(text, 'en') if KEY == 'tutor' else tts_voice.clip(text, 'en-US-AvaNeural', pitch=1.036, tempo=1.2), dst)
     items.append({'file': str(dst), 'text': text})
 with tempfile.TemporaryDirectory() as td:
     pathlib.Path(td, 'in.json').write_text(json.dumps(items))

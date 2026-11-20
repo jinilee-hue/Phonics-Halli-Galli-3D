@@ -35,7 +35,8 @@
   const bufs = new Map();
   const audio = () => { try { return ctx(); } catch (e) { return null; } };
   function bufFor(id) {
-    if (bufs.has(id)) return bufs.get(id);
+    const k = (window.HGLang ? HGLang.get() : 'en') + ':' + id;   // 영어 / 한국어 말 따로 (gl/lang.js)
+    if (bufs.has(k)) return bufs.get(k);
     const line = VOICE.lines[id], c = audio();
     const p = !line || !c ? Promise.resolve(null) : new Promise(res => {
       const bin = atob(line.b64), bytes = new Uint8Array(bin.length);
@@ -43,7 +44,7 @@
       const q = c.decodeAudioData(bytes.buffer, res, () => res(null));
       if (q && q.then) q.then(res, () => res(null));
     });
-    bufs.set(id, p);
+    bufs.set(k, p);
     return p;
   }
   const preload = () => Object.keys(VOICE.lines).forEach(bufFor);
