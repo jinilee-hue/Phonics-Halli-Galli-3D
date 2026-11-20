@@ -1,170 +1,212 @@
 {
  "ant": {
   "card": "d239b66e",
-  "pic": "e3d95b44"
+  "pic": "e3d95b44",
+  "cut": false
  },
  "apple": {
   "card": "c830951c",
-  "pic": "21b45a4f"
+  "pic": "21b45a4f",
+  "cut": false
  },
  "bag": {
   "card": "b440d512",
-  "pic": "f790ec65"
+  "pic": "f790ec65",
+  "cut": false
  },
  "bat": {
   "card": "ba02c5f6",
-  "pic": "24796449"
+  "pic": "24796449",
+  "cut": false
  },
  "bear": {
   "card": "cc48cea8",
-  "pic": "b511950c"
+  "pic": "b511950c",
+  "cut": false
  },
  "bone": {
   "card": "86287ae8",
-  "pic": "6342791e"
+  "pic": "6342791e",
+  "cut": false
  },
  "box": {
   "card": "a3c0e19c",
-  "pic": "76a03d98"
+  "pic": "76a03d98",
+  "cut": false
  },
  "bus": {
   "card": "18a11a3f",
-  "pic": "af708128"
+  "pic": "af708128",
+  "cut": false
  },
  "can": {
   "card": "c8cf5373",
-  "pic": "15e38d41"
+  "pic": "15e38d41",
+  "cut": false
  },
  "car": {
   "card": "896ee23e",
-  "pic": "cde85459"
+  "pic": "cde85459",
+  "cut": false
  },
  "cat": {
   "card": "f992c5bf",
-  "pic": "bbe1ebaf"
+  "pic": "bbe1ebaf",
+  "cut": false
  },
  "coat": {
   "card": "b2697bb4",
-  "pic": "e665b3fc"
+  "pic": "e665b3fc",
+  "cut": false
  },
  "cow": {
   "card": "1fe23b3e",
-  "pic": "201c6d75"
+  "pic": "201c6d75",
+  "cut": false
  },
  "cup": {
   "card": "bf216838",
-  "pic": "0f50067f"
+  "pic": "0f50067f",
+  "cut": false
  },
  "desk": {
   "card": "749b5d02",
-  "pic": "f0080bac"
+  "pic": "f0080bac",
+  "cut": false
  },
  "dog": {
   "card": "d8b4618f",
-  "pic": "fea42504"
+  "pic": "fea42504",
+  "cut": true
  },
  "duck": {
   "card": "de14ed9c",
-  "pic": "585416bd"
+  "pic": "585416bd",
+  "cut": false
  },
  "egg": {
   "card": "c0f79f23",
-  "pic": "e3866679"
+  "pic": "e3866679",
+  "cut": false
  },
  "fan": {
   "card": "a8e72183",
-  "pic": "838d81b2"
+  "pic": "838d81b2",
+  "cut": false
  },
  "fans": {
   "card": "ab9d539a",
-  "pic": "0f17f20c"
+  "pic": "0f17f20c",
+  "cut": false
  },
  "flower": {
   "card": "3512c10c",
-  "pic": "92beeac7"
+  "pic": "92beeac7",
+  "cut": false
  },
  "fox": {
   "card": "1788bdc7",
-  "pic": "1dc8f3fc"
+  "pic": "1dc8f3fc",
+  "cut": false
  },
  "girl": {
   "card": "ab593dab",
-  "pic": "94ef7cc3"
+  "pic": "94ef7cc3",
+  "cut": false
  },
  "goat": {
   "card": "6b6ec9d7",
-  "pic": "b5c8f950"
+  "pic": "b5c8f950",
+  "cut": false
  },
  "hat": {
   "card": "76d4b1a4",
-  "pic": "4465b728"
+  "pic": "4465b728",
+  "cut": false
  },
  "key": {
   "card": "0b317a4b",
-  "pic": "10259a5c"
+  "pic": "10259a5c",
+  "cut": false
  },
  "lip": {
   "card": "1a46998a",
-  "pic": "74568947"
+  "pic": "74568947",
+  "cut": false
  },
  "log": {
   "card": "077da56e",
-  "pic": "d96aa017"
+  "pic": "d96aa017",
+  "cut": false
  },
  "map": {
   "card": "c77adca1",
-  "pic": "fca43054"
+  "pic": "fca43054",
+  "cut": false
  },
  "monkey": {
   "card": "f1657c46",
-  "pic": "e6d46792"
+  "pic": "e6d46792",
+  "cut": false
  },
  "nut": {
   "card": "3c24f139",
-  "pic": "b7d4ead3"
+  "pic": "b7d4ead3",
+  "cut": false
  },
  "pan": {
   "card": "5b81a922",
-  "pic": "3b9ef00d"
+  "pic": "3b9ef00d",
+  "cut": false
  },
  "peach": {
   "card": "2636a202",
-  "pic": "33e88783"
+  "pic": "33e88783",
+  "cut": false
  },
  "pot": {
   "card": "2f4005a4",
-  "pic": "32f45e95"
+  "pic": "32f45e95",
+  "cut": false
  },
  "puzzle": {
   "card": "5f01988e",
-  "pic": "290a8cf6"
+  "pic": "290a8cf6",
+  "cut": false
  },
  "sandwich": {
   "card": "d1c234a3",
-  "pic": "012e9e4b"
+  "pic": "012e9e4b",
+  "cut": false
  },
  "seeds": {
   "card": "8548e3fe",
-  "pic": "31b9e3e2"
+  "pic": "31b9e3e2",
+  "cut": false
  },
  "sock": {
   "card": "71f611b7",
-  "pic": "3e887938"
+  "pic": "3e887938",
+  "cut": false
  },
  "swing": {
   "card": "68c55cf4",
-  "pic": "d12b84c9"
+  "pic": "d12b84c9",
+  "cut": false
  },
  "toe": {
   "card": "145e7d9b",
-  "pic": "1237c713"
+  "pic": "1237c713",
+  "cut": false
  },
  "tree": {
   "card": "22ab9695",
-  "pic": "05460d49"
+  "pic": "05460d49",
+  "cut": false
  },
  "turtle": {
   "card": "2f750f87",
-  "pic": "e3dcbefd"
+  "pic": "e3dcbefd",
+  "cut": false
  }
 }

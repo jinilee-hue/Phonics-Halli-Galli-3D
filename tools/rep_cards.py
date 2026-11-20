@@ -114,6 +114,26 @@ def pushpull(a, known):
     return C
 
 
+def cut_white(pic):
+    """a picture on an opaque white square (dog — user: "dog 흰바탕 빼야해"): the near-white that touches the edge (+ the
+    faint floor shadow in it) → transparent, the edge softened by a pixel. Pictures without a white square stay as they are."""
+    a = np.asarray(pic).astype(np.float32)
+    rgb, al = a[..., :3], a[..., 3]
+    lo = rgb.min(-1)
+    whiteish = (lo >= 190) & (rgb.max(-1) - lo <= 18) & (al > 200)
+    ring = np.ones(al.shape, bool)
+    ring[8:-8, 8:-8] = False
+    if whiteish[ring].mean() < .9:
+        return pic, False
+    lab, _ = ndi.label(whiteish)
+    ids = np.unique(lab[ring & whiteish])
+    bg = ndi.binary_dilation(np.isin(lab, ids[ids > 0]), iterations=1)
+    soft = np.asarray(Image.fromarray(bg.astype(np.uint8) * 255).filter(ImageFilter.GaussianBlur(1.2))).astype(np.float32) / 255
+    out = a.copy()
+    out[..., 3] = al * (1 - soft)
+    return Image.fromarray(out.astype(np.uint8), 'RGBA'), True
+
+
 def swap(card, pic_path):
     """card: RGBA cut to the card box. The old centre picture (+ its shadow) is filled in from the panel around it and the
     representative picture goes in one standard box (BOX) with a soft contact shadow."""
@@ -135,7 +155,7 @@ def swap(card, pic_path):
     m = np.asarray(Image.fromarray(gone.astype(np.uint8) * 255).filter(ImageFilter.GaussianBlur(max(3, W // 200)))).astype(np.float32)[..., None] / 255
     m = m * zone[..., None]
     im = Image.fromarray(np.clip(a * (1 - m) + filled * m, 0, 255).astype(np.uint8)).convert('RGBA')
-    pic = Image.open(pic_path).convert('RGBA')
+    pic, _ = cut_white(Image.open(pic_path).convert('RGBA'))
     pic = pic.crop(pic.getchannel('A').point(lambda v: 255 if v > 8 else 0).getbbox())
     s = min(W * BOX[0] / pic.width, H * BOX[1] / pic.height)
     pic = pic.resize((max(1, round(pic.width * s)), max(1, round(pic.height * s))), Image.LANCZOS)
@@ -169,7 +189,7 @@ def main():
         if not pic:
             none.append(w)
             continue
-        sig = {'card': md5(p), 'pic': md5(pic)}
+        sig = {'card': md5(p), 'pic': md5(pic), 'cut': cut_white(Image.open(pic).convert('RGBA'))[1]}
         dst = B.OUT / f'card_{w}.webp'
         if done.get(w) == sig and dst.exists() and not words:
             kept.append(w)

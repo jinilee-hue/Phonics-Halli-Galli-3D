@@ -78,7 +78,7 @@
   "days": "./gl/media/cards/card_days.webp?v=18124d5c",
   "desk": "./gl/media/cards/card_desk.webp?v=b067543f",
   "desks": "./gl/media/cards/card_desks.webp?v=bcfa0e82",
-  "dog": "./gl/media/cards/card_dog.webp?v=65ab8ef1",
+  "dog": "./gl/media/cards/card_dog.webp?v=4ba79c3d",
   "dollar": "./gl/media/cards/card_dollar.webp?v=9a5e5151",
   "dollars": "./gl/media/cards/card_dollars.webp?v=f0f9924d",
   "dress": "./gl/media/cards/card_dress.webp?v=5029f346",
