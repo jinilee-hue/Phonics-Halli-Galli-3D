@@ -136,6 +136,8 @@
   `uv run --with numpy --with scipy --with pillow python tools/rep_cards.py` → `python3 tools/build_card_art.py`.
   대표이미지(레슨팩 그림, 없으면 `공통이미지자료/FPR K_U1,2 대표이미지/<낱말>.png` — phonics-kit `lessonpack.picture`)가 있는 낱말 48개 중 42개는
   원래 카드의 가운데 그림을 둘레 판 색으로 메우고 대표이미지를 모든 카드 같은 상자(폭 .66 · 높이 .44 · 가운데 y .445)에 놓아요.
+  지우는 곳 = 원래 그림 전체(판 가장자리까지 뻗은 손잡이 · 낱말 바로 위 신발, 판과 비슷한 색의 옅은 끝까지) · 메우는 색은 깨끗한 판에서만 가져오고
+  판의 고운 결을 덧입혀요 — 남은 조각이나 얼룩이 번지지 않게 (사용자 "배경이 깔끔하게 안지워져서 얼룩이 남았어", 2026-11-20).
   테두리 · 낱말 글자 · 단계 배지는 그대로. 목록 `tools/rep_cards.json` — build_card_art.py는 이 낱말을 원래 그림으로 다시 만들지 않고
   (5세 카드 8장은 OVER), 원래 카드 그림이 바뀌면 rep_cards.py를 다시 돌리라고 알려 줘요. 대표이미지가 없는 낱말은 원래 그림 그대로.
   남은 6개(seed · cats · maps · pans · peas · toys)는 대표이미지의 그림 개수가 모서리 숫자와 안 맞아서 원래 그림 그대로 둬요

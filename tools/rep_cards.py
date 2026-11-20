@@ -5,7 +5,7 @@
 
 2026-11-19 파닉스 공통 규칙: 그림카드 안의 그림 = 레슨팩 그림, 없으면 공통이미지자료 'FPR K_U1,2 대표이미지/<낱말>.png'
 (phonics-kit lessonpack.picture). 원래 게임 assets/card/card_<낱말>.png 중 대표이미지가 있는 낱말만:
-  카드 상자로 자르고 → 가운데 그림(+그 그림자)을 둘레 판 색으로 메우고 → 모든 카드 같은 자리 · 같은 상자에 대표이미지 + 부드러운 그림자
+  카드 상자로 자르고 → 가운데 그림 전체(+그 그림자, 판 가장자리 · 낱말 위까지 뻗은 조각)를 깨끗한 판 색 + 판의 결로 메우고 → 모든 카드 같은 자리 · 같은 상자에 대표이미지 + 부드러운 그림자
   → build_card_art.py 와 같은 모양(600×800, 모서리 7.5%)으로 gl/media/cards/card_<낱말>.webp
   → tools/rep_cards.json (낱말 → 원래 카드 · 대표이미지의 해시) — build_card_art.py 는 이 낱말들을 원래 카드에서 다시 만들지 않고
     (5세 카드면 OVER로 원래 사본 대신 씀), 원래 카드나 대표이미지가 바뀌었으면 이 도구를 다시 돌리라고 알려 줘요.
@@ -42,6 +42,7 @@ def md5(p):
 ZONE_Y = (.10, .72)          # where the old picture (+ its shadow) can be — the word starts at ≈ .74
 ZONE_X = (.08, .92)
 BADGE = (.24, .17)           # the level badge in the top-left corner: x < .24, y < .17 — never painted over
+PANEL_X = (.05, .95)         # the panel inside the cream frame (the frame's inner edge is at ≈ .042 / .948)
 BOX = (.66, .44, .445)       # the new picture: fits in .66 W × .44 H, centred at x .5, y .445 (the old pictures' median)
 
 
@@ -134,6 +135,31 @@ def cut_white(pic):
     return Image.fromarray(out.astype(np.uint8), 'RGBA'), True
 
 
+def word_top(a, flat, W, H):
+    """where the printed word starts (fraction of H): rows of strong ink in x .28–.72, going up from its bottom to the gap
+    above it; kept within .72–.77 (all cards measure .734–.78)"""
+    ink = (np.abs(a - flat).sum(-1) > 90)[:, int(W * .28):int(W * .72)].mean(1)
+    y = int(H * .93)
+    while y > int(H * .6) and ink[y] < .06:
+        y -= 1
+    while y > int(H * .6) and ink[y] >= .03:
+        y -= 1
+    return min(.77, max(.72, y / H))
+
+
+def texture(r, known, W, H):
+    """the panel's fine grain (r = image − its blur) from the free strip at the panel's left edge, tiled across (every other
+    copy mirrored, so no seams); 0 where the strip is not clean panel"""
+    x0, x1 = int(W * .055), int(W * .19)
+    src = ndi.binary_erosion(known, iterations=4)                   # not next to an edge (badge, frame, word, picture)
+    src[:int(H * .08)] = False
+    v = r[src]
+    lim = 3 * 1.4826 * np.median(np.abs(v - np.median(v, 0)), 0) + .5 if len(v) else 0   # no outliers (3 robust sigma)
+    strip = np.clip(r[:, x0:x1], -lim, lim) * src[:, x0:x1, None]
+    reps = W // (x1 - x0) + 2
+    return np.concatenate([strip, strip[:, ::-1]] * reps, 1)[:, :W]
+
+
 def swap(card, pic_path):
     """card: RGBA cut to the card box. The old centre picture (+ its shadow) is filled in from the panel around it and the
     representative picture goes in one standard box (BOX) with a soft contact shadow."""
@@ -142,18 +168,45 @@ def swap(card, pic_path):
     a = np.asarray(card.convert('RGB')).astype(np.float32)
     zone = zone_mask(W, H)
     flat = np.median(a[int(H * .2):int(H * .25), int(W * .14):int(W * .2)].reshape(-1, 3), 0)   # the panel colour
-    keep = centre((np.abs(a - flat).sum(-1) > 18) & zone, W, H)
+    bg = flat
+    keep = centre((np.abs(a - bg).sum(-1) > 18) & zone, W, H)
     if not keep.any():          # a shaded panel (log, nut, seeds …): compare with a smooth fit of the panel instead
-        keep = centre((np.abs(a - panel_fit(a, W, H)).sum(-1) > 24) & zone, W, H)
+        bg = panel_fit(a, W, H)
+        keep = centre((np.abs(a - bg).sum(-1) > 24) & zone, W, H)
     if not keep.any():
         raise ValueError('no centre picture found')
-    gone = ndi.binary_dilation(hull(keep), iterations=max(8, W // 80)) & zone
+    off = np.abs(a - bg).sum(-1)
+    # the panel: inside the frame (x .05–.95, from y .045) down to just above the word, without the level badge
+    wtop = word_top(a, flat, W, H)
     panel = np.zeros((H, W), bool)
-    panel[int(H * .06):int(H * .73), int(W * .06):int(W * .94)] = True
+    panel[int(H * .045):int(H * (wtop - .006)), int(W * PANEL_X[0]):int(W * PANEL_X[1])] = True
     panel[:int(H * BADGE[1]), :int(W * BADGE[0])] = False
-    filled = pushpull(a, panel & ~gone)
+    near = ndi.binary_dilation(keep, iterations=6)
+    # the old picture's faint parts (a cream bone's end on a cream card): weak but clear, touching what was found —
+    # taken only while they don't blow the area up (a shaded panel is 'weak' everywhere)
+    blur = ndi.gaussian_filter(a, (2, 2, 0))
+    weak = (np.abs(blur - bg).sum(-1) > 10) & zone
+    lab, _ = ndi.label(weak)
+    ids = np.unique(lab[near & weak])
+    more = np.isin(lab, ids[ids > 0])
+    full = keep | more if (keep | more).sum() < 1.6 * keep.sum() else keep.copy()
+    # its parts outside the zone (a pan's rim at the panel's edge, a girl's shoes near the word): small clear pieces that
+    # touch it (a big one is the panel's own shading, not the picture)
+    piece = (off > 40) & panel & ~zone
+    lab, _ = ndi.label(piece)
+    for i, sl in enumerate(ndi.find_objects(lab), 1):
+        m_i = lab[sl] == i
+        if m_i.sum() < .03 * W * H and (near[sl] & m_i).any():
+            full[sl] |= m_i
+    gone = ndi.binary_dilation(hull(full & panel), iterations=max(8, W // 80)) & panel
+    # fill only from clean panel pixels: smooth where they are (no edge of a picture leftover, the word or the badge),
+    # so nothing gets smeared in; then the panel's own fine texture on top (copied from the free strip at its left edge)
+    smooth = ndi.binary_erosion(np.abs(a - blur).sum(-1) < 14, iterations=2)
+    known = panel & ~gone & smooth
+    soft = ndi.gaussian_filter(a, (2, 2, 0))
+    filled = pushpull(soft, known) + texture(a - soft, known, W, H)
     m = np.asarray(Image.fromarray(gone.astype(np.uint8) * 255).filter(ImageFilter.GaussianBlur(max(3, W // 200)))).astype(np.float32)[..., None] / 255
-    m = m * zone[..., None]
+    m = m * panel[..., None]
     im = Image.fromarray(np.clip(a * (1 - m) + filled * m, 0, 255).astype(np.uint8)).convert('RGBA')
     pic, _ = cut_white(Image.open(pic_path).convert('RGBA'))
     pic = pic.crop(pic.getchannel('A').point(lambda v: 255 if v > 8 else 0).getbbox())
