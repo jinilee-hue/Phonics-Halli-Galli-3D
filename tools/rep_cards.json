@@ -144,6 +144,15 @@
   "pic": "fca43054",
   "cut": false
  },
+ "maps": {
+  "card": "8431fb3b",
+  "pic": "fca43054",
+  "cut": false,
+  "multi": [
+   "map",
+   3
+  ]
+ },
  "monkey": {
   "card": "f1657c46",
   "pic": "e6d46792",
@@ -174,6 +183,15 @@
   "pic": "290a8cf6",
   "cut": false
  },
+ "puzzles": {
+  "card": "14a714d0",
+  "pic": "290a8cf6",
+  "cut": false,
+  "multi": [
+   "puzzle",
+   2
+  ]
+ },
  "sandwich": {
   "card": "d1c234a3",
   "pic": "012e9e4b",
@@ -198,6 +216,15 @@
   "card": "145e7d9b",
   "pic": "1237c713",
   "cut": false
+ },
+ "toes": {
+  "card": "0d48479f",
+  "pic": "1237c713",
+  "cut": false,
+  "multi": [
+   "toe",
+   "pair"
+  ]
  },
  "tree": {
   "card": "22ab9695",

@@ -9,7 +9,8 @@
   → build_card_art.py 와 같은 모양(600×800, 모서리 7.5%)으로 gl/media/cards/card_<낱말>.webp
   → tools/rep_cards.json (낱말 → 원래 카드 · 대표이미지의 해시) — build_card_art.py 는 이 낱말들을 원래 카드에서 다시 만들지 않고
     (5세 카드면 OVER로 원래 사본 대신 씀), 원래 카드나 대표이미지가 바뀌었으면 이 도구를 다시 돌리라고 알려 줘요.
-대표이미지가 없는 낱말과 KEEP(그림 개수가 모서리 숫자와 안 맞는 대표이미지)은 원래 그림 그대로. 테두리 · 낱말 글자 · 모서리 배지는 안 건드려요.
+대표이미지가 없는 낱말과 KEEP(그림 개수가 모서리 숫자와 안 맞는 대표이미지)은 원래 그림 그대로.
+MULTI(maps)는 단수 대표이미지를 N장 겹쳐 놓아요. 테두리 · 낱말 글자 · 모서리 배지는 안 건드려요.
 """
 import hashlib
 import json
@@ -17,7 +18,7 @@ import pathlib
 import sys
 
 import numpy as np
-from PIL import Image, ImageChops, ImageDraw, ImageFilter
+from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageOps
 from scipy import ndimage as ndi
 from scipy.spatial import ConvexHull
 
@@ -31,7 +32,12 @@ import lessonpack  # noqa: E402
 LIST = HERE / 'rep_cards.json'
 # 그림 개수가 카드 모서리 숫자(= 몇 개)와 안 맞는 대표이미지 — 단수 · 복수를 그림 개수로 보는 게임이라 원래 그림을 그대로 둬요
 # (사용자 선택 2026-11-20 "원래 그림 유지"): seed 씨앗 3개+동그라미 / cats 4마리 / maps · pans 2개 / peas 꼬투리 1개 / toys 장난감 3개
-KEEP = {'seed', 'cats', 'maps', 'pans', 'peas', 'toys'}
+KEEP = {'seed', 'cats', 'pans', 'peas', 'toys'}
+# 여럿 카드를 단수 대표이미지 N장을 겹쳐 만듦 (사용자 2026-11-20 "maps 는 map에 있는 이미지를 3개 겹쳐서 넣어주면 되겠네" —
+# 원래 maps 그림은 지도 3장이 한 줄로 붙어 한 장처럼 보였음): 낱말 → (그림을 가져올 낱말, 몇 장)
+MULTI = {'maps': ('map', 3), 'puzzles': ('puzzle', 2)}   # puzzles: 사용자 "puzzle에 있는 이미지를 2개로 겹쳐서"
+MULTI['toes'] = ('toe', 'pair')   # 사용자 "toe에 있는 발과 화살표를 좌우 반전시켜 하나 더 만들어서 양발처럼" — 'pair' = 거울상 + 그대로, 나란히
+MULTI_BOX = (.80, .46)       # a pile is wider than one picture — as wide as the other plural cards' pictures
 
 
 def md5(p):
@@ -116,23 +122,47 @@ def pushpull(a, known):
 
 
 def cut_white(pic):
-    """a picture on an opaque white square (dog — user: "dog 흰바탕 빼야해"): the near-white that touches the edge (+ the
-    faint floor shadow in it) → transparent, the edge softened by a pixel. Pictures without a white square stay as they are."""
+    """a picture on an opaque white square (dog — user: "dog 흰바탕 빼야해", then "흰색 배경삭제가 제대로 안된거 같은데"):
+    - the background = the pale grey-white that touches the edge (its floor shadow too) + big pure-white holes it cannot reach
+      (between the legs, under the belly) → transparent, the floor shadow kept as a soft see-through shadow;
+    - the edge (fur tips mixed with the white) un-mixed: alpha from how far a pixel is from white, colour with the white taken out
+    Pictures without a white square stay as they are."""
     a = np.asarray(pic).astype(np.float32)
     rgb, al = a[..., :3], a[..., 3]
     lo = rgb.min(-1)
-    whiteish = (lo >= 190) & (rgb.max(-1) - lo <= 18) & (al > 200)
+    sat = rgb.max(-1) - lo
     ring = np.ones(al.shape, bool)
     ring[8:-8, 8:-8] = False
-    if whiteish[ring].mean() < .9:
+    if ((lo >= 190) & (sat <= 18) & (al > 200))[ring].mean() < .9:
         return pic, False
-    lab, _ = ndi.label(whiteish)
-    ids = np.unique(lab[ring & whiteish])
-    bg = ndi.binary_dilation(np.isin(lab, ids[ids > 0]), iterations=1)
-    soft = np.asarray(Image.fromarray(bg.astype(np.uint8) * 255).filter(ImageFilter.GaussianBlur(1.2))).astype(np.float32) / 255
+    pale = (lo >= 120) & (sat <= 24) & (al > 200)                  # white … the floor shadow's grey (fur is sat ≥ 79)
+    lab, _ = ndi.label(pale)
+    ids = np.unique(lab[ring & pale])
+    bg = np.isin(lab, ids[ids > 0])
+    white = (lo >= 215) & (sat <= 24)                               # pure-white holes the edge can't reach
+    lab, n = ndi.label(white & ~bg)
+    if n:
+        size = ndi.sum(np.ones_like(lo), lab, index=np.arange(1, n + 1))
+        bg |= np.isin(lab, 1 + np.nonzero(size > .001 * lo.size)[0])
+    lab, _ = ndi.label((lo >= 165) & (sat <= 45) & ~bg)             # pale slivers touching it (under the paws: sat ≈ 30; paw fur ≥ 85)
+    ids = np.unique(lab[ndi.binary_dilation(bg, iterations=2) & (lab > 0)])
+    bg |= np.isin(lab, ids)
+    fg = ~bg
     out = a.copy()
-    out[..., 3] = al * (1 - soft)
-    return Image.fromarray(out.astype(np.uint8), 'RGBA'), True
+    # background: white → clear, grey → a soft dark shadow (alpha from its darkness)
+    sh = np.clip((248 - lo) / 248, 0, 1) * .85
+    out[bg, :3] = 40
+    out[bg, 3] = al[bg] * sh[bg]
+    # the edge band: un-mix the white (alpha from whiteness against the fur colour just inside)
+    band = ndi.binary_dilation(bg, iterations=4) & fg
+    inner = ndi.binary_dilation(bg, iterations=14) & ndi.binary_erosion(fg, iterations=5)
+    ref = float(np.median(lo[inner])) if inner.any() else 150.
+    k = np.clip((255 - lo) / max(255 - ref, 30), 0, 1)
+    kb = np.maximum(k[band], .02)[:, None]
+    out[band, :3] = np.clip((rgb[band] - (1 - kb) * 255) / kb, 0, 255)
+    out[band, 3] = al[band] * k[band]
+    out[..., 3] = np.asarray(Image.fromarray(out[..., 3].astype(np.uint8)).filter(ImageFilter.GaussianBlur(.6))).astype(np.float32)
+    return Image.fromarray(np.clip(out, 0, 255).astype(np.uint8), 'RGBA'), True
 
 
 def word_top(a, flat, W, H):
@@ -160,7 +190,52 @@ def texture(r, known, W, H):
     return np.concatenate([strip, strip[:, ::-1]] * reps, 1)[:, :W]
 
 
-def swap(card, pic_path):
+def stack(pic_path, n):
+    """n copies of one picture overlapping like a small pile — back row left/right, front copy lower in the middle (n = 3),
+    or side by side overlapping (n = 2), or a mirrored pair side by side (n = "pair", two feet); each copy throws a soft shadow on the ones behind it, so every copy reads"""
+    pic = cut_white(Image.open(pic_path).convert('RGBA'))[0]
+    pic = pic.crop(pic.getchannel('A').point(lambda v: 255 if v > 8 else 0).getbbox())
+    w, h = pic.size
+    pad = int(w * .08)                                              # room for the shadows (else they end in a straight cut)
+    if n == 'pair':             # two feet: the picture mirrored on the left (the other foot), as it is on the right
+        gap = int(w * .06)
+        copies = [(ImageOps.mirror(pic), pad, pad), (pic, pad + w + gap, pad)]
+        W, H = 2 * w + gap + 2 * pad, h + 2 * pad
+    else:
+        spots = [(0, 0), (.56 * w, 0), (.28 * w, .40 * h)] if n == 3 else [(0, 0), (.56 * w, .12 * h)]
+        copies = [(pic, x + pad, y + pad) for x, y in spots[:n]]
+        W, H = int(w * 1.56) + 2 * pad, int(h * (1.40 if n == 3 else 1.12)) + 2 * pad
+    out = Image.new('RGBA', (W, H), (0, 0, 0, 0))
+    for pic, x, y in copies:
+        a = pic.getchannel('A')
+        sh = Image.new('L', (W, H), 0)
+        sh.paste(a.point(lambda v: v * .35), (int(x) + int(w * .02), int(y) + int(h * .04)))
+        shade = Image.new('RGBA', (W, H), (30, 40, 60, 0)); shade.putalpha(sh.filter(ImageFilter.GaussianBlur(w * .02)))
+        out.alpha_composite(shade)
+        out.alpha_composite(pic, (int(x), int(y)))
+    return out
+
+
+def panel_box(a, W, H):
+    """the panel's inner edges in pixels — the cream frame's inner edge differs per card (.947–.958 W): the strongest
+    brightness step met first from the panel side in the window where the edge can be (left .025–.07 W, right .93–.975 W, top .02–.07 H), median of the
+    step over a few rows / columns; 2 px kept clear of the frame's own inner line. No clear step (a panel as pale as the
+    frame) → the usual place (.045 / .955 / .045)."""
+    g = a.sum(-1)
+    def edge(profiles, lo, hi, default, inward_first):
+        # the first clear step met coming from the panel side (the frame's outer rim makes a second step further out)
+        d = np.median(np.abs(np.diff(np.stack(profiles), axis=1))[:, lo:hi], 0)
+        ks = range(len(d) - 1, -1, -1) if inward_first == 'high' else range(len(d))
+        return next((lo + k for k in ks if d[k] > 12), default)
+    rows = [g[int(H * f)] for f in (.09, .3, .5, .66)]
+    cols = [g[:, int(W * f)] for f in (.4, .6, .8)]
+    x0 = edge(rows, int(W * .025), int(W * .07), int(W * .045), 'high') + 3
+    x1 = edge(rows, int(W * .93), int(W * .975), int(W * .955), 'low') - 1
+    y0 = edge(cols, int(H * .02), int(H * .07), int(H * .045), 'high') + 3
+    return x0, x1, y0
+
+
+def swap(card, pic_path, box=None):
     """card: RGBA cut to the card box. The old centre picture (+ its shadow) is filled in from the panel around it and the
     representative picture goes in one standard box (BOX) with a soft contact shadow."""
     W, H = card.size
@@ -178,8 +253,9 @@ def swap(card, pic_path):
     off = np.abs(a - bg).sum(-1)
     # the panel: inside the frame (x .05–.95, from y .045) down to just above the word, without the level badge
     wtop = word_top(a, flat, W, H)
+    x0, x1, y0 = panel_box(a, W, H)
     panel = np.zeros((H, W), bool)
-    panel[int(H * .045):int(H * (wtop - .006)), int(W * PANEL_X[0]):int(W * PANEL_X[1])] = True
+    panel[y0:int(H * (wtop - .006)), x0:x1] = True
     panel[:int(H * BADGE[1]), :int(W * BADGE[0])] = False
     near = ndi.binary_dilation(keep, iterations=6)
     # the old picture's faint parts (a cream bone's end on a cream card): weak but clear, touching what was found —
@@ -206,11 +282,12 @@ def swap(card, pic_path):
     soft = ndi.gaussian_filter(a, (2, 2, 0))
     filled = pushpull(soft, known) + texture(a - soft, known, W, H)
     m = np.asarray(Image.fromarray(gone.astype(np.uint8) * 255).filter(ImageFilter.GaussianBlur(max(3, W // 200)))).astype(np.float32)[..., None] / 255
-    m = m * panel[..., None]
+    m = np.maximum(m, gone[..., None].astype(np.float32)) * panel[..., None]   # all of the erased area replaced (the fade only outside it)
     im = Image.fromarray(np.clip(a * (1 - m) + filled * m, 0, 255).astype(np.uint8)).convert('RGBA')
-    pic, _ = cut_white(Image.open(pic_path).convert('RGBA'))
+    pic = pic_path if isinstance(pic_path, Image.Image) else cut_white(Image.open(pic_path).convert('RGBA'))[0]
     pic = pic.crop(pic.getchannel('A').point(lambda v: 255 if v > 8 else 0).getbbox())
-    s = min(W * BOX[0] / pic.width, H * BOX[1] / pic.height)
+    bw, bh = box or BOX[:2]
+    s = min(W * bw / pic.width, H * bh / pic.height)
     pic = pic.resize((max(1, round(pic.width * s)), max(1, round(pic.height * s))), Image.LANCZOS)
     cx, cy = W * .5, H * BOX[2]
     px, py = round(cx - pic.width / 2), round(cy - pic.height / 2)
@@ -233,7 +310,7 @@ def main():
         w = p.stem[len('card_'):]
         if words and w not in words:
             continue
-        pic = lessonpack.picture(w)
+        pic = lessonpack.picture(MULTI[w][0] if w in MULTI else w)
         if pic and w in KEEP:
             if done.pop(w, None):                       # 전에 바꿨던 카드 → 지워서 build_card_art.py가 원래 그림으로 다시 만들게
                 (B.OUT / f'card_{w}.webp').unlink(missing_ok=True)
@@ -243,6 +320,8 @@ def main():
             none.append(w)
             continue
         sig = {'card': md5(p), 'pic': md5(pic), 'cut': cut_white(Image.open(pic).convert('RGBA'))[1]}
+        if w in MULTI:
+            sig['multi'] = list(MULTI[w])
         dst = B.OUT / f'card_{w}.webp'
         if done.get(w) == sig and dst.exists() and not words:
             kept.append(w)
@@ -250,7 +329,7 @@ def main():
         im = Image.open(p).convert('RGBA')
         box, _ = B.card_box(im)
         try:
-            card = swap(im.crop(box), pic)
+            card = swap(im.crop(box), stack(pic, MULTI[w][1]), MULTI_BOX) if w in MULTI else swap(im.crop(box), pic)
         except ValueError as e:
             fail.append(f'{w} ({e})')
             continue
