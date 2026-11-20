@@ -26,7 +26,7 @@ HEAD_ADD = ('<link rel="stylesheet" href="./gl/board3d.css?v=1" />\n'
             '<link rel="stylesheet" href="./gl/tutor.css?v=4" />\n'
             '<link rel="stylesheet" href="./gl/clock-color.css?v=1" />\n'
             '<link rel="stylesheet" href="./gl/levels.css?v=2" />\n'
-            '<link rel="stylesheet" href="./gl/hud-size.css?v=1" />\n'
+            '<link rel="stylesheet" href="./gl/hud-size.css?v=2" />\n'
             '<link rel="stylesheet" href="./gl/lang.css?v=2" />\n')
 # 인트로 모션그래픽: 원래 intro.js 바로 뒤(main.js보다 앞)에 끼워서 playIntro를 바꿔 둬요
 INTRO_ADD = '<script src="./gl/intro-mg.js?v=7"></script>\n'
@@ -100,6 +100,9 @@ def main():
     html = html.replace(*TITLE)
     html = html.replace('src="./assets/bi.png"', 'src="./assets/bi.png?v=3"')
     html = re.sub(r'src/voice-data\.js(\?v=\d+)?', VOICE_DATA, html)
+    # 3D가 꺼진 기기의 영상 인트로: 같은 영상에 소리만 새 나레이션(공통 튜터 목소리)으로 바꾼 사본 (2026-11-20 사용자
+    # "인트로에 링딩동 환영한다는 목소리도 tts로 고쳐야해") — gl/media/intro-video.mp4, 원래 assets/intro.mp4는 그대로
+    html = html.replace('src="./assets/intro.mp4"', 'src="./gl/media/intro-video.mp4?v=1"')
     m = re.search(r'<link[^>]*src/upgrade\.css[^>]*>\n', html)
     if not m or '</body>' not in html:
         sys.exit('원래 index.html에서 3D 줄을 끼울 자리(upgrade.css 링크 · </body>)를 못 찾았어요. 손으로 확인해 주세요.')

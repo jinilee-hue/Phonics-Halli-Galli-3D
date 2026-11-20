@@ -30,3 +30,9 @@
 | andrewm — 남자 진행자(Andrew Multilingual) | 135 Hz | 1.561 · 2.361 · 2.736 |
 
 스크립트 안 경로는 작업 폴더 `/tmp/gl/hg/rdd` 기준이에요.
+
+## 3D가 꺼진 기기의 영상 인트로 (`gl/media/intro-video.mp4`)
+3D가 꺼진 기기(WebGL 없음 · 느린 기기 · `?q=html`)와 `?intro=video`는 모션 인트로 대신 원래 영상을 틀어요. 그 영상의 소리를
+같은 섞은 소리(out/intro_tutor.wav)로 바꾼 사본을 써요(2026-11-20 사용자 "인트로에 링딩동 환영한다는 목소리도 tts로 고쳐야해"):
+`ffmpeg -i assets/intro.mp4 -i out/intro_tutor.wav -map 0:v -map 1:a -c:v copy -c:a aac -b:a 160k -ar 48000 -ac 2 -shortest gl/media/intro-video.mp4`
+나레이션을 다시 만들면 이것도 다시. 영상 그림의 로고는 아직 옛 'Halli Galli' 그대로예요.

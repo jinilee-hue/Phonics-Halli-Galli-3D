@@ -4,7 +4,8 @@
    upgrade.css의 vh 값은 그대로 두고, 같은 비율로 --hk(= 7.6 tu ÷ 7.4)를 곱해 다시 잡아요 — 모양은 그대로, 크기만 맞춤.
    (16:9 화면에선 거의 그대로, 16:10처럼 덜 넓은 화면에서 조금 작아져요 — Toy Catch와 같이) */
 .hud { --tu: min(1vh, calc(100vw / 177.78)); --hk: calc(var(--tu) * 7.6 / 7.4);
-  top: calc(3 * var(--tu)); right: calc(var(--stage-side, 0px) + 3 * var(--tu)); }
+  top: calc(3 * var(--tu)); right: calc(3 * var(--tu)); }   /* 화면 끝에서 (16:9보다 넓은 화면에서도 Toy Catch처럼 — 무대 끝에서 재면
+     넓은 화면일수록 나가기 오른쪽 여백이 커졌어요, 사용자 "나가기 버튼 우측에 여백이 링딩동만 더 넓은데") */
 .hud-r { gap: calc(.17 * 7.6 * var(--tu)); align-self: flex-start; }   /* buttons from the top (3 tu), not centred on the tall logo */
 .hud-btn { width: calc(7.4 * var(--hk)); height: calc(7.4 * var(--hk)); }
 .hud-btn svg { width: calc(3.8 * var(--hk)); height: calc(3.8 * var(--hk)); }
