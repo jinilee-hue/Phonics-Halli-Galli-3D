@@ -450,7 +450,8 @@
     if (cur && cur.p && !cur.done) return;                  // 여럿 카드가 떠 있으면 카드 대신 종을 쳐야 하니 기다림
     const wait = { guide: 4500, light: 7000, quiet: 11000 }[phase()];
     const since = Math.max(turnAt, lastAct, lineEnd);
-    if (turnPrompts < 2 && now() - since > wait) {
+    // 처음 두 번은 단계별 대기 뒤, 그다음부터는 15초마다 다시 (사용자 2026-11-22: "두 게임 음성도 반복" — Toy Catch처럼)
+    if (now() - since > (turnPrompts < 2 ? wait : 15000)) {
       turnPrompts++;
       sayLine('yourTurn', { act: 'wiggle', gaze: 'me' });
     }

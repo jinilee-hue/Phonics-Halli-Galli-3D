@@ -52,7 +52,7 @@ BODY_ADD = ('<!-- 3D 판 (WebGL): three.js + 판 그림 + 판 그리기. 게임 
             '<script src="./gl/coco-en.js?v=2"></script>\n'
             '<script src="./gl/tutor-voice.js?v=6"></script>\n'
             '<script src=\"./gl/lang.js?v=2\"></script>\n'
-            '<script src="./gl/tutor.js?v=4"></script>\n')
+            '<script src="./gl/tutor.js?v=5"></script>\n')
 TITLE = ('<title>Phonics Ring Ding Dong — Coco</title>', '<title>Phonics Ring Ding Dong 3D — Coco</title>')
 TITLE_OLD = ('<title>Phonics Halli Galli — Coco</title>', '<title>Phonics Ring Ding Dong 3D — Coco</title>')
 ASSET_DIRS = ['bell_parts', 'coco_parts', 'clock_parts', 'card_web']
