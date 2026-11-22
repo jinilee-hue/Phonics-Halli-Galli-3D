@@ -58,6 +58,11 @@ LINES = {
     'careful':   'Listen carefully!',                   # Coco S가 2개
     'win':       'You win! Great job!',                 # 이겼을 때
     'lose':      "Good try! Let's play again!",         # 졌을 때
+    # 첫 판 설명 시범 (사용자 2026-11-22 "설명 있는게 맞지"): 손이 카드를 넘기고 종을 치며 보여 줌 — 방문의 첫 판에만
+    'demoMany':  'More than one — ring the bell!',      # 손이 여럿 카드(dogs)에 종을 친 뒤
+    'demoOne':   "Just one — don't ring!",              # 손이 하나 카드(pig)를 넘기고 종에서 떨어져 있을 때
+    'demoWin':   'Get three S to win!',                 # 내 S 칸 세 개
+    'demoTry':   'Now you try!',                        # 시범 끝 → 진짜 게임
 }
 # 한국어 말 (2026-11-20 사용자 "링딩동에서 언어 선택 들어가야해") — 같은 목소리(Ava Multilingual)가 한국어로, gl/lang.js가 고른 말로 틀어요
 LINES_KO = {
@@ -79,6 +84,10 @@ LINES_KO = {
     'careful':   '잘 들어 봐!',
     'win':       '네가 이겼어! 잘했어!',
     'lose':      '잘했어! 한 판 더 하자!',
+    'demoMany':  '여러 개면 종을 쳐!',
+    'demoOne':   '하나면 치지 마!',
+    'demoWin':   'S 세 개를 모으면 이겨!',
+    'demoTry':   '이제 혼자 해 봐!',
 }
 assert set(LINES_KO) == set(LINES)
 FR = int(SR * .01)            # 10ms 틀

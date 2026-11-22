@@ -306,9 +306,157 @@
     release('guide');
   }
 
+  // ── 첫 판 설명 시범 (사용자 2026-11-22 "설명 있는게 맞지" · phonics-kit README 공통 규칙 1 · Puzzle teachDemo 방식)
+  //    방문의 첫 판: START 뒤 첫 카드 전에, 진짜 판 위에서 손이 직접 해 보여요 — 내 카드를 넘겨 여럿(dogs) → 종을 땡 →
+  //    "More than one — ring the bell!" → 다시 넘겨 하나(pig) → 손은 종에 안 가고 도리도리 → "Just one — don't ring!" →
+  //    "Get three S to win!" (내 S 칸 세 개에 S가 톡톡 — 보여 주기만) → "Now you try!" → 지금처럼 새 판(reset)으로 시작.
+  //    시범 카드는 셈에 안 들어가요: S · 점수 · Coco 차례 · 기록 없음 (게임의 flip · 점수 코드를 안 거치고 카드만 놓아요).
+  //    SKIP(오른쪽 아래 흰 유리 알약)은 START부터 시범 끝까지 — 누르면 말 · 낱말 소리 · 시범이 바로 멈추고 게임 시작.
+  //    같은 방문의 다음 판(다시 하기 · 나갔다 다시 START)은 생략. 시범 도중 나가기로 끊기면 다음 START에 다시.
+  const DEMO_MANY = 'dogs', DEMO_ONE = 'pig';
+  let taught = false, demo = null, demoSelf = false;
+  const skipBtn = document.createElement('button');
+  skipBtn.className = 'howto-skip'; skipBtn.id = 'howtoSkip'; skipBtn.type = 'button';
+  skipBtn.setAttribute('aria-label', 'Skip'); skipBtn.textContent = 'SKIP';
+  appEl.appendChild(skipBtn);
+  const hand = document.createElement('div');
+  hand.className = 'demo-hand'; hand.setAttribute('aria-hidden', 'true');
+  hand.innerHTML = '<i class="ripple"></i><img src="./assets/tap_hand.png?v=right" alt="" draggable="false">';
+  appEl.appendChild(hand);
+  const handImg = hand.querySelector('img'), tapHand = document.querySelector('#hit0 .tap-hand');
+  // 손가락 끝 = 손 그림의 (38%, 1%) — 내 차례 손(.tap-hand)과 같은 그림 · 같은 크기
+  function handAt(pt, ms) {
+    const r = tapHand && tapHand.getBoundingClientRect(), vh = innerHeight / 100;
+    const w = r && r.width ? r.width : 8.5 * vh, h = w * ((handImg.naturalHeight / handImg.naturalWidth) || 1.33);
+    hand.style.setProperty('--mv', (ms || 0) + 'ms');
+    hand.style.width = w + 'px';
+    hand.style.left = (pt[0] - .38 * w) + 'px'; hand.style.top = (pt[1] - .01 * h) + 'px';
+  }
+  function deckPt() {                                        // 내 차례 손이 톡톡 하는 자리 (내 카드 더미 위)
+    const r = tapHand.getBoundingClientRect();
+    return [r.left + .38 * r.width, r.top + .01 * r.height];
+  }
+  function bellPt() {                                        // 종 꼭대기 단추
+    if (has3D() && window.Board3D && Bell3D.root && Bell3D.root.visible) {
+      const T = Board3D.THREE, c = Board3D.renderer.domElement.getBoundingClientRect();
+      Bell3D.root.updateMatrixWorld(true);
+      const v = Bell3D.root.localToWorld(new T.Vector3(0, 1.5, 0)).project(Board3D.camera);
+      return [c.left + (v.x + 1) / 2 * c.width, c.top + (1 - v.y) / 2 * c.height];
+    }
+    const r = bellEl.getBoundingClientRect();
+    return [r.left + r.width * .5, r.top + r.height * .04];
+  }
+  const hideHand = () => hand.classList.remove('show', 'press', 'wag');
+  const pause = (d, ms) => new Promise(res => { d.waits.push(res); d.timers.push(setTimeout(res, ms)); });
+  const sayP = (d, id, o) => new Promise(res => {
+    d.waits.push(res);
+    if (!sayLine(id, Object.assign({ maxWait: 8000 }, o, { done: res, cancel: res }))) res();
+  });
+  const wordDone = d => new Promise(res => {                // 낱말(Ana)이 끝날 때까지 (최대 4초)
+    d.waits.push(res);
+    const t0 = now();
+    (function poll() { if (demo !== d || !anaBusy() || now() - t0 > 4000) res(); else d.timers.push(setTimeout(poll, 70)); })();
+  });
+  async function press(d) {                                  // 손가락으로 톡 — 닿는 순간에 돌아와요
+    hand.classList.remove('press'); void hand.offsetWidth; hand.classList.add('press');
+    await pause(d, 230);
+  }
+  function demoCard(w) {                                     // flip()이 만드는 것과 같은 카드 — 셈 없이 판에만
+    const spot = document.getElementById('spot'), img = window.CARD_ART && CARD_ART[w];
+    spot.querySelector('.hint').style.display = 'none';
+    spot.querySelectorAll('.card').forEach(o => { o.classList.remove('deal', 'right', 'wrong'); o.classList.add('old');
+      if (!o.style.rotate) o.style.rotate = (Math.random() * 16 - 8) + 'deg'; });
+    const el = document.createElement('div');
+    el.className = 'card deal' + (img ? ' has-art' : '');
+    el.style.setProperty('--fx', '60vh'); el.style.setProperty('--fr', '20deg');
+    el.style.setProperty('--bk', 'var(--p1)'); el.style.setProperty('--bks', 'var(--p1-soft)');
+    el.innerHTML = `<div class="f front">${img ? `<img class="card-img" src="${img}" alt="${w}" draggable="false">` : ''}<div class="word">${w}</div></div><div class="f back"><b></b></div>`;
+    spot.appendChild(el);
+    anaWant = now();
+    setTimeout(() => { if (demo) speak(w); }, 260);
+    return el;
+  }
+  function demoRing(el) {                                    // 진짜 종 치기(땡 · 눌림 · 물결) — 카드가 없을 때라 점수는 안 바뀌어요
+    demoSelf = true;
+    try { hitBell(ME); } finally { demoSelf = false; }
+    el.style.setProperty('--hitc', 'oklch(0.85 0.07 260)');
+    el.classList.add('right');
+    if (window.BellFace) BellFace.react('happy');
+    mood('surprised', 1200);
+  }
+  function popSlots(d) {                                     // 내 S 칸 세 개에 S가 톡톡 (받는 게 아니라 보여 주기만)
+    if (RM.matches) return;
+    P[ME].slots.forEach((s, k) => d.timers.push(setTimeout(() => {
+      if (demo !== d) return;
+      const r = s.getBoundingClientRect(), el = document.createElement('img');
+      el.className = 'demo-s'; el.alt = ''; el.src = './assets/card/my_s.png';
+      el.style.left = (r.left + r.width / 2) + 'px'; el.style.top = (r.top + r.height / 2) + 'px';
+      appEl.appendChild(el); d.els.push(el);
+      setTimeout(() => el.remove(), 2000);
+    }, k * 260)));
+  }
+  async function demoRun(d) {
+    await pause(d, 2300); if (demo !== d) return;            // Coco 인사(안녕! · 나는 Coco야) 뒤
+    // ① 손이 내 카드 더미로 와서 톡 → 여럿 카드
+    handAt(deckPt(), 0); hand.classList.add('show'); look('me', 1500);
+    await pause(d, 700); if (demo !== d) return;
+    await press(d); if (demo !== d) return;
+    const many = demoCard(DEMO_MANY);
+    await pause(d, 400); await wordDone(d); if (demo !== d) return;
+    // ② 손이 종으로 가서 땡 → "More than one — ring the bell!"
+    callOn(true); look('pile', 1200);
+    handAt(bellPt(), 750);
+    await pause(d, 800); if (demo !== d) return;
+    await press(d); if (demo !== d) return;
+    demoRing(many); callOn(false);
+    await pause(d, 450); if (demo !== d) return;
+    await sayP(d, 'demoMany', { act: 'hop', gaze: 'pile', eyes: 'closed' }); if (demo !== d) return;
+    // ③ 손이 더미로 돌아가 톡 → 하나 카드 → 손은 종에 안 가고 도리도리 → "Just one — don't ring!"
+    handAt(deckPt(), 750);
+    await pause(d, 850); if (demo !== d) return;
+    await press(d); if (demo !== d) return;
+    demoCard(DEMO_ONE);
+    await pause(d, 400); await wordDone(d); if (demo !== d) return;
+    hand.classList.add('wag');
+    await sayP(d, 'demoOne', { act: 'shake', gaze: 'pile', mouth: 'o' }); if (demo !== d) return;
+    await pause(d, 300); if (demo !== d) return;
+    hideHand();
+    // ④ "Get three S to win!" → "Now you try!"
+    popSlots(d);
+    await sayP(d, 'demoWin', { act: 'nod', gaze: 'me' }); if (demo !== d) return;
+    await sayP(d, 'demoTry', { act: 'hop', gaze: 'me', eyes: 'closed' }); if (demo !== d) return;
+    await pause(d, 250);
+  }
+  function startDemo() {
+    const d = demo = { timers: [], waits: [], els: [] };
+    appEl.classList.add('howto');                            // SKIP 보임 · 내 차례 손 숨김
+    resetClock();                                            // 시범 동안 시계는 0:00 (끝나면 새로 시작)
+    note('demo', 'start');
+    demoRun(d).catch(e => note('demo-error', String(e))).then(() => { if (demo === d) demoEnd('done'); });
+  }
+  function demoEnd(why) {
+    const d = demo;
+    if (!d) return;
+    demo = null;
+    d.timers.forEach(clearTimeout); d.waits.splice(0).forEach(r => r()); d.els.forEach(e => e.remove());
+    appEl.classList.remove('howto'); hideHand(); callOn(false);
+    note('demo-end', why);
+    if (why === 'reset') return;                             // 나가기 등 — 판은 이미 비워짐, 다음 START에 다시
+    taught = true;
+    stopLine('demo'); clearQueue(); stopVoice();
+    if (!onGame()) return;
+    reset(); startClock(); lastAct = now();                  // 지금처럼 새 판 (덱 · 점수 · 시계 처음부터)
+  }
+  skipBtn.addEventListener('click', e => { e.stopPropagation(); if (demo) { note('demo', 'skip'); demoEnd('skip'); } });
+
   // ── 게임 함수 감싸기
   const flip0 = window.flip;
   window.flip = function (i) {
+    if (demo && onGame() && !over) {                         // 시범 중엔 카드를 못 넘겨요 (차례가 아닐 때처럼 더미만 흔들)
+      if (i === ME) { const dk = P[ME].deck; dk.classList.remove('no'); void dk.offsetWidth; dk.classList.add('no'); }
+      note('block', 'demo-flip');
+      return;
+    }
     if (!onGame() || over) return flip0.apply(this, arguments);
     const prev = cur;
     // 여럿 카드를 안내하는 중인데 종 대신 카드를 넘기려 하면: 막고 "Wait! Ring the bell first!"
@@ -352,6 +500,7 @@
 
   const hit0 = window.hitBell;
   window.hitBell = function (who) {
+    if (demo && !demoSelf && onGame()) { note('block', 'demo-bell'); return; }   // 시범 중 종은 손만 쳐요
     const card = cur, wasDone = !!(card && card.done), wrongN = card && card.wrong ? card.wrong.size : 0, lk = lockUntil, t = now();
     if (who === ME) lastAct = t;
     if (onGame() && !over && card) { clearQueue(it => it.kind === 'guide'); stopLine('hit'); }   // 종이 울리면 아직 못 한 안내는 버려요
@@ -400,6 +549,7 @@
   }
 
   function stopAll(why) {
+    if (demo) demoEnd('reset');
     stopLine(why); clearQueue();
     if (guiding) { guiding.timers.forEach(clearTimeout); guiding = null; }
     callOn(false); dropHold();
@@ -435,7 +585,7 @@
       sayLine('ready', { act: 'hop', eyes: 'closed', keepCoco: true, maxWait: 2500 });
     }, ms);
   }
-  document.getElementById('start').addEventListener('click', () => { preload(); opening(2900); });
+  document.getElementById('start').addEventListener('click', () => { preload(); if (!taught) startDemo(); else opening(2900); });
   document.getElementById('again').addEventListener('click', () => opening(900));
 
   // ── 내 차례인데 머뭇거리면 "Your turn!" (내 카드 더미를 바라보며) · 늘 지켜보기
@@ -443,7 +593,7 @@
   setInterval(() => {
     if (speaking) placeBubble();
     if (calling) placeCall();
-    if (!onGame() || over) return;
+    if (!onGame() || over || demo) return;
     if (holdN > 0 && now() - holdAt > 15000) { note('watchdog', holdN); holdN = 1; release('watchdog'); }   // 혹시 멈춘 채로 남지 않게
     if (turn !== turnSeen) { turnSeen = turn; turnAt = now(); turnPrompts = 0; }
     if (turn !== ME || speaking || queue.length || guiding || holdN > 0 || anaBusy()) return;
@@ -458,5 +608,5 @@
   }, 250);
 
   window.Tutor = { trace, session, get state() { return { phase: phase(), G: Object.assign({}, G), session: Object.assign({}, session), speaking: speaking && speaking.id,
-    queue: queue.map(q => q.id), holdN, guiding: !!guiding, calling, anaBusy: anaBusy() }; }, sayLine, stopLine, phase };
+    queue: queue.map(q => q.id), holdN, guiding: !!guiding, calling, anaBusy: anaBusy(), demo: !!demo, taught }; }, sayLine, stopLine, phase };
 })();

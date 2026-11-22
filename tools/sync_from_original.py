@@ -23,7 +23,7 @@ ORIG = ROOT.parent / 'Phonics-Halli-Galli'
 HEAD_ADD = ('<link rel="stylesheet" href="./gl/board3d.css?v=1" />\n'
             '<link rel="stylesheet" href="./gl/intro-mg.css?v=1" />\n'
             '<link rel="stylesheet" href="./gl/result-fx.css?v=17" />\n'
-            '<link rel="stylesheet" href="./gl/tutor.css?v=4" />\n'
+            '<link rel="stylesheet" href="./gl/tutor.css?v=5" />\n'
             '<link rel="stylesheet" href="./gl/clock-color.css?v=1" />\n'
             '<link rel="stylesheet" href="./gl/levels.css?v=2" />\n'
             '<link rel="stylesheet" href="./gl/hud-size.css?v=2" />\n'
@@ -50,9 +50,9 @@ BODY_ADD = ('<!-- 3D 판 (WebGL): three.js + 판 그림 + 판 그리기. 게임 
             '<script src="./gl/lv-cards.js?v=3"></script>\n'
             '<!-- Coco 말풍선 영어 · 노란 종 튜터: 진행자 말소리 + 상황별 안내 (원래 게임 함수를 감싸서 끼어들어요 · ?tutor=off 로 튜터만 끔) -->\n'
             '<script src="./gl/coco-en.js?v=2"></script>\n'
-            '<script src="./gl/tutor-voice.js?v=6"></script>\n'
-            '<script src=\"./gl/lang.js?v=2\"></script>\n'
-            '<script src="./gl/tutor.js?v=5"></script>\n')
+            '<script src="./gl/tutor-voice.js?v=7"></script>\n'
+            '<script src=\"./gl/lang.js?v=3\"></script>\n'
+            '<script src="./gl/tutor.js?v=6"></script>\n')
 TITLE = ('<title>Phonics Ring Ding Dong — Coco</title>', '<title>Phonics Ring Ding Dong 3D — Coco</title>')
 TITLE_OLD = ('<title>Phonics Halli Galli — Coco</title>', '<title>Phonics Ring Ding Dong 3D — Coco</title>')
 ASSET_DIRS = ['bell_parts', 'coco_parts', 'clock_parts', 'card_web']
