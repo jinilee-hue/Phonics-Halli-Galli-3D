@@ -1,18 +1,18 @@
 """노란 종 튜터(진행자)의 말소리를 미리 만듭니다 — 기기마다 목소리가 달라지지 않게.
 
-목소리: 5살쯤 아이 목소리 — Microsoft 신경망 음성 'Ana' (en-US-AnaNeural · 미국 여자아이)를 살짝 높게(+10Hz), 조금 천천히(-5%)
-  사용자 요청: 어른 목소리(Ava) → 아이 목소리. +55Hz(약 405Hz)는 '너무 아기 같다'고 해서 5살 아이 높이(약 250~330Hz)로 낮춤.
-  지금 약 330Hz — 카드 낱말을 읽는 목소리(같은 Ana, 약 310Hz)보다 살짝 높아요.
-  받아쓰기(whisper) 비교: Ana +0Hz 16/18 · +10Hz 17/18 · +18Hz 17/18 · +55Hz 18/18 · Maisie(영국 여자아이) 13~14/18
-  (+10Hz에서 못 맞힌 1줄은 'Oops'를 'Boops'로 받아쓴 것)
-도구(2026-11-19, 사용자 선택 C): 회사 phonics-api TTS(Azure 신경망 음성) — 같은 Ana에 높이·빠르기를 ffmpeg로 맞춤
-  (phonics-kit/tools/tts_voice.py: 높이 ×1.035 ≈ +10Hz, 빠르기 0.95 = -5%). `--engine edge` = 예전 edge-tts(시제품).
+목소리(2026-11-20 사용자 "할리갈리로 통일해서 새 목소리로 바꿔"): 파닉스 게임 공통 튜터 목소리 — 회사 phonics-api TTS의
+  Ava Multilingual(en-US-AvaMultilingualNeural)을 예전 aiden의 높이·빠르기로 맞춘 것(phonics-kit/tools/tts_voice.tutor).
+  영어(LINES)와 한국어(LINES_KO)를 같은 목소리로. 줄마다 whisper로 다시 들어 보고 다르게 들리면 표현을 바꿔 다시 받음
+  (phonics-kit/tools/tutor_takes.best) — 끝까지 안 맞은 줄은 끝에 적어 줌(귀로 확인).
+  카드 낱말을 읽는 목소리(Ana)와는 다른 목소리예요.
+`--engine edge` = 예전 시제품 목소리: edge-tts 'Ana'(en-US-AnaNeural · 미국 여자아이) +10Hz · -5% (영어만).
 
 결과
-  gl/media/tutor/<id>.mp3   말마다 한 파일 — 받은 원본 그대로(다시 압축 안 함), 끝 빈소리만 잘라 냄
-  gl/tutor-voice.js         window.TUTOR_VOICE = { info, lines: { id: { text, b64, start, gain, dur, mouth } } }
+  gl/media/tutor/<id>.mp3, ko_<id>.mp3   말마다 한 파일 — 받은 원본 그대로(다시 압축 안 함), 끝 빈소리만 잘라 냄
+  gl/tutor-voice.js         window.TUTOR_VOICE = { info, lines: { id: { text, b64, start, gain, dur, mouth } }, lines_ko: { … } }
                             mouth: 60ms마다 입을 벌릴지(1) 닫을지(0) — 말소리 세기로 정함 (종 입 움직이기)
-말을 고치거나 더하려면 아래 LINES만 고치고 다시 돌리세요. 받은 원본은 ~/.cache/phonics-halli-galli/tutor/ 에 남겨 둡니다.
+                            영어 / 한국어는 gl/lang.js가 골라요
+말을 고치거나 더하려면 아래 LINES · LINES_KO만 고치고 다시 돌리세요. 받은 원본은 ~/.cache/phonics-halli-galli/tutor/ 에 남겨 둡니다.
 
 실행: /Users/jini/.local/bin/uv run --quiet --with numpy python tools/build_tutor_voice.py   (키: ~/.config/phonics-api/key)
 """

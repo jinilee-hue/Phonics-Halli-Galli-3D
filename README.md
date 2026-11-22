@@ -87,6 +87,9 @@
 - 순위는 3등까지. 내가 3등 밖이면 3등 밑에 내 줄(4등보다 아래면 사이에 '···'). 3등 안이면 세 줄만, 크게. '예시 · 연동 전' · '게임 끝 · 1단계 · 5세' 꼬리표와 '모은 S가 많은 순 · 같으면 빠른 순' 줄은 뺐어요(반 친구 기록은 아직 예시 자료).
 - 글자색: 갈색 글자는 모두 #111(큰 글자 · 숫자 · 이름) · #333(작은 글자 · 이름표)으로. 선수 색 글자(제목 You win! · Good try!, Me · Coco 이름표, 순위의 Me)는 S 토큰 색처럼 쨍하게(나 oklch(.672 .17 277) · Coco oklch(.736 .155 21), 작은 글자는 조금 진하게). 제목은 위가 밝고 아래로 진해지는 그라데이션(볼륨감) + 같은 색 두께(filter: drop-shadow). '나' → 'Me', '다시 하기' → 'Play Again'(Fredoka). 제목도 영어로: 이겼다! → You win! · 아쉬워요! → Good try! (종이 하는 말과 같게, 9vh — 원래 11.5vh보다 조금 작게, 좁은 화면에선 한 줄에 맞게 더 줄임). 나머지도 모두 영어로(원래 게임 문구는 그대로 두고 gl/result-fx.js english()에서 바꿈): 아래 문장 You got 3 S's before Coco! · Coco got 3 S's first. Let's try again! / 맞힌 종 · 평균 빠르기 · 실수 → Rings · Speed · Oops (번은 빼고 초 → s) / 우리 반 순위 → Class Ranking(판 가운데 · 4.8vh) · 친구들 S는 Coco의 S 마크 그림(coco_s.png) · 칸 이름 줄(Rank · Name · S · Speed)은 뺌 · 순위 · 이름 · 모은 S · 빠르기 → Rank · Name · S · Speed.
 - '나는 우리 반 N등 / N명' 칸은 뺐어요(등수는 아래 순위 줄에). 프로필 그림도 넣었다가 뺐어요.
+- Class Ranking은 그대로 둬요(사용자 2026-11-22 "링딩동은 그냥 Class Ranking으로 가는게 좋겠어").
+- 공통 진도 기록(`gl/progress-rdd.js` + `gl/phonics-progress.js` = phonics-kit 사본): 판이 끝날 때(main.js `end()`) `phonics.progress`에 기록만 남겨요 — 화면은 그대로.
+  `PhonicsProgress.played('ring-ding-dong', { stars(내 S), won, coco(Coco의 S), hits, misses, level, avgTime })`. 결과 화면 전에 나가도 끝난 판은 기록돼요.
 
 | | 이겼을 때 | 졌을 때 |
 |---|---|---|
@@ -100,14 +103,14 @@
 ## 노란 종 튜터 (`gl/tutor.js` · `gl/tutor.css` · `gl/tutor-voice.js`, 3D 폴더에만)
 종이 진행자 겸 선생님이 되어 게임을 이끌어요. 원래 게임 코드는 고치지 않고 게임 함수(flip · hitBell · end …)를 감싸서 끼어들어요. 끄려면 주소 뒤에 `?tutor=off`.
 - 종은 말로만 해요 — 말풍선은 화면에 안 보여요(사용자 요청). 말하는 동안 입이 움직이고 몸짓을 해요. 글은 화면 읽기 도구에만 읽혀요.
-- 목소리: 짧은 영어, 5살쯤 아이 목소리 — 낱말을 읽는 아이 목소리(Ana)를 살짝 높게(약 330Hz · 5살 아이 높이). 30% 높였을 땐 '너무 아기 같다'고 해서 낮췄어요. 받아쓰기 17/18. `tools/build_tutor_voice.py`로 18줄을 미리 만들어 둠(파일을 더블클릭해 열어도 소리 남). 말을 고치려면 그 파일의 LINES만 고치고 다시 돌려요.
+- 목소리: 짧은 영어 — 파닉스 게임 공통 튜터 목소리(회사 phonics-api TTS의 Ava Multilingual `en-US-AvaMultilingualNeural`을 예전 aiden의 높이 · 빠르기로 맞춘 것, 2026-11-20 사용자 "할리갈리로 통일해서 새 목소리로 바꿔"). 낱말을 읽는 목소리(Ana)와는 달라요. `tools/build_tutor_voice.py`로 18줄 × 영어 · 한국어를 미리 만들어 둠(파일을 더블클릭해 열어도 소리 남). 만들 때 줄마다 whisper로 다시 들어 보고, 다르게 들리면 다시 만들어요(phonics-kit `tutor_takes.py`). 말을 고치려면 그 파일의 LINES · LINES_KO만 고치고 다시 돌려요. `--engine edge`는 예전 시제품 목소리(Ana).
 - 낱말 소리를 가리지 않아요(C-05): 종은 낱말 읽기가 끝나고 비는 틈에만 말하고, 낱말이 시작되면 바로 멈춰요. 종이 말하는 동안은 Coco가 기다려요(반응 · 카드 넘기기를 잠시 멈췄다가 이어서).
 - 한 번에 한 명만: 종이 말할 땐 Coco 말풍선은 쉬고, 아이가 종을 치거나 카드를 넘기면 종은 바로 멈춰요. 한국어 안내 글('한 개면 치지 마!' 등)은 종의 말 · 몸짓으로 바꿨어요.
 
 | 상황 | 종 |
 |---|---|
 | 게임 시작 · 다시 하기 | 콩콩 + "Ready? Go!" |
-| 내 차례인데 머뭇 | 내 카드 더미를 바라보며 갸웃 + "Your turn!" (두 번까지) |
+| 내 차례인데 머뭇 | 내 카드 더미를 바라보며 갸웃 + "Your turn!" — 처음 두 번은 단계별로 기다린 뒤(자세히 4.5초 · 가볍게 7초 · 말없이 11초), 그다음은 아이가 기다리는 동안 15초마다 다시 |
 | (처음 몇 장) 여럿 카드 | 반짝 · 콩콩 + 양옆 알록달록 물결 + 카드 위에 S가 톡 + "Ring the bell!" — 안 치면 4초 뒤 한 번 더, 그래도 안 치면 Coco 차례 |
 | 그때 종 대신 카드를 넘기면 | 막고 "Wait! Ring the bell first!" (말은 한 번, 그다음은 콩콩 · 반짝만) |
 | (처음 몇 장) 하나 카드 | 도리도리 + "Just one. Don't ring!" |
@@ -122,7 +125,11 @@
 - 잘하면 물러나요: 첫 판 처음 몇 장(여럿 2장 · 하나 1장, 최대 6장)은 자세히 → 그다음은 반응만 → 3번 연속 맞히면 말없이 끄덕만. 2번 연속 틀리면 다음 2장은 다시 자세히.
 - 가볍게 단계에서 여럿 카드에 머뭇거리면 말없이 콩콩 · 반짝.
 - 3D가 꺼져도(HTML 종) 말 · 말풍선 · 몸짓이 돼요. '동작 줄이기'면 몸짓 · 물결 없이 말과 말풍선만.
-- Coco 말풍선도 영어로 (`gl/coco-en.js`): Hi! · I'm Coco! · More than one! · So fast! · Oops! · I win! · One more game? · You win! — 원래 게임의 한국어 말은 그대로 두고 보여 줄 때만 바꿔요.
+- Coco 말풍선도 영어로 (`gl/coco-en.js`): Hi! · I'm Coco! · More than one! · So fast! · Oops! · I win! · One more game? · You win! — 원래 게임의 한국어 말은 그대로 두고 보여 줄 때만 바꿔요. 한국어를 고르면 원래 한국어 말 그대로.
+
+## 언어 고르기 (`gl/lang.js` · `gl/lang.css`, 3D 폴더에만)
+- 파닉스 게임 공통 규칙(2026-11-22): 토글(두 국기 · 흰 손잡이, Toy Catch와 같은 모양)은 시작 화면 소리 버튼 왼쪽에만 있어요. 처음 오면 한국어, 고른 말은 기기에 기억(`localStorage` `hg-lang`).
+- 바뀌는 것: 노란 종 목소리(와 화면 읽기용 말풍선 글), Coco 말풍선. 카드 낱말 소리는 영어 그대로, 결과 화면 등 화면 글자는 두 말 모두 영어.
 
 ## 6세 · 7세 그림 카드 (`gl/lv-cards.js` · `gl/card-art.js`, 3D 폴더에만)
 - 원래 게임은 그림 카드를 5세(1단계)에서만 써요. 3D에서는 2 · 3단계도 그림이 있으면 그림 카드로 바꿔요 (사용자 요청 "6세 이미지 넣었는데 반영해줘" · "7세에도 그림카드").
@@ -150,8 +157,8 @@
   lip · toe는 짚는 화살표가 그림에 들어 있어요.
 - **실시간 반영**: `/usr/bin/python3 -u tools/watch_cards.py` — 원래 게임 assets/card를 5초마다 보고, 바뀐 그림이 30초 동안 조용해지면
   동기화 → commit · push(동기화가 만드는 파일만). 공유 링크는 1~2분 뒤, localhost:5182는 새로고침하면 바로. 3시간 동안 바뀐 게 없으면 스스로 끝나요.
-- 시작 화면 오른쪽 아래 단계 단추(1단계 5세 · 2단계 6세 · 3단계 7세)를 다시 보이게 했어요(`gl/levels.css` — 원래 게임은 숨김 그대로). 게임 화면에선 사라지고, 나갔다 오면 고른 단계 그대로.
-  `?age=6` · `?age=7`로 그 단계를 미리 골라 둔 채 열 수도 있어요.
+- 시작 화면 단계 단추(1단계 5세 · 2단계 6세 · 3단계 7세)는 지금 숨겨 둬요 — 늘 5세 · K (`gl/levels.css`, 사용자 2026-11-20 "일단은 5세 k 레벨만 오픈"). 다시 열려면 그 파일의 `display:none`을 `display:grid`로.
+  6세 · 7세는 `?age=6` · `?age=7`로만 열 수 있어요(`gl/lv-cards.js`).
 - 파일을 더블클릭해 열면(file://) 3D 판이 그림 파일을 못 읽어서, 2단계 이상을 고를 때 `gl/card-tex.js`(data URL, 약 5.5 MB)를 불러와요. http로 열면 안 받아요(다음 카드 3장만 미리 받음).
 
 ## HUD 시계 색 (`gl/clock-color.js` · `gl/clock-color.css`, 3D 폴더에만)
@@ -185,6 +192,7 @@
 ## 원래 게임을 고쳤을 때
 - `동기화.command` 더블클릭 (또는 `python3 tools/sync_from_original.py`)
   - 원래 게임의 `src/` 전부 · 쓰는 그림 · `index.html`(3D 줄만 끼워서)을 가져와요. 카드 그림이 바뀌었으면 3D 그림(`src/gl-tex.js`)도 다시 만들어요.
+  - 세로 화면 안내(`rotate-msg`)는 영어 "Turn your tablet sideways to play"로 바꿔 끼워요.
 - Coco 그림(`assets/coco.png` → 조각)이 바뀌었으면: `python3 tools/build_coco_face.py` → `python3 tools/build_gl_tex.py`
 
 ## 파일
