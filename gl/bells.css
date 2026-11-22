@@ -1,0 +1,105 @@
+/* MY BELLS (gl/bells.js) — 모은 S로 여는 종 색 · 시작 화면 오른쪽 위 종 버튼 + 판
+   크기는 위 버튼과 같은 tu 단위 (gl/hud-size.css: tu = min(1vh, 100vw / 177.78)). 판은 버튼 아래 오른쪽에 붙어 열려서
+   가운데 종을 가리지 않아요 — 고르면 시작 화면의 종이 바로 바뀌는 게 보이게.
+   모양은 결과 화면 판과 같은 클레이: 도톰한 크림 테두리 + 쑥 들어간 바닥, 고를 수 있는 종은 볼록, 잠긴 종은 오목. */
+#app:not([data-screen="title"]) #btnBells{ display:none; }
+
+.bells-scrim{ position:fixed; inset:0; z-index:20; background:transparent; }
+.bells-scrim[hidden], .bells-panel[hidden]{ display:none !important; }
+
+.bells-panel{
+  --tu: min(1vh, calc(100vw / 177.78));
+  --rim: calc(1.8 * var(--tu)); --rad: calc(4.4 * var(--tu));
+  --clay: oklch(0.952 0.03 82); --clay-hi: oklch(0.99 0.012 88); --clay-side: oklch(0.87 0.05 74);
+  --clay-in: oklch(0.55 0.08 55 / .18); --clay-cast: oklch(0.3 0.05 45 / .32);
+  --clay-felt: oklch(0.985 0.01 85); --clay-felt-in: oklch(0.45 0.07 55 / .26);
+  --clay-well: oklch(0.955 0.02 80); --clay-well-in: oklch(0.45 0.06 55 / .22);
+  --clay-row: oklch(0.982 0.02 84); --clay-row-side: oklch(0.885 0.05 74);
+  --me: oklch(0.672 0.17 277); --me-side: oklch(0.52 0.165 277);
+  position:fixed; z-index:21; top: calc(12.6 * var(--tu)); right: calc(3 * var(--tu));
+  width: calc(50 * var(--tu)); box-sizing:border-box;
+  padding: calc(var(--rim) + 2 * var(--tu)) calc(var(--rim) + 2.4 * var(--tu)) calc(var(--rim) + 4.6 * var(--tu));   /* 아래는 넉넉히 비워 둠 */
+  border-radius: var(--rad); color:#111; isolation:isolate;
+  font-family: "Fredoka", "Jua", sans-serif; font-weight:600;
+  background: linear-gradient(to bottom, var(--clay-hi), var(--clay) 22%);
+  box-shadow: inset 0 calc(.45 * var(--tu)) calc(.5 * var(--tu)) oklch(1 0 0 / .85), inset 0 calc(-.6 * var(--tu)) calc(.8 * var(--tu)) var(--clay-in),
+    0 calc(1.2 * var(--tu)) 0 var(--clay-side), 0 calc(3.4 * var(--tu)) calc(5 * var(--tu)) var(--clay-cast);
+  transform-origin: 88% 0; animation: bells-in .42s cubic-bezier(.3,1.4,.45,1) both;
+  touch-action:none; user-select:none; -webkit-user-select:none;
+}
+.bells-panel::before{ content:''; position:absolute; inset: var(--rim); z-index:-1; pointer-events:none;
+  border-radius: calc(var(--rad) - var(--rim)); background: var(--clay-felt);
+  box-shadow: inset 0 calc(1.5 * var(--tu)) calc(1.6 * var(--tu)) calc(-.3 * var(--tu)) var(--clay-felt-in),
+    inset 0 calc(.35 * var(--tu)) calc(.3 * var(--tu)) var(--clay-felt-in),
+    inset 0 calc(-.6 * var(--tu)) calc(.5 * var(--tu)) oklch(1 0 0 / .7); }
+.bells-panel.out{ animation: bells-out .18s ease-in both; }
+@keyframes bells-in{ 0%{ opacity:0; scale:.55 .45; translate:0 calc(-3 * var(--tu)); } 60%{ opacity:1; scale:1.03 .98; translate:0 0; } 100%{ scale:1; } }
+@keyframes bells-out{ to{ opacity:0; scale:.7 .6; translate:0 calc(-2 * var(--tu)); } }
+
+.bells-head{ display:flex; align-items:center; gap: calc(1.4 * var(--tu)); height: calc(6.4 * var(--tu)); margin: 0 0 calc(2.4 * var(--tu)); }
+.bells-head h2{ flex:1; margin:0; font: inherit; font-size: calc(4.2 * var(--tu)); letter-spacing:.04em; line-height:1; white-space:nowrap; }
+/* 모은 S: S 토큰 그림 + 숫자 (작게, 한 번 더 들어간 칸) */
+.bells-total{ display:flex; align-items:center; gap: calc(.7 * var(--tu)); height: calc(5 * var(--tu));
+  padding: 0 calc(1.5 * var(--tu)) 0 calc(.5 * var(--tu)); border-radius:999px; background: var(--clay-well);
+  box-shadow: inset 0 calc(.5 * var(--tu)) calc(.8 * var(--tu)) var(--clay-well-in), inset 0 calc(-.3 * var(--tu)) calc(.4 * var(--tu)) oklch(1 0 0 / .6);
+  font-size: calc(2.9 * var(--tu)); font-variant-numeric: tabular-nums; }
+.bells-total img{ width: calc(4 * var(--tu)); height: calc(4 * var(--tu)); display:block; }
+/* 닫기: 다시 하기 버튼과 같은 분홍 클레이 (누르면 쏙) */
+.bells-close{ flex:none; display:grid; place-items:center; width: calc(6 * var(--tu)); height: calc(6 * var(--tu)); padding:0; border:0; border-radius:50%;
+  color:#fff; cursor:pointer; -webkit-tap-highlight-color:transparent;
+  background: radial-gradient(120% 140% at 30% 10%, oklch(0.84 0.11 14), var(--p2, oklch(0.72 0.14 10)) 62%);
+  box-shadow: 0 calc(.7 * var(--tu)) 0 oklch(0.58 0.14 12), 0 calc(1.2 * var(--tu)) calc(1.6 * var(--tu)) oklch(0.4 0.1 12 / .28), inset 0 calc(.4 * var(--tu)) calc(.5 * var(--tu)) oklch(1 0 0 / .5);
+  transition: translate .1s, box-shadow .1s; translate: 0 calc(-.35 * var(--tu)); }
+.bells-close:active{ translate: 0 calc(.25 * var(--tu)); box-shadow: 0 calc(.1 * var(--tu)) 0 oklch(0.58 0.14 12), inset 0 calc(.4 * var(--tu)) calc(.5 * var(--tu)) oklch(1 0 0 / .4); }
+.bells-close svg{ width: 52%; height: 52%; fill:none; stroke:currentColor; stroke-width:3; stroke-linecap:round; }
+.bells-close:focus-visible, .bell-tile:focus-visible{ outline: calc(.5 * var(--tu)) solid oklch(0.75 0.12 10 / .85); outline-offset: calc(.4 * var(--tu)); }
+
+.bells-grid{ display:grid; grid-template-columns: 1fr 1fr; gap: calc(2.6 * var(--tu)) calc(2.2 * var(--tu)); }
+/* 고를 수 있는 종 = 볼록한 칸 (순위 줄처럼) · 지금 종 = 파란 클레이 + 체크 */
+.bell-tile{ position:relative; display:flex; flex-direction:column; align-items:center; gap: calc(.6 * var(--tu));
+  padding: calc(1.6 * var(--tu)) calc(1 * var(--tu)) calc(1.2 * var(--tu)); border:0; border-radius: calc(3 * var(--tu));
+  font: inherit; color:#333; cursor:pointer; -webkit-tap-highlight-color:transparent;
+  background: linear-gradient(to bottom, var(--clay-hi), var(--clay-row));
+  box-shadow: 0 calc(.7 * var(--tu)) 0 var(--clay-row-side), 0 calc(1.2 * var(--tu)) calc(1.5 * var(--tu)) oklch(0.35 0.05 50 / .14), inset 0 calc(.35 * var(--tu)) calc(.5 * var(--tu)) oklch(1 0 0 / .9);
+  transition: translate .1s, box-shadow .1s; }
+.bell-tile:not(.locked):active{ translate: 0 calc(.5 * var(--tu)); box-shadow: 0 calc(.2 * var(--tu)) 0 var(--clay-row-side), inset 0 calc(.35 * var(--tu)) calc(.5 * var(--tu)) oklch(1 0 0 / .9); }
+.bell-tile.on{ color:#111;
+  background: linear-gradient(to bottom, oklch(0.945 0.033 262), oklch(0.885 0.062 266));
+  box-shadow: 0 calc(.7 * var(--tu)) 0 oklch(0.68 0.085 268), 0 calc(1.2 * var(--tu)) calc(1.5 * var(--tu)) oklch(0.35 0.07 268 / .2), inset 0 calc(.35 * var(--tu)) calc(.5 * var(--tu)) oklch(1 0 0 / .7); }
+/* 잠긴 종 = 오목한 칸 · 그림은 흐리게 + 자물쇠 · 이름 대신 필요한 S */
+.bell-tile.locked{ cursor:default; background: var(--clay-well);
+  box-shadow: inset 0 calc(.6 * var(--tu)) calc(.9 * var(--tu)) var(--clay-well-in), inset 0 calc(.2 * var(--tu)) calc(.2 * var(--tu)) var(--clay-well-in), inset 0 calc(-.35 * var(--tu)) calc(.4 * var(--tu)) oklch(1 0 0 / .6); }
+.bt-pic{ position:relative; display:block; width: calc(15 * var(--tu)); aspect-ratio: 100 / 92; }
+.bt-pic svg{ display:block; width:100%; height:100%; overflow:visible; }
+.bell-tile.locked .bt-pic svg{ filter: grayscale(.6) opacity(.42); }
+.bt-lock, .bt-on{ position:absolute; display:none; place-items:center; border-radius:50%; font-style:normal; }
+.bt-lock{ left:50%; top:52%; width: calc(6.4 * var(--tu)); height: calc(6.4 * var(--tu)); translate:-50% -50%; color:#fff;
+  background: radial-gradient(circle at 35% 28%, oklch(0.62 0.03 260), oklch(0.42 0.03 260) 75%);
+  box-shadow: 0 calc(.45 * var(--tu)) 0 oklch(0.32 0.03 260), 0 calc(.8 * var(--tu)) calc(1.2 * var(--tu)) oklch(0.25 0.03 260 / .3); }
+.bt-lock svg{ width:56%; height:56%; fill:none; stroke:currentColor; stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round; }
+.bell-tile.locked .bt-lock{ display:grid; }
+.bt-on{ right: calc(-1.6 * var(--tu)); top: calc(-.8 * var(--tu)); width: calc(4.8 * var(--tu)); height: calc(4.8 * var(--tu)); color:#fff;
+  background: radial-gradient(circle at 34% 28%, oklch(0.8 0.11 277), var(--me) 70%);
+  box-shadow: 0 calc(.4 * var(--tu)) 0 var(--me-side), 0 calc(.7 * var(--tu)) calc(1 * var(--tu)) oklch(0.35 0.1 277 / .3); }
+.bt-on svg{ width:62%; height:62%; fill:none; stroke:currentColor; stroke-width:3.2; stroke-linecap:round; stroke-linejoin:round; }
+.bell-tile.on .bt-on{ display:grid; animation: bells-check .4s cubic-bezier(.3,1.6,.5,1) both; }
+@keyframes bells-check{ 0%{ scale:0; } 100%{ scale:1; } }
+.bt-lbl, .bt-need{ height: calc(3.6 * var(--tu)); display:flex; align-items:center; gap: calc(.5 * var(--tu)); font-size: calc(2.8 * var(--tu)); line-height:1; }
+.bt-need{ display:none; color:#333; font-variant-numeric: tabular-nums; }
+.bt-need img{ width: calc(3.4 * var(--tu)); height: calc(3.4 * var(--tu)); display:block; }
+.bell-tile.locked .bt-lbl{ display:none; }
+.bell-tile.locked .bt-need{ display:flex; }
+/* 잠긴 종을 누르면: 살짝 도리도리 + 필요한 S가 톡 */
+.bell-tile.nope{ animation: bells-nope .42s ease-in-out; }
+.bell-tile.nope .bt-need{ animation: bells-need .42s cubic-bezier(.3,1.6,.5,1); }
+@keyframes bells-nope{ 20%{ translate: calc(-.8 * var(--tu)) 0; } 45%{ translate: calc(.7 * var(--tu)) 0; } 70%{ translate: calc(-.4 * var(--tu)) 0; } 100%{ translate:0 0; } }
+@keyframes bells-need{ 40%{ scale:1.25; } 100%{ scale:1; } }
+@media (prefers-reduced-motion: reduce){ .bells-panel, .bells-panel.out, .bell-tile.nope, .bell-tile.nope .bt-need, .bell-tile.on .bt-on{ animation:none; } }
+
+/* 3D가 꺼졌을 때(HTML 종): 얼굴 지운 몸통 그림만 색을 돌려요 — 눈 · 입 · 볼은 원래 색 그대로 */
+#app[data-bell-style="pink"] .bell .bell-img, #app[data-bell-style="pink"] .bell .bf-body{ filter: hue-rotate(-80deg) saturate(.8) brightness(1.06); }
+#app[data-bell-style="mint"] .bell .bell-img, #app[data-bell-style="mint"] .bell .bf-body{ filter: hue-rotate(112deg) saturate(.62) brightness(1.1); }
+#app[data-bell-style="rainbow"] .bell .bell-img{ filter: hue-rotate(-150deg) saturate(.8); }
+#app[data-bell-style="rainbow"] .bell .bf-body{ animation: bells-rainbow 6s linear infinite; }
+@keyframes bells-rainbow{ from{ filter: hue-rotate(0deg) saturate(.85); } to{ filter: hue-rotate(360deg) saturate(.85); } }
+@media (prefers-reduced-motion: reduce){ #app[data-bell-style="rainbow"] .bell .bf-body{ animation:none; filter: hue-rotate(-150deg) saturate(.8); } }

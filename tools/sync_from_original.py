@@ -27,14 +27,15 @@ HEAD_ADD = ('<link rel="stylesheet" href="./gl/board3d.css?v=1" />\n'
             '<link rel="stylesheet" href="./gl/clock-color.css?v=1" />\n'
             '<link rel="stylesheet" href="./gl/levels.css?v=2" />\n'
             '<link rel="stylesheet" href="./gl/hud-size.css?v=2" />\n'
-            '<link rel="stylesheet" href="./gl/lang.css?v=2" />\n')
+            '<link rel="stylesheet" href="./gl/lang.css?v=2" />\n'
+            '<link rel="stylesheet" href="./gl/bells.css?v=1" />\n')
 # 인트로 모션그래픽: 원래 intro.js 바로 뒤(main.js보다 앞)에 끼워서 playIntro를 바꿔 둬요
 INTRO_ADD = '<script src="./gl/intro-mg.js?v=8"></script>\n'
 # 결과 화면 덧입히기: 원래 result.js 바로 뒤(main.js보다 앞)에 끼워서 renderResult를 바꿔 둬요 (main.js가 읽을 때 가져감)
 RESULT_ADD = ('<script src="./gl/result-fx.js?v=8"></script>\n'
               # the shared progress record (phonics-kit, launcher F1) — records only, the Class Ranking stays
               '<script src="./gl/phonics-progress.js?v=1"></script>\n'
-              '<script src="./gl/progress-rdd.js?v=1"></script>\n')
+              '<script src="./gl/progress-rdd.js?v=2"></script>\n')
 # 6세 · 7세 카드 그림 목록: 원래 cards.js 바로 뒤에 (CARD_ART에 더함). ?v= 는 파일 내용 해시 — 그림이 바뀌면 자동으로 새로 받아요
 CARDS_ADD = '<script src="./gl/card-art.js?v={v}"></script>\n'
 # HUD 시계 색(핑크 · 보라): 원래 clock.js 바로 뒤에 끼워서, 그 스크립트가 만든 시계 그림 주소를 색 바꾼 복사본으로 바꿔요
@@ -43,7 +44,7 @@ BODY_ADD = ('<!-- 3D 판 (WebGL): three.js + 판 그림 + 판 그리기. 게임 
             '<script src="./vendor/three/three.iife.js"></script>\n'
             '<script src="./src/gl-tex.js?v=3"></script>\n'
             '<script src="./gl/board3d.js?v=1"></script>\n'
-            '<script src="./gl/bell3d.js?v=4"></script>\n'
+            '<script src="./gl/bell3d.js?v=5"></script>\n'
             '<script src="./gl/coco3d.js?v=2"></script>\n'
             '<script src="./gl/view360.js?v=3"></script>\n'
             '<!-- 6세 · 7세 그림 카드 (2 · 3단계도 그림이 있으면 그림 카드로 · ?age=6 · ?age=7) -->\n'
@@ -52,7 +53,9 @@ BODY_ADD = ('<!-- 3D 판 (WebGL): three.js + 판 그림 + 판 그리기. 게임 
             '<script src="./gl/coco-en.js?v=2"></script>\n'
             '<script src="./gl/tutor-voice.js?v=7"></script>\n'
             '<script src=\"./gl/lang.js?v=3\"></script>\n'
-            '<script src="./gl/tutor.js?v=6"></script>\n')
+            '<script src="./gl/tutor.js?v=6"></script>\n'
+            '<!-- MY BELLS: 모은 S로 종 색 열기 (시작 화면 오른쪽 위 종 버튼) -->\n'
+            '<script src="./gl/bells.js?v=1"></script>\n')
 TITLE = ('<title>Phonics Ring Ding Dong — Coco</title>', '<title>Phonics Ring Ding Dong 3D — Coco</title>')
 TITLE_OLD = ('<title>Phonics Halli Galli — Coco</title>', '<title>Phonics Ring Ding Dong 3D — Coco</title>')
 ASSET_DIRS = ['bell_parts', 'coco_parts', 'clock_parts', 'card_web']

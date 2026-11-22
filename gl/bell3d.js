@@ -393,10 +393,40 @@ if (typeof place0 === 'function') {
   };
 }
 
+/* 종 색 바꾸기 (gl/bells.js의 MY BELLS — 모은 S로 여는 Classic · Pink · Mint · Rainbow). 모양 · 얼굴 · 그늘(AO)은 그대로, 색만.
+   s = { dome, knob, base } (+ 원래 색을 그대로 쓰려면 domeEmi · domeSheen …) · rainbow: 아래 → 위 색 띠 (몸통 꼭짓점 색 = 그늘 × 띠 색) */
+const aoBody = body.geometry.attributes.color.array.slice();
+const cA = new T.Color(), cB2 = new T.Color();
+function tintMat(m, hex, emi, sheen) {
+  m.color.set(hex);
+  if (emi) m.emissive.set(emi); else m.emissive.set(hex).multiplyScalar(.045);          // 원래 노랑(#FFEB00 → #3c3000)과 같은 비율 (선형 색)
+  if (sheen) m.sheenColor.set(sheen); else m.sheenColor.set(hex).lerp(cA.set('#ffffff'), .45);
+}
+function paint(s) {
+  if (!s) return;
+  tintMat(yellow, s.rainbow ? '#ffffff' : s.dome, s.domeEmi || (s.rainbow && '#1c1c1c'), s.domeSheen || (s.rainbow && '#ffffff'));
+  tintMat(btnYellow, s.knob, s.knobEmi, s.knobSheen);
+  tintMat(red, s.base, s.baseEmi, s.baseSheen);
+  emiY.copy(yellow.emissive); emiB.copy(btnYellow.emissive);
+  emiGlow.set(s.glow || '#8a6c00');
+  const col = body.geometry.attributes.color, pos = body.geometry.attributes.position;
+  if (s.rainbow) {
+    const st = s.rainbow, y0 = .46, y1 = 1.24;                 // 아랫단 둥근 띠 ~ 꼭대기 조금 아래
+    for (let i = 0; i < pos.count; i++) {
+      const u = Math.max(0, Math.min(1, (pos.getY(i) + LIP_Y - y0) / (y1 - y0))) * (st.length - 1), k = Math.min(st.length - 2, Math.floor(u));
+      cA.set(st[k]).lerp(cB2.set(st[k + 1]), sm(u - k));
+      const ao = aoBody[i * 3];
+      col.setXYZ(i, ao * cA.r, ao * cA.g, ao * cA.b);
+    }
+  } else col.array.set(aoBody);
+  col.needsUpdate = true;
+  B.kick();
+}
+
 // 확인용: Bell3D.tune({ FACE_Y, FACE_K, BACK, SIZE })
 window.Bell3D = { root, upper, turn, tumble, face, faceTex, fc, screenRect, look, get spin() { return spin; }, get flip() { return flip; },
   act, glow(on) { glowTo = on ? 1 : 0; B.kick(); }, gaze(x, y, ms) { gaze.x = x; gaze.y = y; gaze.until = A.now() + (ms || 1500); B.kick(); },
-  get ready() { return ready; },
+  get ready() { return ready; }, paint,
   mats: { yellow, btnYellow, red, chrome, faceMat, eyeMat }, eyesMesh, DOME_C,
   baseOffset: () => (FOOT + .975) * unit,      // 원래 종 발 자리(받침 앞 모서리) → 받침 가운데까지 (판 좌표 px, 먼 쪽으로)
   tune(o) { if (o.FACE_Y != null) FACE_Y = o.FACE_Y; if (o.FACE_K != null) FACE_K = o.FACE_K; if (o.SIZE != null) SIZE = o.SIZE;

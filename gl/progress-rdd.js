@@ -18,6 +18,12 @@
         if (rt.length) game.avgTime = Math.round(rt.reduce((a, b) => a + b, 0) / rt.length / 100) / 10;   // same as src/result.js
         if (window.PhonicsProgress) window.PhonicsProgress.played('ring-ding-dong', game);
       } catch (e) { console.warn('[progress] ring-ding-dong', e); }
+      // MY BELLS (gl/bells.js): 아이가 모은 S를 이 기기에 모아 둬요 — 게임마다 내 S를 더함 (모은 S로 종 색을 열어요)
+      try {
+        const add = P[ME].score | 0;
+        if (add > 0) localStorage.setItem('hg-s-total', String((parseInt(localStorage.getItem('hg-s-total'), 10) || 0) + add));
+        if (window.HGBells) window.HGBells.refresh();
+      } catch (e) { /* private mode */ }
       return end0.apply(this, arguments);
     };
     wrapped.rddProgress = true;
