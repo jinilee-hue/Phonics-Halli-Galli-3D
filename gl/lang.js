@@ -1,10 +1,11 @@
 // 언어 고르기 — 노란 종 튜터의 말과 Coco 말풍선을 영어 / 한국어로 (3D 폴더 전용)
 // 사용자 2026-11-20: "링딩동에서 언어 선택 들어가야해". 다른 파닉스 게임(Toy Catch)과 같은 토글 — 두 국기, 쓰는 쪽이 흰 손잡이 위.
 // 시작 화면에만 보여요(Toy Catch처럼). 카드 낱말 소리는 배우는 영어라 그대로. 고른 말은 이 기기에 기억해요(localStorage 'hg-lang').
+// 처음 오면(기억된 말 없음) 한국어로 시작 (사용자 2026-11-22, 파닉스 게임 공통). 화면 글자는 두 말 모두 영어.
 (() => {
   const KEY = 'hg-lang';
-  let lang = 'en';
-  try { lang = localStorage.getItem(KEY) === 'ko' ? 'ko' : 'en'; } catch (e) { /* private mode */ }
+  let lang = 'ko';
+  try { lang = localStorage.getItem(KEY) === 'en' ? 'en' : 'ko'; } catch (e) { /* private mode */ }
   const subs = [];
   window.HGLang = {
     get: () => lang,

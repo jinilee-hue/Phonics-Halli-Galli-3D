@@ -51,7 +51,7 @@ BODY_ADD = ('<!-- 3D 판 (WebGL): three.js + 판 그림 + 판 그리기. 게임 
             '<!-- Coco 말풍선 영어 · 노란 종 튜터: 진행자 말소리 + 상황별 안내 (원래 게임 함수를 감싸서 끼어들어요 · ?tutor=off 로 튜터만 끔) -->\n'
             '<script src="./gl/coco-en.js?v=2"></script>\n'
             '<script src="./gl/tutor-voice.js?v=6"></script>\n'
-            '<script src=\"./gl/lang.js?v=1\"></script>\n'
+            '<script src=\"./gl/lang.js?v=2\"></script>\n'
             '<script src="./gl/tutor.js?v=4"></script>\n')
 TITLE = ('<title>Phonics Ring Ding Dong — Coco</title>', '<title>Phonics Ring Ding Dong 3D — Coco</title>')
 TITLE_OLD = ('<title>Phonics Halli Galli — Coco</title>', '<title>Phonics Ring Ding Dong 3D — Coco</title>')
@@ -106,6 +106,9 @@ def main():
     # 3D가 꺼진 기기의 영상 인트로: 같은 영상에 소리만 새 나레이션(공통 튜터 목소리)으로 바꾼 사본 (2026-11-20 사용자
     # "인트로에 링딩동 환영한다는 목소리도 tts로 고쳐야해") — gl/media/intro-video.mp4, 원래 assets/intro.mp4는 그대로
     html = html.replace('src="./assets/intro.mp4"', 'src="./gl/media/intro-video.mp4?v=2"')
+    # screen text in English (user 2026-11-22: "화면 글자는 모두 영어로" — the language toggle changes voice + bubbles only)
+    html = html.replace('<div class="rotate-msg">태블릿을 가로로 눕혀<br>두 사람 사이에 놓아주세요</div>',
+                        '<div class="rotate-msg">Turn your tablet<br>sideways to play</div>')
     m = re.search(r'<link[^>]*src/upgrade\.css[^>]*>\n', html)
     if not m or '</body>' not in html:
         sys.exit('원래 index.html에서 3D 줄을 끼울 자리(upgrade.css 링크 · </body>)를 못 찾았어요. 손으로 확인해 주세요.')
