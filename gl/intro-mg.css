@@ -18,3 +18,19 @@
   filter: drop-shadow(0 0 .9vh oklch(1 0 0 / .9)); will-change: transform, opacity; }
 /* 모션 인트로에서 로고가 이미 나와 있었으니, 끝난 뒤 원래 로고가 다시 통통 튀어 들어오지 않게 */
 .app.mg-done .logo img{ animation:none !important; }
+/* 인트로 동안 숨어 있는 버튼은 눌리지 않게 (사용자 2026-11-23 "인트로에 skip 버튼이 두개 생겨서 겹쳐보이지?"):
+   투명한 진짜 START가 눌려 인트로 뒤에서 게임 · 첫 판 설명이 시작되면 설명 SKIP이 인트로 SKIP과 같은 자리에 겹쳤어요.
+   소리 · 나가기 · 종 꾸미기 · 언어 버튼도 같은 이유로. 인트로 속 START 그림은 누르면 인트로 건너뛰기(gl/intro-mg.js). */
+.app.intro-on button:not(.intro-btn){ pointer-events:none !important; }
+/* 인트로 SKIP = 게임 화면 설명 SKIP(gl/tutor.css .howto-skip)과 같은 모양 (사용자 2026-11-23 "인트로와 게임화면 설명 skip 버튼
+   스타일 다른데 통일해"): 오른쪽 아래 화면 끝에서 3 tu, 높이 7.6 tu, 흰 반투명 유리 알약 · 흰 글자 — 파닉스 게임 공통.
+   보이고 사라지는 것(.show, 1.5초 뒤)은 그대로. 원래 모양(어두운 유리 + 흰 테두리)은 src/upgrade.css .intro-skip */
+#introSkip.intro-skip{ --tu: min(1vh, calc(100vw / 177.78)); right: calc(3 * var(--tu)); bottom: calc(3 * var(--tu)); left:auto;
+  height: calc(7.6 * var(--tu)); padding: 0 calc(3 * var(--tu)); gap:0; display:grid; place-items:center; white-space:nowrap;
+  border:0; border-radius:999px; font: 700 calc(3.3 * var(--tu))/1 "Fredoka", "Jua", sans-serif; letter-spacing:.08em; color:#fff;
+  text-shadow: 0 calc(.2 * var(--tu)) calc(.6 * var(--tu)) oklch(0.35 0.07 235 / .55);
+  background: linear-gradient(180deg, oklch(1 0 0 / .58), oklch(1 0 0 / .3));
+  -webkit-backdrop-filter: blur(14px) saturate(1.3); backdrop-filter: blur(14px) saturate(1.3);
+  box-shadow: 0 calc(.75 * var(--tu)) calc(1.7 * var(--tu)) oklch(0.3 0.05 230 / .18), inset 0 1px 0 oklch(1 0 0 / .6); }
+#introSkip.intro-skip:active{ scale:.94; }
+#introSkip.intro-skip:focus-visible{ border-radius:999px; }

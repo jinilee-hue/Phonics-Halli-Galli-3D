@@ -243,6 +243,31 @@
   animation: rfx-sheen 2.4s ease-in-out infinite; }
 @keyframes rfx-sheen{ 0%{ background-position: 120% 0; } 45%,100%{ background-position: -60% 0; } }
 
+/* LEVEL UP! (gl/speed.js — 이겨서 게임 레벨이 오르면): 왼쪽 판 위 가운데에 걸친 클레이 이름표 + 새 레벨 숫자 토큰
+   이름표는 판 테두리와 같은 클레이(윗면 빛 · 두께 · 그림자), 글자는 제목(You win!)과 같은 볼륨 그라데이션, 숫자는 내 S 토큰처럼 */
+.verdict.fx .rfx-lvup{ position:absolute; left:50%; top:0; z-index:2; translate:-50% -72%;
+  display:flex; align-items:center; gap:1.1vh; padding:.8vh .9vh .8vh 2.3vh; border-radius:999px; white-space:nowrap;
+  background: linear-gradient(to bottom, var(--clay-hi), var(--clay) 70%);
+  box-shadow: inset 0 .4vh .5vh oklch(1 0 0 / .85), inset 0 -.5vh .7vh var(--clay-in), 0 .9vh 0 var(--clay-side), 0 2.2vh 2.8vh var(--clay-cast);
+  transform-origin: 50% 100%; opacity:0; pointer-events:none; }
+.verdict.fx .rfx-lvup b{ font: 700 3.5vh/1 "Fredoka","Jua",sans-serif; letter-spacing:.03em; color: var(--vivid-me);
+  text-shadow: 0 .048em 0 var(--vivid-me-side); }
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .verdict.fx .rfx-lvup b{ padding:.1em 0 .2em; margin:-.1em 0 -.2em;
+    background-image: linear-gradient(to bottom, oklch(0.84 0.105 277) 0%, oklch(0.8 0.125 277) 33%, var(--vivid-me) 52%, oklch(0.6 0.185 277) 70%, oklch(0.55 0.18 277) 88%);
+    -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; text-shadow:none;
+    filter: drop-shadow(0 .048em 0 var(--vivid-me-side)) drop-shadow(0 .06em .1em color-mix(in oklch, var(--vivid-me-side) 35%, transparent)); }
+}
+.verdict.fx .rfx-lvup .lv-no{ display:grid; place-items:center; width:5.2vh; height:5.2vh; border-radius:50%;
+  font: 700 3.2vh/1 "Fredoka","Jua",sans-serif; color:#fff; text-shadow: 0 .25vh 0 var(--vivid-me-side);
+  background: radial-gradient(circle at 38% 30%, oklch(0.84 0.105 277), var(--vivid-me) 62%, oklch(0.56 0.18 277));
+  box-shadow: inset 0 .35vh .4vh oklch(1 0 0 / .5), 0 .5vh 0 var(--vivid-me-side), 0 .9vh 1vh oklch(0.35 0.12 277 / .25); }
+.verdict.fx .rfx-lvup.in{ opacity:1; animation: rfx-lvup .75s cubic-bezier(.3,1.6,.5,1) both; }
+.verdict.fx .rfx-lvup.in .lv-no{ animation: rfx-lvno .6s cubic-bezier(.3,1.8,.5,1) .3s both; }
+@keyframes rfx-lvup{ 0%{ opacity:0; transform: translateY(-5vh) scale(.4); } 55%{ opacity:1; transform: translateY(.5vh) scale(1.08,.92); }
+  80%{ transform: translateY(0) scale(.98,1.03); } 100%{ transform:none; } }
+@keyframes rfx-lvno{ 0%{ scale:.2; rotate:-40deg; } 60%{ scale:1.3; rotate:8deg; } 100%{ scale:1; rotate:0deg; } }
+
 /* 동작 줄이기: 움직임 없이 바로 */
 @media (prefers-reduced-motion: reduce){
   .verdict.fx *, .verdict.fx *::after, .rfx-crown{ animation-duration:.01ms !important; animation-delay:0s !important; animation-iteration-count:1 !important; }

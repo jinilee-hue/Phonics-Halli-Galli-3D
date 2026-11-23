@@ -65,9 +65,9 @@
   animation: ds-pop 1.9s cubic-bezier(.3,1.5,.5,1) forwards; }
 @keyframes ds-pop{ 0%{ scale:.2; opacity:0; } 16%{ scale:1.2; opacity:1; } 28%{ scale:1; } 80%{ opacity:1; } 100%{ opacity:0; scale:.9; } }
 /* 설명 SKIP: 오른쪽 아래, 흰 반투명 유리 알약 · 흰 글자 — 파닉스 게임 공통 (phonics-kit README 공통 규칙 1, Puzzle · Match와 같은 모양)
-   높이는 위 버튼(7.6 tu), 화면 끝에서 3 tu. START부터 시범이 끝날 때까지만 (.app.howto) */
+   높이는 위 버튼(7.6 tu), 화면 끝에서 3 tu. 위아래 여백 없이 가운데(위 여백 .35 tu를 두면 글자가 아래로 치우쳐요, 사용자 2026-11-23). START부터 시범이 끝날 때까지만 (.app.howto) */
 .howto-skip{ --tu: min(1vh, calc(100vw / 177.78)); position:fixed; z-index:7; right: calc(3 * var(--tu)); bottom: calc(3 * var(--tu));
-  height: calc(7.6 * var(--tu)); padding: calc(.35 * var(--tu)) calc(3 * var(--tu)) 0; display:grid; place-items:center; white-space:nowrap;
+  height: calc(7.6 * var(--tu)); padding: 0 calc(3 * var(--tu)); display:grid; place-items:center; white-space:nowrap;
   border-radius:999px; font: 700 calc(3.3 * var(--tu))/1 "Fredoka", "Jua", sans-serif; letter-spacing:.08em; color:#fff;
   text-shadow: 0 calc(.2 * var(--tu)) calc(.6 * var(--tu)) oklch(0.35 0.07 235 / .55);
   background: linear-gradient(180deg, oklch(1 0 0 / .58), oklch(1 0 0 / .3));

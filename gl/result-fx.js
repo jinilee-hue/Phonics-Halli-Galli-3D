@@ -4,6 +4,7 @@
 //  · 졌을 때:   제목이 떨어져 시무룩 → 다시 벌떡 · Coco 토큰 먼저 · Coco 쪽에 왕관 · 판을 누르면 하트 · 다시 하기가 콩콩
 //  · 함께: 숫자 올라가기 · 내 줄 반짝(3등 안이면 메달 반짝) · 토큰 · 왕관 · 순위 줄을 누르면 흔들
 //  · '나는 우리 반 N등 / N명' 칸은 빼요 (사용자 요청 — 등수는 아래 순위 줄에 있어요. 프로필 그림도 넣었다가 뺐어요)
+//  · LEVEL UP!: 이겨서 게임 레벨(Coco 빠르기, gl/speed.js)이 오르면 왼쪽 판 위에 새 레벨 숫자와 함께 톡 (새 목소리는 없음)
 // 원래 결과 화면(src/result.js)은 그대로 두고 그 뒤에 덧입혀요.
 // main.js가 처음 읽힐 때 renderResult를 가져가므로(const { renderResult } = window) result.js 바로 뒤 · main.js 앞에 읽어야 해요
 // (tools/sync_from_original.py 의 RESULT_ADD).
@@ -103,6 +104,15 @@
     $$('.r-stats div.done').forEach(e => e.classList.remove('done'));
     const list = $('#vList');                                        // 줄 수가 바뀌니 줄 높이는 보일 때(fitRank) 다시 정함
     if (list) { list.classList.remove('fill'); list.style.removeProperty('--rowH'); list.style.removeProperty('--gapX'); }
+    // LEVEL UP!: 이번 판으로 레벨이 올랐을 때만 (gl/speed.js가 end()에서 정한 HGSpeed.last) — 보일 때(start) 톡
+    $$('.rfx-lvup').forEach(n => n.remove());
+    const sp = window.HGSpeed && window.HGSpeed.last, card = $('.r-me');
+    if (o.win && sp && sp.kind === 'up' && card) {
+      const b = document.createElement('div');
+      b.className = 'rfx-lvup'; b.setAttribute('role', 'img'); b.setAttribute('aria-label', `Level up! Level ${sp.to}`);
+      b.innerHTML = `<b aria-hidden="true">LEVEL UP!</b><span class="lv-no" aria-hidden="true">${sp.to}</span>`;
+      card.appendChild(b);
+    }
   }
 
   // ── 보이면 시작 · 사라지면 정리 (다시 하기 · 나가기)
@@ -156,6 +166,7 @@
       $$('#vHits b, #vRt b, #vMiss b').forEach(b => { if (b.dataset.to != null) b.textContent = b.dataset.to; });
       $$('.rk.me.below, .rk.gap').forEach(e => e.classList.add('arrive'));
       crown(win, true);
+      $$('.rfx-lvup').forEach(b => b.classList.add('in'));
       $('#again').classList.add('idle');
       return;
     }
@@ -174,6 +185,14 @@
       if (win) { confettiBurst(R); title('wave'); }
       else title('up');
     });
+    // 2-1) LEVEL UP! — 제목이 출렁인 뒤 판 위로 톡 + 반짝 + 올라가는 도-미-솔
+    const lv = $('.rfx-lvup');
+    if (lv) at(after + 600, () => {
+      lv.classList.add('in');
+      const r = lv.getBoundingClientRect();
+      burst(R, r.left + r.width / 2, r.top + r.height / 2, ['#FFD84D', '#8EC9FF', '#FFFFFF'], 12, 10);
+      NOTE.forEach((f, k) => at(k * 90, () => snd([f * 2], .22, 'sine', .07)));
+    });
     // 3) 맞힌 종 · 빠르기 · 실수
     at(Math.max(1000, t - 200), () => countStats(R));
     // 4) 내 프로필 그림이 톡 → 내 줄 반짝 (3등 안이면 메달 반짝)
@@ -189,7 +208,7 @@
     R.timers.forEach(clearTimeout);
     cancelAnimationFrame(R.raf);
     R.nodes.forEach(n => n.remove());
-    $$('.rfx-crown, .rfx-heart, .rfx-burst, .rfx-fly').forEach(n => n.remove());
+    $$('.rfx-crown, .rfx-heart, .rfx-burst, .rfx-fly, .rfx-lvup').forEach(n => n.remove());
     $('#again').classList.remove('idle');
   }
 

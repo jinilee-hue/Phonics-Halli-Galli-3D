@@ -90,6 +90,17 @@
 - Class Ranking은 그대로 둬요(사용자 2026-11-22 "링딩동은 그냥 Class Ranking으로 가는게 좋겠어").
 - 공통 진도 기록(`gl/progress-rdd.js` + `gl/phonics-progress.js` = phonics-kit 사본): 판이 끝날 때(main.js `end()`) `phonics.progress`에 기록만 남겨요 — 화면은 그대로.
   `PhonicsProgress.played('ring-ding-dong', { stars(내 S), won, coco(Coco의 S), hits, misses, level, avgTime })`. 결과 화면 전에 나가도 끝난 판은 기록돼요.
+- 게임 레벨 = Coco 빠르기(`gl/speed.js`, 2026-11-22, phonics-kit '공통 규칙: 레벨'): 고르지 않아요. START는 저장된 레벨(`hg-speed` {level, poor})부터,
+  이기면 +1, 지면 같은 레벨, 두 판 연속 지면 −1. 5세 단계에만 적용(6·7세는 원래 Coco). 게임 위 알약 'Age 5 · K · Level n', 오르면 결과에 LEVEL UP!.
+
+  | 레벨 | Coco 반응(카드가 열린 뒤) | 놓침 | 잘못 침 | 다음 카드 |
+  |---|---|---|---|---|
+  | 1 | 2.42–3.02초 | 25% | 8% | 3.2초 |
+  | 2 | 2.20–2.73초 | 22% | 7% | 3.0초 |
+  | 3 | 2.01–2.48초 | 18% | 6.5% | 2.85초 |
+  | 4 | 1.85–2.26초 | 15% | 5.5% | 2.65초 |
+  | 5 | 1.70–2.06초 | 11% | 5% | 2.5초 |
+  | 6 | 1.57–1.89초 | 8% | 4% | 2.3초 |
 
 | | 이겼을 때 | 졌을 때 |
 |---|---|---|

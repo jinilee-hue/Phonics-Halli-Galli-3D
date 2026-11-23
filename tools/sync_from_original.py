@@ -21,21 +21,21 @@ ORIG = ROOT.parent / 'Phonics-Halli-Galli'
 
 # 3D 판을 켜는 줄 — 3D 쪽 파일을 더하면 여기만 고치고 이 스크립트를 다시 돌리면 돼요
 HEAD_ADD = ('<link rel="stylesheet" href="./gl/board3d.css?v=1" />\n'
-            '<link rel="stylesheet" href="./gl/intro-mg.css?v=1" />\n'
-            '<link rel="stylesheet" href="./gl/result-fx.css?v=17" />\n'
-            '<link rel="stylesheet" href="./gl/tutor.css?v=5" />\n'
+            '<link rel="stylesheet" href="./gl/intro-mg.css?v=4" />\n'
+            '<link rel="stylesheet" href="./gl/result-fx.css?v=18" />\n'
+            '<link rel="stylesheet" href="./gl/tutor.css?v=6" />\n'
             '<link rel="stylesheet" href="./gl/clock-color.css?v=1" />\n'
             '<link rel="stylesheet" href="./gl/levels.css?v=2" />\n'
             '<link rel="stylesheet" href="./gl/hud-size.css?v=2" />\n'
             '<link rel="stylesheet" href="./gl/lang.css?v=2" />\n'
             '<link rel="stylesheet" href="./gl/bells.css?v=1" />\n')
 # 인트로 모션그래픽: 원래 intro.js 바로 뒤(main.js보다 앞)에 끼워서 playIntro를 바꿔 둬요
-INTRO_ADD = '<script src="./gl/intro-mg.js?v=8"></script>\n'
+INTRO_ADD = '<script src="./gl/intro-mg.js?v=9"></script>\n'
 # 결과 화면 덧입히기: 원래 result.js 바로 뒤(main.js보다 앞)에 끼워서 renderResult를 바꿔 둬요 (main.js가 읽을 때 가져감)
-RESULT_ADD = ('<script src="./gl/result-fx.js?v=8"></script>\n'
+RESULT_ADD = ('<script src="./gl/result-fx.js?v=9"></script>\n'
               # the shared progress record (phonics-kit, launcher F1) — records only, the Class Ranking stays
               '<script src="./gl/phonics-progress.js?v=1"></script>\n'
-              '<script src="./gl/progress-rdd.js?v=2"></script>\n')
+              '<script src="./gl/progress-rdd.js?v=3"></script>\n')
 # 6세 · 7세 카드 그림 목록: 원래 cards.js 바로 뒤에 (CARD_ART에 더함). ?v= 는 파일 내용 해시 — 그림이 바뀌면 자동으로 새로 받아요
 CARDS_ADD = '<script src="./gl/card-art.js?v={v}"></script>\n'
 # HUD 시계 색(핑크 · 보라): 원래 clock.js 바로 뒤에 끼워서, 그 스크립트가 만든 시계 그림 주소를 색 바꾼 복사본으로 바꿔요
@@ -52,8 +52,10 @@ BODY_ADD = ('<!-- 3D 판 (WebGL): three.js + 판 그림 + 판 그리기. 게임 
             '<!-- Coco 말풍선 영어 · 노란 종 튜터: 진행자 말소리 + 상황별 안내 (원래 게임 함수를 감싸서 끼어들어요 · ?tutor=off 로 튜터만 끔) -->\n'
             '<script src="./gl/coco-en.js?v=2"></script>\n'
             '<script src="./gl/tutor-voice.js?v=7"></script>\n'
-            '<script src=\"./gl/lang.js?v=3\"></script>\n'
+            '<script src=\"./gl/lang.js?v=4\"></script>\n'
             '<script src="./gl/tutor.js?v=6"></script>\n'
+            '<!-- 게임 레벨: 이기면 Coco가 조금씩 빨라져요 (5세 · Level 1~6 · 저장된 레벨부터) -->\n'
+            '<script src="./gl/speed.js?v=1"></script>\n'
             '<!-- MY BELLS: 모은 S로 종 색 열기 (시작 화면 오른쪽 위 종 버튼) -->\n'
             '<script src="./gl/bells.js?v=1"></script>\n')
 TITLE = ('<title>Phonics Ring Ding Dong — Coco</title>', '<title>Phonics Ring Ding Dong 3D — Coco</title>')

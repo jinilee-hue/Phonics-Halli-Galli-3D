@@ -192,6 +192,7 @@ function render(t, c) {
   const pr = seg(t, EV.press - .05, EV.press) - seg(t, EV.press + .3, EV.press + .48);    // 꾹 눌림
   sy += .8 * vh * pr;
   startC.style.opacity = op;
+  startC.style.pointerEvents = op > .5 ? 'auto' : 'none';    // 보이는 START 그림을 누르면 인트로 건너뛰기
   startC.style.transform = `translate3d(0, ${sy.toFixed(2)}px, 0) scale(${(sx * pulse * (1 - .04 * pr)).toFixed(4)}, ${(sY * pulse * (1 - .05 * pr)).toFixed(4)})`;
 
   // 빛 테두리: 반짝 두 번 + 누를 때
@@ -342,6 +343,7 @@ function run(done) {
   audio.preload = 'auto';
   Board3D.api.pointer.hold = true;                          // 인트로 동안 손 따라 시점은 쉬기
   skipBtn.addEventListener('click', e => { e.stopPropagation(); skip(); });
+  startC.addEventListener('click', e => { e.stopPropagation(); skip(); });
   box.addEventListener('pointerdown', e => { if (!(e.target.closest && e.target.closest('#introSkip'))) unmute(); });
   setTimeout(() => skipBtn.classList.add('show'), 1500);
   addEventListener('resize', () => { if (!finished && L) measure(); });
