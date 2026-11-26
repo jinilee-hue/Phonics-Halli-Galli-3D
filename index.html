@@ -18,6 +18,7 @@
 <link rel="stylesheet" href="./gl/hud-size.css?v=2" />
 <link rel="stylesheet" href="./gl/lang.css?v=2" />
 <link rel="stylesheet" href="./gl/bells.css?v=1" />
+<link rel="stylesheet" href="./gl/phone.css?v=1" />
 </head>
 <body>
 <div class="app intro-on" id="app" data-screen="title">
@@ -172,6 +173,8 @@
 <script src="./src/clock-parts.js"></script>
 <script src="./src/clock.js"></script>
 <script src="./gl/clock-color.js?v=2"></script>
+<!-- phones held upright only (gl/phone.css): turn it sideways — the same hint in every phonics game -->
+<div class="rotate-hint" role="status"><svg viewBox="0 0 64 64" aria-hidden="true"><g class="rh-dev"><rect x="21" y="14" width="22" height="36" rx="4" /><path d="M29 44.5h6" /></g><g class="rh-arrow"><path d="M58.6 27.3A27 27 0 0 0 36.7 5.4" /><path d="M41.7 3.1 36.7 5.4 40.6 9.3" /></g></svg><p>Turn your phone sideways</p></div>
 <!-- 3D 판 (WebGL): three.js + 판 그림 + 판 그리기. 게임 규칙 · 소리 · 글자는 위 원래 스크립트 그대로 -->
 <script src="./vendor/three/three.iife.js"></script>
 <script src="./src/gl-tex.js?v=3"></script>

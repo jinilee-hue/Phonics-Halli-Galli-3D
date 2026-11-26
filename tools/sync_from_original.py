@@ -28,7 +28,9 @@ HEAD_ADD = ('<link rel="stylesheet" href="./gl/board3d.css?v=1" />\n'
             '<link rel="stylesheet" href="./gl/levels.css?v=2" />\n'
             '<link rel="stylesheet" href="./gl/hud-size.css?v=2" />\n'
             '<link rel="stylesheet" href="./gl/lang.css?v=2" />\n'
-            '<link rel="stylesheet" href="./gl/bells.css?v=1" />\n')
+            '<link rel="stylesheet" href="./gl/bells.css?v=1" />\n'
+            # phones: bigger buttons and labels, a 'turn it sideways' hint (phone-only media queries — tablets and PCs unchanged)
+            '<link rel="stylesheet" href="./gl/phone.css?v=1" />\n')
 # 인트로 모션그래픽: 원래 intro.js 바로 뒤(main.js보다 앞)에 끼워서 playIntro를 바꿔 둬요
 INTRO_ADD = '<script src="./gl/intro-mg.js?v=9"></script>\n'
 # 결과 화면 덧입히기: 원래 result.js 바로 뒤(main.js보다 앞)에 끼워서 renderResult를 바꿔 둬요 (main.js가 읽을 때 가져감)
@@ -40,7 +42,9 @@ RESULT_ADD = ('<script src="./gl/result-fx.js?v=9"></script>\n'
 CARDS_ADD = '<script src="./gl/card-art.js?v={v}"></script>\n'
 # HUD 시계 색(핑크 · 보라): 원래 clock.js 바로 뒤에 끼워서, 그 스크립트가 만든 시계 그림 주소를 색 바꾼 복사본으로 바꿔요
 CLOCK_ADD = '<script src="./gl/clock-color.js?v=2"></script>\n'
-BODY_ADD = ('<!-- 3D 판 (WebGL): three.js + 판 그림 + 판 그리기. 게임 규칙 · 소리 · 글자는 위 원래 스크립트 그대로 -->\n'
+PHONE_HINT = '<!-- phones held upright only (gl/phone.css): turn it sideways — the same hint in every phonics game -->\n<div class="rotate-hint" role="status"><svg viewBox="0 0 64 64" aria-hidden="true"><g class="rh-dev"><rect x="21" y="14" width="22" height="36" rx="4" /><path d="M29 44.5h6" /></g><g class="rh-arrow"><path d="M58.6 27.3A27 27 0 0 0 36.7 5.4" /><path d="M41.7 3.1 36.7 5.4 40.6 9.3" /></g></svg><p>Turn your phone sideways</p></div>\n'
+BODY_ADD = (PHONE_HINT +
+            '<!-- 3D 판 (WebGL): three.js + 판 그림 + 판 그리기. 게임 규칙 · 소리 · 글자는 위 원래 스크립트 그대로 -->\n'
             '<script src="./vendor/three/three.iife.js"></script>\n'
             '<script src="./src/gl-tex.js?v=3"></script>\n'
             '<script src="./gl/board3d.js?v=1"></script>\n'
