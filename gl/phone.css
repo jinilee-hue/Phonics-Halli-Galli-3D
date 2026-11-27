@@ -7,41 +7,48 @@
 
 @media (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
   /* top bar: 44 px buttons (hud-size.css scales the buttons, the time pill and the language toggle from --tu / --hk) */
+  /* every control keeps 12 px from the top, left and right edges and 14 px from the bottom (+ the notch / home bar), and
+     neighbours 8 px apart (user 2026-11-26: "너무 좌우 상하 여백없이 붙어있는건 아닌지") */
   .hud { --tu: calc(44px / 7.6); --hk: calc(44px / 7.4);
-    top: calc(8px + env(safe-area-inset-top)); left: calc(10px + env(safe-area-inset-left)); right: calc(10px + env(safe-area-inset-right)); }
-  .hud-r { gap: 6px; }
+    top: calc(12px + env(safe-area-inset-top)); left: calc(12px + env(safe-area-inset-left)); right: calc(12px + env(safe-area-inset-right)); }
+  .hud-r { gap: 8px; }
   .hud .level-pill { padding: 4px 10px; font-size: 12px; }
   /* title: at 44 px the right-hand row ran into the logo, so it keeps only 360° · EN | 한 · sound · exit (the hidden time
      pill gives its slot back and the language toggle stands in the row, in its place), and MY BELLS goes to the top-left
      corner — where the other phonics games keep their title-only buttons — with its panel opening under it */
   #app[data-screen="title"] .hud-time { display: none; }
-  #app[data-screen="title"] .hud-r > .lang-tog { position: relative; top: auto; right: auto; order: 1; }
+  #app[data-screen="title"] .hud-r > .lang-tog { position: relative; top: auto; right: auto; order: 1; translate: 0 0; }   /* 12 px from the top like the buttons */
   #app[data-screen="title"] .hud-r > .vol, #app[data-screen="title"] #btnExit { order: 2; }
-  #app[data-screen="title"] #btnBells { position: fixed; top: calc(8px + env(safe-area-inset-top)); left: calc(10px + env(safe-area-inset-left)); }
+  #app[data-screen="title"] #btnBells { position: fixed; top: calc(12px + env(safe-area-inset-top)); left: calc(12px + env(safe-area-inset-left)); }
+  /* the title's logo 90 % tall so the right-hand row (8 px apart now) keeps 8 px from it */
+  #app[data-screen="title"] .logo img { height: 38vh; }
   /* sound slider under the speaker: 40 px wide */
-  .vol-panel { width: 40px; height: 116px; padding: 12px 0; }
+  .vol-panel { top: calc(100% + 8px); width: 40px; height: 116px; padding: 12px 0; }
   .vol-track { width: 7px; }
   .vol-thumb { width: 20px; height: 20px; }
   /* MY BELLS: under the bigger top bar, close button 42 px, names and prices 12 px */
-  .bells-panel { top: calc(60px + env(safe-area-inset-top)); left: calc(10px + env(safe-area-inset-left)); right: auto; transform-origin: 12% 0; width: 204px;
+  .bells-panel { top: calc(64px + env(safe-area-inset-top)); left: calc(12px + env(safe-area-inset-left)); right: auto; transform-origin: 12% 0; width: 204px;
     padding-bottom: calc(var(--rim) + 2 * var(--tu)); }
   .bells-head { height: 42px; }
   .bells-close { width: 42px; height: 42px; }
   .bells-total, .bt-lbl, .bt-need { font-size: 12px; }
   .bt-lbl, .bt-need { height: 14px; }
-  /* title START: 62 px tall */
-  .start { width: 130px; }
+  /* title START: 160 x 76 (2026-11-26 round 2: the user OK'd bigger play controls for 5-year-olds, about 1.5 cm, in the
+     same places — only bigger where they fit; the top buttons, SKIP and ✕ keep the sizes above) */
+  .start { width: 160px; bottom: calc(14px + env(safe-area-inset-bottom)); }   /* 14 px from the bottom, 8+ px under the bell */
   /* SKIP on the intro and during the first-game demo: 44 px tall, 14 px letters, clear of the notch */
-  #introSkip.intro-skip, .howto-skip { right: calc(10px + env(safe-area-inset-right)); bottom: calc(10px + env(safe-area-inset-bottom));
+  #introSkip.intro-skip, .howto-skip { right: calc(12px + env(safe-area-inset-right)); bottom: calc(14px + env(safe-area-inset-bottom));
     height: 44px; padding: 0 20px; font-size: 14px; }
-  /* listen again (beside the card zone; main.js place() puts its left edge 16 px right of the zone and centres it on its
-     own height): 44 px, nudged 10 px toward the zone so it stays clear of my S slots */
-  .replay { width: 44px; height: 44px; margin-left: -10px; }
+  /* listen again (in its place beside the card zone; main.js place() puts its left edge 16 px right of the zone and
+     centres it on its own height): 46 px, nudged 14 px toward the zone — the gap between the zone and my S slots is
+     about 50 px on a 342 px tall phone, so this is as big as it gets there without covering either */
+  .replay { width: 46px; height: 46px; margin-left: -14px; }
   /* Coco's bubbles and the callout: 13 px */
   .bubble span, .bubble.en span { font-size: 13px; }
   .callout { font-size: 13px; }
   /* result: wider cards, every label 12 px and up, Play Again 46 px */
-  .r-me { width: 262px; }
+  .r-me { width: 262px; gap: 8px; padding-bottom: 20px; }
+  .r-me .again { margin: 8px 0 10px; }   /* room round it for its yellow focus ring (4 + 4 px) inside the card */
   .r-rank { width: 300px; }
   .r-sub { font-size: 12px; }
   .verdict .r-side b, .verdict .r-side b.en { font-size: 12px; }
@@ -49,7 +56,7 @@
   .r-stats dt { font-size: 12px; }
   .r-stats dd { font-size: 12px; }
   .r-stats dd b { font-size: 18px; }
-  .verdict .again { padding: 0 30px; height: 46px; font-size: 16px; }
+  .verdict .again { min-width: 160px; padding: 0 36px; height: 64px; font-size: 20px; }
   /* class ranking (#verdict: above result-fx.css's row-height rules, which go down to 9 px here) */
   #verdict .rfx-lvup .lv-no { font-size: 13px; }
   #verdict .rk-no, #verdict .rk .av { font-size: 12px; }

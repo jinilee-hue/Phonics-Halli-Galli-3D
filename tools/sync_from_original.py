@@ -30,7 +30,12 @@ HEAD_ADD = ('<link rel="stylesheet" href="./gl/board3d.css?v=1" />\n'
             '<link rel="stylesheet" href="./gl/lang.css?v=2" />\n'
             '<link rel="stylesheet" href="./gl/bells.css?v=1" />\n'
             # phones: bigger buttons and labels, a 'turn it sideways' hint (phone-only media queries — tablets and PCs unchanged)
-            '<link rel="stylesheet" href="./gl/phone.css?v=1" />\n')
+            '<link rel="stylesheet" href="./gl/phone.css?v=2" />\n'
+            # the rotate hint is for phones only: an iPad Split View / Slide Over pane looks like an upright phone to the CSS query
+            '<!-- the "turn your phone sideways" hint is for phones only: an iPad\'s narrow Split View / Slide Over pane looks like an\n'
+            '     upright phone to the CSS query, so a screen whose short side is over 500 px (every tablet) never shows it -->\n'
+            '<style>.not-phone .rotate-hint { display: none !important; }</style>\n'
+            '<script>try { if (Math.min(screen.width, screen.height) > 500) document.documentElement.classList.add(\'not-phone\'); } catch (e) { /* no screen info */ }</script>\n')
 # 인트로 모션그래픽: 원래 intro.js 바로 뒤(main.js보다 앞)에 끼워서 playIntro를 바꿔 둬요
 INTRO_ADD = '<script src="./gl/intro-mg.js?v=9"></script>\n'
 # 결과 화면 덧입히기: 원래 result.js 바로 뒤(main.js보다 앞)에 끼워서 renderResult를 바꿔 둬요 (main.js가 읽을 때 가져감)
